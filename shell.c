@@ -4,12 +4,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
-
+#include <dirent.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <netdb.h>
 #define MAX 80
 #define SA struct sockaddr
 #define PORT 3490
 
-#include <netdb.h>
 
 
 int open_connection() {
@@ -39,6 +41,27 @@ int open_connection() {
 }
 
 
+void print_dir_files(){
+    DIR *d;
+    struct dirent *dir;
+    char cwd[1000];
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
+        perror("getcwd() error");
+    d = opendir(cwd);
+    if (d)
+    {
+        while ((dir = readdir(d)) != NULL)
+        {
+            //Condition to check regular file.
+            if(dir->d_type==DT_REG){
+                printf("%s\n",dir->d_name);
+            }
+        }
+        closedir(d);
+    }
+}
+
+
 void shell() {
     int conn = 0; //is there an open connection ?
     char action[20];
@@ -46,12 +69,10 @@ void shell() {
         printf("yes master? ");
         scanf("%s", action);
         printf("your action is: %s\n", action);
-//        char cwd[256];
 //        if (getcwd(cwd, sizeof(cwd)) == NULL)
 //            perror("getcwd() error");
 //        else
 //            printf("current working directory is: %s\n", cwd);
-
         if (!strcmp(action, "EXIT")) {
             return;
         } else if (!strcmp(action, "ECHO")) {
@@ -71,7 +92,7 @@ void shell() {
             close(conn);
             conn = 0;
         } else if (!strcmp(action, "DIR")){
-
+            print_dir_files();
         }
     }
 

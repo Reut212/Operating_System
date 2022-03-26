@@ -8,4 +8,4 @@
 #endif //EX1_SHELL_H
 void shell();
 int open_connection();
-void send_input(char* input);
+void print_dir_files();

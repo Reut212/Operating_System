@@ -69,10 +69,10 @@ void shell() {
         printf("yes master? ");
         scanf("%s", action);
         printf("your action is: %s\n", action);
-//        if (getcwd(cwd, sizeof(cwd)) == NULL)
-//            perror("getcwd() error");
-//        else
-//            printf("current working directory is: %s\n", cwd);
+
+//        char cwd[1000];
+//        printf("%s\n", getcwd(cwd,1000));
+
         if (!strcmp(action, "EXIT")) {
             return;
         } else if (!strcmp(action, "ECHO")) {
@@ -91,8 +91,18 @@ void shell() {
         } else if (!strcmp(action, "LOCAL")){
             close(conn);
             conn = 0;
-        } else if (!strcmp(action, "DIR")){
+        } else if (!strcmp(action, "DIR")) {
             print_dir_files();
+        } else if (!strcmp(action, "CD")){ // system call function
+//            char cwd[1000];
+//            printf("current path: %s\n", getcwd(cwd,1000));
+
+            char dir[1000];
+            scanf("%s", dir);
+            chdir(dir);
+//
+//            bzero(cwd, 1000);
+//            printf("changed to: %s\n", getcwd(cwd,1000));
         }
     }
 

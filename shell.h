@@ -9,3 +9,4 @@
 void shell();
 int open_connection();
 void print_dir_files();
+int cd(char *pth);

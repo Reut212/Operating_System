@@ -8,10 +8,10 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <netdb.h>
+
 #define MAX 80
 #define SA struct sockaddr
 #define PORT 3490
-
 
 
 int open_connection() {
@@ -41,26 +41,23 @@ int open_connection() {
 }
 
 
-void print_dir_files(){
+void print_dir_files() {
     DIR *d;
     struct dirent *dir;
     char cwd[1000];
     if (getcwd(cwd, sizeof(cwd)) == NULL)
         perror("getcwd() error");
     d = opendir(cwd);
-    if (d)
-    {
-        while ((dir = readdir(d)) != NULL)
-        {
+    if (d) {
+        while ((dir = readdir(d)) != NULL) {
             //Condition to check regular file.
-            if(dir->d_type==DT_REG){
-                printf("%s\n",dir->d_name);
+            if (dir->d_type == DT_REG) {
+                printf("%s\n", dir->d_name);
             }
         }
         closedir(d);
     }
 }
-
 
 void shell() {
     int conn = 0; //is there an open connection ?
@@ -79,7 +76,7 @@ void shell() {
             bzero(input, 256);
             fgets(input, sizeof(input), stdin);
             if (conn) {
-                write(conn, input+1, sizeof(input));
+                write(conn, input + 1, sizeof(input));
             } else printf("%s", input + 1);
 
         } else if (!strcmp(action, "TCP")) {
@@ -87,12 +84,12 @@ void shell() {
             if (!strcmp(action, "PORT")) {
                 conn = open_connection();
             }
-        } else if (!strcmp(action, "LOCAL")){
+        } else if (!strcmp(action, "LOCAL")) {
             close(conn);
             conn = 0;
         } else if (!strcmp(action, "DIR")) {
             print_dir_files();
-        } else if (!strcmp(action, "CD")){ // system call function
+        } else if (!strcmp(action, "CD")) { // system call function
 //            char cwd[1000];
 //            printf("current path: %s\n", getcwd(cwd,1000));
 
@@ -102,15 +99,36 @@ void shell() {
 //
 //            bzero(cwd, 1000);
 //            printf("changed to: %s\n", getcwd(cwd,1000));
+
+        } else if (!strcmp(action, "COPY")) {
+            char src_file[1000];
+            scanf("%s", src_file);
+            char dst_file[1000];
+            scanf("%s", dst_file);
+
+            char cTemp;
+            FILE *fpSourceFile = fopen(src_file, "rb");
+            FILE *fpTargetFile = fopen(dst_file, "wb");
+
+// Code Section
+
+// Read From The Source File - "Copy"
+            while(fread(&cTemp, 1, 1, fpSourceFile) == 1)
+            {
+                // Write To The Target File - "Paste"
+                fwrite(&cTemp, 1, 1, fpTargetFile);
+            }
+
+// Close The Files
+            fclose(fpSourceFile);
+            fclose(fpTargetFile);
         }
+
 //        else{
 //            // This is a library function
 //            // and <stdlib.h> or <cstdlib> should be included to call this function
 //            system(action);
 //        }
-        else{
-
-        }
     }
 
 }

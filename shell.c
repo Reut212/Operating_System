@@ -68,7 +68,6 @@ void shell() {
     while (1) {
         printf("yes master? ");
         scanf("%s", action);
-        printf("your action is: %s\n", action);
 
 //        char cwd[1000];
 //        printf("%s\n", getcwd(cwd,1000));
@@ -99,10 +98,18 @@ void shell() {
 
             char dir[1000];
             scanf("%s", dir);
-            chdir(dir);
+            chdir(dir); // system call function
 //
 //            bzero(cwd, 1000);
 //            printf("changed to: %s\n", getcwd(cwd,1000));
+        }
+//        else{
+//            // This is a library function
+//            // and <stdlib.h> or <cstdlib> should be included to call this function
+//            system(action);
+//        }
+        else{
+
         }
     }
 

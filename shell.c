@@ -101,27 +101,28 @@ void shell() {
 //            printf("changed to: %s\n", getcwd(cwd,1000));
 
         } else if (!strcmp(action, "COPY")) {
+            // fread fwrite and fopen are library functions in stdio lib
             char src_file[1000];
             scanf("%s", src_file);
             char dst_file[1000];
             scanf("%s", dst_file);
 
-            char cTemp;
-            FILE *fpSourceFile = fopen(src_file, "rb");
-            FILE *fpTargetFile = fopen(dst_file, "wb");
+            char temp_char;
+            FILE *fp1 = fopen(src_file, "rb");
+            FILE *fp2 = fopen(dst_file, "wb");
 
-// Code Section
-
-// Read From The Source File - "Copy"
-            while(fread(&cTemp, 1, 1, fpSourceFile) == 1)
+            while(fread(&temp_char, 1, 1, fp1) == 1)
             {
-                // Write To The Target File - "Paste"
-                fwrite(&cTemp, 1, 1, fpTargetFile);
+                fwrite(&temp_char, 1, 1, fp2);
             }
-
-// Close The Files
-            fclose(fpSourceFile);
-            fclose(fpTargetFile);
+            fclose(fp1);
+            fclose(fp2);
+        } else if (!strcmp(action, "DELETE")){
+            char file_name[1000];
+            scanf("%s", file_name);
+            // unlink is a system call
+            if (unlink(file_name) != 0)
+                perror("unlink() error");
         }
 
 //        else{

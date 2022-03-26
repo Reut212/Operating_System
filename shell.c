@@ -71,7 +71,7 @@ void shell() {
             close(conn);
             conn = 0;
         } else if (!strcmp(action, "DIR")){
-            
+
         }
     }
 

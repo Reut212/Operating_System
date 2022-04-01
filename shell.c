@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <netdb.h>
+#include<sys/wait.h>
 
 #define MAX 80
 #define SA struct sockaddr
@@ -85,6 +86,8 @@ void shell() {
                 conn = open_connection();
             }
         } else if (!strcmp(action, "LOCAL")) {
+            char exit[] = "bye";
+            write(conn, exit, sizeof(exit));
             close(conn);
             conn = 0;
         } else if (!strcmp(action, "DIR")) {
@@ -125,13 +128,19 @@ void shell() {
                 perror("unlink() error");
         }
 
-//        else{
+        else{
 //            // This is a library function
 //            // and <stdlib.h> or <cstdlib> should be included to call this function
 //            system(action);
-//        }
+            if(!fork()){
+                //taken from system(3) — Linux manual page
+                execl("/bin/sh", "sh", "-c", action, (char *) NULL);
+            }
+            else{
+                wait(NULL);
+            }
+        }
     }
-
 }
 
 

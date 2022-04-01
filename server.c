@@ -1,86 +1,89 @@
 #include <stdio.h>
-#include <netdb.h>
-#include <netinet/in.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#define MAX 80
-#define PORT 3490
-#define SA struct sockaddr
+#include <netinet/in.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <fcntl.h> // for open
+#include <unistd.h> // for close
+#include <pthread.h>
 
-// Function designed for chat between client and server.
-void func(int connfd)
+char client_message[2000];
+char buffer[1024];
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
+void * socketThread(void *arg)
 {
-    char buff[MAX];
-    // infinite loop for chat
-    for (;;) {
-        bzero(buff, MAX);
-
-        // read the message from client and copy it in buffer
-        read(connfd, buff, sizeof(buff));
-        // print buffer which contains the client contents
-        printf("%s", buff);
-        bzero(buff, MAX);
-
-
-        // if msg contains "Exit" then server exit and chat ended.
-        if (strncmp("exit", buff, 4) == 0) {
-            printf("Server Exit...\n");
-            break;
+    char msg [6000];
+    int self = pthread_self();
+    int newSocket = *((int *)arg);
+    printf("client %d connected\n", self);
+    while (1){
+        recv(newSocket , msg , 2000 , 0);
+        if (!strcmp(msg, "bye")){
+            close(newSocket);
+            printf("client %d disconnected\n", self);
+            pthread_exit(NULL);
+        }
+        else{
+            printf("client %d: %s\n", self, msg);
         }
     }
 }
 
-int main()
-{
-    socklen_t len;
-    int sockfd, connfd;
-    struct sockaddr_in servaddr, cli;
+int main(){
+    int serverSocket, newSocket;
+    struct sockaddr_in serverAddr;
+    struct sockaddr_storage serverStorage;
+    socklen_t addr_size;
 
-    // socket create and verification
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {
-        printf("Server socket creation failed...\n");
-        exit(0);
-    }
+    //Create the socket.
+    serverSocket = socket(PF_INET, SOCK_STREAM, 0);
+
+    // Configure settings of the server address struct
+    // Address family = Internet
+    serverAddr.sin_family = AF_INET;
+
+    //Set port number, using htons function to use proper byte order
+    serverAddr.sin_port = htons(3490);
+
+    //Set IP address to localhost
+    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+
+    //Set all bits of the padding field to 0
+    memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
+
+    //Bind the address struct to the socket
+    bind(serverSocket, (struct sockaddr *) &serverAddr, sizeof(serverAddr));
+
+    //Listen on the socket, with 40 max connection requests queued
+    if(listen(serverSocket,50)==0)
+        printf("Listening\n");
     else
-        printf("Server socket successfully created..\n");
-    bzero(&servaddr, sizeof(servaddr));
+        printf("Error\n");
+    pthread_t tid[60];
+    int i = 0;
+    while(1)
+    {
+        //Accept call creates a new socket for the incoming connection
+        addr_size = sizeof serverStorage;
+        newSocket = accept(serverSocket, (struct sockaddr *) &serverStorage, &addr_size);
 
-    // assign IP, PORT
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port = htons(PORT);
+        //for each client request creates a thread and assign the client request to it to process
+        //so the main thread can entertain next request
+        if( pthread_create(&tid[i++], NULL, socketThread, &newSocket) != 0 )
+            printf("Failed to create thread\n");
 
-    // Binding newly created socket to given IP and verification
-    if ((bind(sockfd, (SA*)&servaddr, sizeof(servaddr))) != 0) {
-        printf("Server socket bind failed...\n");
-        exit(0);
+        if( i >= 50)
+        {
+            i = 0;
+            while(i < 50)
+            {
+                pthread_join(tid[i++],NULL);
+            }
+            i = 0;
+        }
     }
-    else
-        printf("Server socket successfully binded..\n");
-
-    // Now server is ready to listen and verification
-    if ((listen(sockfd, 5)) != 0) {
-        printf("Listen failed...\n");
-        exit(0);
-    }
-    else
-        printf("Server listening..\n");
-    len = sizeof(cli);
-
-    // Accept the data packet from client and verification
-    connfd = accept(sockfd, (SA*)&cli, &len);
-    if (connfd < 0) {
-        printf("server accept failed...\n");
-        exit(0);
-    }
-    else
-        printf("server accept the client...\n");
-
-    // Function for chatting between client and server
-    func(connfd);
-    close(sockfd);
+    return 0;
 }

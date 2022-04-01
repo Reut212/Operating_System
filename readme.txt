@@ -4,6 +4,8 @@ used starts_with function from: https://stackoverflow.com/questions/4770985/how-
 
 server's port - 3490
 
-all socket communication: https://www.geeksforgeeks.org/tcp-server-client-implementation-in-c/
+all socket communication: https://dzone.com/articles/parallel-tcpip-socket-server-with-multi-threading
 
 got idea for DIR function from: https://stackoverflow.com/questions/4204666/how-to-list-files-in-a-directory-in-a-c-program
+
+system with fork - taken from system(3) — Linux manual page

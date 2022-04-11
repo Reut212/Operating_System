@@ -1,17 +1,6 @@
-# include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
 
-struct node{
-    node* next;
-    char* data;
-};
+# include "stack.h"
 
-
-struct stack{
-    node* head = NULL;
-    node* top;
-} stk;
 
 void PUSH(char data[1024]){
     struct node* new_node = (struct node*)malloc(sizeof(struct node));

@@ -36,12 +36,13 @@ void *socketThread(void *arg) {
         if (strstr(buf, "PUSH")) {
             if ((numbytes = recv(newSocket, buf, MAXDATASIZE - 1, 0)) == -1)
                 perror("recv");
-            POP();
-            printf("Im pushing");
+            PUSH(buf);
         } else if (strcmp(buf, "POP")) {
-            printf("Im popping");
+            POP();
         } else if (strcmp(buf, "TOP")) {
-            printf("Im topping");
+            char* top = TOP();
+            if (send(newSocket, top, 1024, 0) == -1)
+                perror("send");
         }
         else if (strcmp(buf, "EXIT")) {
             exit(0);

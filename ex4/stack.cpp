@@ -3,7 +3,7 @@
 
 struct node{
     node* next;
-    char* data;
+    char* data_ptr;
 };
 
 struct stack{
@@ -11,9 +11,12 @@ struct stack{
     node* top;
 } stk;
 
-void PUSH(char data[1024]){
+void PUSH(char* data){
     struct node* new_node = (struct node*)malloc(sizeof(struct node));
-    new_node->data=data;
+    char* index = strstr(data, "\n");
+    int length = index - data;
+    char* ptr = (char*) malloc(length * sizeof(char));
+    new_node->data_ptr=ptr;
     new_node->next=NULL;
     if (stk.head== NULL){
         stk.head=new_node;
@@ -28,8 +31,9 @@ void PUSH(char data[1024]){
     stk.top=new_node;
 }
 
-void TOP(){
-    printf("%s", stk.top->data);
+char* TOP(){
+    printf("%s", stk.top->data_ptr);
+    return(stk.top->data_ptr);
 }
 
 void POP(){
@@ -41,18 +45,7 @@ void POP(){
         node* old_top = stk.top;
         curr->next=NULL;
         stk.top=curr;
+        free(old_top->data_ptr);
         free(old_top);
     }
 }
-
-//int main(){
-//    char data[1024] = "hello\n";
-//    PUSH(data);
-//    char data2[1024] = "hello2\n";
-//    PUSH(data2);
-//    char data3[1024] = "hello3\n";
-//    PUSH(data3);
-//    TOP();
-//    POP();
-//    TOP();
-//}

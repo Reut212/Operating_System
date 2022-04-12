@@ -27,29 +27,35 @@
 void *socketThread(void *arg) {
     int self = pthread_self();
     int newSocket = *((int *) arg);
-    int numbytes = 0;
     printf("client %d connected\n", self);
-    char buf[MAXDATASIZE];
-    while (1) {
-        if ((numbytes = recv(newSocket, buf, MAXDATASIZE - 1, 0)) == -1)
+    printf("Im before while");
+    char buf[6];
+    while (true) {
+        printf("Im in the while");
+        if ((recv(newSocket, buf, 6, 0)) == -1)
             perror("recv");
-        if (strstr(buf, "PUSH")) {
-            if ((numbytes = recv(newSocket, buf, MAXDATASIZE - 1, 0)) == -1)
+        if (strcmp(buf, "PUSH") == 0) {
+            printf("Im here");
+            char data_push[1024];
+            if ((recv(newSocket, data_push, 1024, 0)) == -1)
                 perror("recv");
-            PUSH(buf);
-        } else if (strcmp(buf, "POP")) {
+            else{
+                PUSH(data_push);
+                printf("pushed %s to the stack", data_push);
+            }
+        } else if (strcmp(buf, "POP") == 0) {
             POP();
-        } else if (strcmp(buf, "TOP")) {
+        } else if (strcmp(buf, "TOP") == 0) {
             char* top = TOP();
             if (send(newSocket, top, 1024, 0) == -1)
                 perror("send");
         }
-        else if (strcmp(buf, "EXIT")) {
-            exit(0);
+        else if (strcmp(buf, "EXIT") == 0) {
+            printf("client %d disconnected\n", self);
+            close(newSocket);
+            pthread_exit(NULL);
         }
     }
-    close(newSocket);
-    pthread_exit(NULL);
 }
 
 
@@ -142,9 +148,12 @@ int main(void) {
 
         //for each client request creates a thread and assign the client request to it to process
         //so the main thread can entertain next request
-        if (pthread_create(&tid[i++], NULL, socketThread, &new_fd) != 0)
+        if (pthread_create(&tid[i], NULL, socketThread, &new_fd) != 0)
             printf("Failed to create thread\n");
-    }
 
+        pthread_join(tid[i],NULL);
+        i++;
+
+    }
     return 0;
 }

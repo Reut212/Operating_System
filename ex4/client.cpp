@@ -26,7 +26,7 @@ void *get_in_addr(struct sockaddr *sa)
 
 int main(int argc, char *argv[])
 {
-    int sockfd, numbytes;
+    int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
@@ -73,16 +73,16 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(servinfo); // all done with this structure
 
-    while (1){
-        printf("Please enter action (PUSH/TOP/POP/EXIT)");
-        char action[4];
+    while (true){
+        printf("Please enter action (PUSH/TOP/POP/EXIT)\n");
+        char action[6];
         scanf("%s", action);
-        if (strcmp(action, "EXIT")){
+        if (strcmp(action, "EXIT") == 0){
             if (send(sockfd, "EXIT", 4, 0) == -1)
                 perror("send");
             break;
         }
-        else if (strcmp(action, "PUSH")){
+        else if (strcmp(action, "PUSH") == 0){
             if (send(sockfd, "PUSH", 4, 0) == -1)
                 perror("send");
             char data[1024] = "PUSH";
@@ -91,15 +91,15 @@ int main(int argc, char *argv[])
             if (send(sockfd, data, 1024, 0) == -1)
                 perror("send");
         }
-        else if (strcmp(action, "POP")) {
+        else if (strcmp(action, "POP") == 0) {
             if (send(sockfd, "POP", 3, 0) == -1)
                 perror("send");
         }
-        else if (strcmp(action, "TOP")) {
+        else if (strcmp(action, "TOP") == 0) {
             if (send(sockfd, "TOP", 3, 0) == -1)
                 perror("send");
             char buf[1024];
-            if ((numbytes = recv(sockfd, buf, 1024, 0)) == -1)
+            if ((recv(sockfd, buf, 1024, 0)) == -1)
                 perror("recv");
             else {
                 printf("Top of the stack is'%s'\n", buf);

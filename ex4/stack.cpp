@@ -1,6 +1,15 @@
 
 # include "stack.h"
 
+struct node{
+    node* next;
+    char* data;
+};
+
+struct stack{
+    node* head = NULL;
+    node* top;
+} stk;
 
 void PUSH(char data[1024]){
     struct node* new_node = (struct node*)malloc(sizeof(struct node));
@@ -36,14 +45,14 @@ void POP(){
     }
 }
 
-int main(){
-    char data[1024] = "hello\n";
-    PUSH(data);
-    char data2[1024] = "hello2\n";
-    PUSH(data2);
-    char data3[1024] = "hello3\n";
-    PUSH(data3);
-    TOP();
-    POP();
-    TOP();
-}
+//int main(){
+//    char data[1024] = "hello\n";
+//    PUSH(data);
+//    char data2[1024] = "hello2\n";
+//    PUSH(data2);
+//    char data3[1024] = "hello3\n";
+//    PUSH(data3);
+//    TOP();
+//    POP();
+//    TOP();
+//}

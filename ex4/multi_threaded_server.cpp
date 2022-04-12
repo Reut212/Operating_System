@@ -15,6 +15,8 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <pthread.h>
+# include "stack.h"
+
 
 #define MAXDATASIZE 100 // max number of bytes we can get at once
 
@@ -34,7 +36,7 @@ void *socketThread(void *arg) {
         if (strstr(buf, "PUSH")) {
             if ((numbytes = recv(newSocket, buf, MAXDATASIZE - 1, 0)) == -1)
                 perror("recv");
-            //int i = strcspn(buf, "\n");
+            POP();
             printf("Im pushing");
         } else if (strcmp(buf, "POP")) {
             printf("Im popping");

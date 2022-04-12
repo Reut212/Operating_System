@@ -1,67 +1,115 @@
+
 #include <stdio.h>
-#include <sys/socket.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include <arpa/inet.h>
-#include <unistd.h>
+#include <netdb.h>
+#include <sys/types.h>
 #include <netinet/in.h>
-#include <netinet/tcp.h>
+#include <sys/socket.h>
+
+#include <arpa/inet.h>
+
+#define PORT "3490" // the port client will be connecting to
 
 
-#define SERVER_PORT 3490
-#define SERVER_IP_ADDRESS "10.0.2.15"
-#define SIZE 1024
-
-int send_file(FILE *fp, int sockfd) {
-    char data[SIZE] = {0};
-    int total = 0;
-    while (fgets(data, SIZE, fp) != NULL) {
-        int sent = send(sockfd, data, sizeof(data), 0);
-        if (sent == -1) {
-            perror("[-] Error in sending data");
-        } else if (sent == 0) {
-            perror("Destination is closed");
-        } else {
-            total = total + sent;
-        }
-        bzero(data, SIZE);
+// get sockaddr, IPv4 or IPv6:
+void *get_in_addr(struct sockaddr *sa)
+{
+    if (sa->sa_family == AF_INET) {
+        return &(((struct sockaddr_in*)sa)->sin_addr);
     }
-    return total;
+
+    return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+int main(int argc, char *argv[])
+{
+    int sockfd, numbytes;
+    struct addrinfo hints, *servinfo, *p;
+    int rv;
+    char s[INET6_ADDRSTRLEN];
 
-int main() {
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-
-    if (sock == -1) {
-        printf("Could not create socket : %d", errno);
+    if (argc != 2) {
+        fprintf(stderr,"usage: client hostname\n");
+        exit(1);
     }
 
-    struct sockaddr_in serverAddress;
-    //struct initialization
-    memset(&serverAddress, 0, sizeof(serverAddress));
-    serverAddress.sin_family = AF_INET;
-    // convert to big endian system
-    serverAddress.sin_port = htons(SERVER_PORT);
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
 
-    //to binary
-    int rval = inet_pton(AF_INET, (const char *) SERVER_IP_ADDRESS, &serverAddress.sin_addr);
-
-    if (rval <= 0) {
-        printf("inet_pton() failed");
-        return -1;
+    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+        return 1;
     }
 
-    //connect
-    if (connect(sock, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
-        printf("connect() failed with error code : %d", errno);
-    } else printf("connected to server\n");
+    // loop through all the results and connect to the first we can
+    for(p = servinfo; p != NULL; p = p->ai_next) {
+        if ((sockfd = socket(p->ai_family, p->ai_socktype,
+                             p->ai_protocol)) == -1) {
+            perror("client: socket");
+            continue;
+        }
 
-    char data[1024];
-    printf("Enter string: ");
-    scanf("%s", data);
-    send(sock, data, 1024, 0);
-    close(sock);
+        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+            close(sockfd);
+            perror("client: connect");
+            continue;
+        }
+
+        break;
+    }
+
+    if (p == NULL) {
+        fprintf(stderr, "client: failed to connect\n");
+        return 2;
+    }
+
+    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
+              s, sizeof s);
+    printf("client: connecting to %s\n", s);
+
+    freeaddrinfo(servinfo); // all done with this structure
+
+    while (1){
+        printf("Please enter action (PUSH/TOP/POP/EXIT)");
+        char action[4];
+        scanf("%s", action);
+        if (strcmp(action, "EXIT")){
+            if (send(sockfd, "EXIT", 4, 0) == -1)
+                perror("send");
+            break;
+        }
+        else if (strcmp(action, "PUSH")){
+            if (send(sockfd, "PUSH", 4, 0) == -1)
+                perror("send");
+            char data[1024] = "PUSH";
+            printf("please enter the string you want to push: ");
+            scanf("%s", data);
+            if (send(sockfd, data, 1024, 0) == -1)
+                perror("send");
+        }
+        else if (strcmp(action, "POP")) {
+            if (send(sockfd, "POP", 3, 0) == -1)
+                perror("send");
+        }
+        else if (strcmp(action, "TOP")) {
+            if (send(sockfd, "TOP", 3, 0) == -1)
+                perror("send");
+            char buf[1024];
+            if ((numbytes = recv(sockfd, buf, 1024, 0)) == -1)
+                perror("recv");
+            else {
+                printf("Top of the stack is'%s'\n", buf);
+            }
+        }
+        else{
+            printf("Invalid action, please try again or exit!\n");
+        }
+    }
+    close(sockfd);
+
     return 0;
 }

@@ -16,64 +16,35 @@
 #include <signal.h>
 #include <pthread.h>
 
+#define MAXDATASIZE 100 // max number of bytes we can get at once
+
 #define PORT "3490"  // the port users will be connecting to
 
 #define BACKLOG 10   // how many pending connections queue will hold
 
-struct node{
-    node* next;
-    char* data;
-};
-
-struct stack{
-    node* head = NULL;
-    node* top;
-} stk;
-
-void PUSH(char data[1024]){
-    struct node* new_node = (struct node*)malloc(sizeof(struct node));
-    new_node->data=data;
-    new_node->next=NULL;
-    if (stk.head== NULL){
-        stk.head=new_node;
-    }
-    else{
-        node* curr= stk.head;
-        while (curr->next!=NULL){
-            curr=curr->next;
-        }
-        curr->next=new_node;
-    }
-    stk.top=new_node;
-}
-
-void TOP(){
-    printf("%s", stk.top->data);
-}
-
-void POP(){
-    if (stk.head!=NULL){
-        node* curr = stk.head;
-        while (curr->next!=stk.top){
-            curr = curr->next;
-        }
-        node* old_top = stk.top;
-        curr->next=NULL;
-        stk.top=curr;
-        free(old_top);
-    }
-}
-
-
 void *socketThread(void *arg) {
     int self = pthread_self();
     int newSocket = *((int *) arg);
+    int numbytes = 0;
     printf("client %d connected\n", self);
-    char buff[1024];
-    recv(newSocket, buff, 1024, 0);
-    printf("Im here bitches\n%s",buff);
-    PUSH(buff);
-    TOP();
+    char buf[MAXDATASIZE];
+    while (1) {
+        if ((numbytes = recv(newSocket, buf, MAXDATASIZE - 1, 0)) == -1)
+            perror("recv");
+        if (strstr(buf, "PUSH")) {
+            if ((numbytes = recv(newSocket, buf, MAXDATASIZE - 1, 0)) == -1)
+                perror("recv");
+            //int i = strcspn(buf, "\n");
+            printf("Im pushing");
+        } else if (strcmp(buf, "POP")) {
+            printf("Im popping");
+        } else if (strcmp(buf, "TOP")) {
+            printf("Im topping");
+        }
+        else if (strcmp(buf, "EXIT")) {
+            exit(0);
+        }
+    }
     close(newSocket);
     pthread_exit(NULL);
 }

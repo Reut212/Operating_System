@@ -7,3 +7,4 @@
 void PUSH(char* data);
 char* TOP();
 void POP();
+void EXIT();

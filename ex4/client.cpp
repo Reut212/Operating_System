@@ -92,17 +92,15 @@ int main()
             if (send(sockfd, "POP", 3, 0) == -1) {
                 perror("send");
             }
-            else{printf("Popped\n");}
         }
         else if (strcmp(action, "TOP") == 0) {
             if (send(sockfd, "TOP", 3, 0) == -1)
                 perror("send");
-            else{printf("Topped\n");}
             char buf[1024];
             if ((recv(sockfd, buf, 1024, 0)) == -1)
                 perror("recv");
             else {
-                printf("Top of the stack is'%s'\n", buf);
+                printf("Top of the stack is '%s'\n", buf);
             }
         }
         else{

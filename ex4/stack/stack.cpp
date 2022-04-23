@@ -32,8 +32,7 @@ void PUSH(char* data){
 
 char* TOP(){
     if (stk.head==NULL){
-        char empty[] = "NULL";
-        return(empty);
+        return(strdup(""));
     }
     printf("%s", stk.top->data_ptr);
     return(stk.top->data_ptr);
@@ -46,6 +45,7 @@ void POP(){
             free(stk.top->data_ptr);
             free(stk.top);
             stk.top=NULL;
+            stk.head=NULL;
         }
         else{
             while (curr->next!=stk.top){

@@ -1,10 +1,25 @@
-cmake_minimum_required(VERSION 3.13)  # CMake version check
-project(ex4)               # Create project "simple_example"
-set(CMAKE_CXX_STANDARD 14)            # Enable c++14 standard
+project(ex4)
 
-# Add main.cpp file of project root directory as source file
-set(SOURCE_FILES client.cpp multi_threaded_server.cpp)
+cmake_minimum_required(VERSION 3.13)
 
-# Add executable target with source files listed in SOURCE_FILES variable
-add_executable(server multi_threaded_server.cpp)
-add_executable(client.cpp)
+cmake_policy(SET CMP0015 NEW)
+
+set(SOURCE_FILES multi_threaded_server.cpp)
+
+include_directories( stack )
+
+#here
+link_directories(stack)
+
+add_subdirectory(stack)
+
+add_executable( server ${SOURCE_FILES} )
+add_executable( client client.cpp )
+
+
+#and here
+target_link_libraries( server stack )
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(server Threads::Threads )

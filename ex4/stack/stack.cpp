@@ -1,5 +1,5 @@
 # include <iostream>
-# include "stack.h"
+# include "stack.hpp"
 
 struct node{
     node* next;

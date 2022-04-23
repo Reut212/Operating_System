@@ -16,7 +16,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <pthread.h>
-# include "stack.h"
+# include "stack.hpp"
 
 
 #define MAXDATASIZE 100 // max number of bytes we can get at once

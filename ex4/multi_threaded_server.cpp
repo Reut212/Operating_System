@@ -17,6 +17,7 @@
 #include <signal.h>
 #include <pthread.h>
 # include "stack.hpp"
+pthread_mutex_t lock;
 
 
 #define MAXDATASIZE 100 // max number of bytes we can get at once
@@ -40,15 +41,23 @@ void *socketThread(void *arg) {
             if ((recv(newSocket, data_push, 1024, 0)) == -1)
                 perror("recv");
             else{
+                pthread_mutex_lock(&lock);
                 PUSH(data_push);
                 printf("pushed %s to the stack\n", data_push);
+                pthread_mutex_unlock(&lock);
             }
         } else if (strcmp(buf, "POP") == 0) {
+            pthread_mutex_lock(&lock);
             POP();
+            printf("popped from stack");
+            pthread_mutex_unlock(&lock);
+
         } else if (strcmp(buf, "TOP") == 0) {
+            pthread_mutex_lock(&lock);
             char* top = TOP();
             if (send(newSocket, top, 1024, 0) == -1)
                 perror("send");
+            pthread_mutex_unlock(&lock);
         }
         else if (strcmp(buf, "EXIT") == 0) {
             printf("client %d disconnected\n", self);
@@ -69,6 +78,7 @@ void *get_in_addr(struct sockaddr *sa) {
 }
 
 int main(void) {
+
     int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
     struct addrinfo hints, *servinfo, *p;
     struct sockaddr_storage their_addr; // connector's address information
@@ -132,6 +142,11 @@ int main(void) {
 
     printf("server: waiting for connections...\n");
     pthread_t tid[60];
+    if (pthread_mutex_init(&lock, NULL) != 0)
+    {
+        printf("\n mutex init failed\n");
+        return 1;
+    }
     int i = 0;
     while (1) {  // main accept() loop
         sin_size = sizeof their_addr;
@@ -155,5 +170,6 @@ int main(void) {
 //        i++;
 
     }
+    pthread_mutex_destroy(&lock);
     return 0;
 }

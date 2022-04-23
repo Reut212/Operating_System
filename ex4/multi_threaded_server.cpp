@@ -32,6 +32,7 @@ void *socketThread(void *arg) {
     printf("client %d connected\n", self);
     char buf[6];
     while (true) {
+        memset(buf, 0, 6);
         if ((recv(newSocket, buf, 6, 0)) == -1)
             perror("recv");
         if (strcmp(buf, "PUSH") == 0) {

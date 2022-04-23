@@ -4,6 +4,6 @@
 
 #pragma once
 
-void PUSH(char* data);
+void PUSH(char data[1024]);
 char* TOP();
 void POP();

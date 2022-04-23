@@ -82,7 +82,7 @@ int main()
         else if (strcmp(action, "PUSH") == 0){
             if (send(sockfd, "PUSH", 4, 0) == -1)
                 perror("send");
-            char data[1024] = "PUSH";
+            char data[1024];
             printf("please enter the string you want to push: ");
             scanf("%s", data);
             if (send(sockfd, data, 1024, 0) == -1)

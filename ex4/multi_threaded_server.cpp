@@ -148,11 +148,11 @@ int main(void) {
 
         //for each client request creates a thread and assign the client request to it to process
         //so the main thread can entertain next request
-        if (pthread_create(&tid[i], NULL, socketThread, &new_fd) != 0)
+        if (pthread_create(&tid[++i], NULL, socketThread, &new_fd) != 0)
             printf("Failed to create thread\n");
-
-        pthread_join(tid[i],NULL);
-        i++;
+//
+//        pthread_join(tid[i],NULL);
+//        i++;
 
     }
     return 0;

@@ -34,7 +34,7 @@ char* TOP(){
     if (stk.head==NULL){
         return(strdup(""));
     }
-    printf("%s", stk.top->data_ptr);
+//    printf("%s", stk.top->data_ptr);
     return(stk.top->data_ptr);
 }
 

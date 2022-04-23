@@ -3,6 +3,7 @@
 */
 
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -23,25 +24,23 @@
 #define PORT "3490"  // the port users will be connecting to
 
 #define BACKLOG 10   // how many pending connections queue will hold
+using namespace std;
 
 void *socketThread(void *arg) {
     int self = pthread_self();
     int newSocket = *((int *) arg);
     printf("client %d connected\n", self);
-    printf("Im before while");
     char buf[6];
     while (true) {
-        printf("Im in the while");
         if ((recv(newSocket, buf, 6, 0)) == -1)
             perror("recv");
         if (strcmp(buf, "PUSH") == 0) {
-            printf("Im here");
             char data_push[1024];
             if ((recv(newSocket, data_push, 1024, 0)) == -1)
                 perror("recv");
             else{
                 PUSH(data_push);
-                printf("pushed %s to the stack", data_push);
+                printf("pushed %s to the stack\n", data_push);
             }
         } else if (strcmp(buf, "POP") == 0) {
             POP();

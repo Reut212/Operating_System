@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,6 +7,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <iostream>
 
 #include <arpa/inet.h>
 
@@ -92,8 +92,10 @@ int main(int argc, char *argv[])
                 perror("send");
         }
         else if (strcmp(action, "POP") == 0) {
-            if (send(sockfd, "POP", 3, 0) == -1)
+            if (send(sockfd, "POP", 3, 0) == -1) {
                 perror("send");
+            }
+            else{printf("Popped\n");}
         }
         else if (strcmp(action, "TOP") == 0) {
             if (send(sockfd, "TOP", 3, 0) == -1)

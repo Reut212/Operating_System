@@ -145,32 +145,32 @@ stack/fast:
 	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/build
 .PHONY : stack/fast
 
-__/stack.o: __/stack.cpp.o
+__/stack.o: __/stack.c.o
 
 .PHONY : __/stack.o
 
 # target to build an object file
-__/stack.cpp.o:
-	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/stack.cpp.o
-.PHONY : __/stack.cpp.o
+__/stack.c.o:
+	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/stack.c.o
+.PHONY : __/stack.c.o
 
-__/stack.i: __/stack.cpp.i
+__/stack.i: __/stack.c.i
 
 .PHONY : __/stack.i
 
 # target to preprocess a source file
-__/stack.cpp.i:
-	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/stack.cpp.i
-.PHONY : __/stack.cpp.i
+__/stack.c.i:
+	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/stack.c.i
+.PHONY : __/stack.c.i
 
-__/stack.s: __/stack.cpp.s
+__/stack.s: __/stack.c.s
 
 .PHONY : __/stack.s
 
 # target to generate assembly for a file
-__/stack.cpp.s:
-	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/stack.cpp.s
-.PHONY : __/stack.cpp.s
+__/stack.c.s:
+	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/stack.c.s
+.PHONY : __/stack.c.s
 
 # Help Target
 help:

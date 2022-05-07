@@ -131,6 +131,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named server
+
+# Build rule for target.
+server: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 server
+.PHONY : server
+
+# fast build rule for target.
+server/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
+.PHONY : server/fast
+
+#=============================================================================
 # Target rules for targets named client
 
 # Build rule for target.
@@ -144,17 +157,17 @@ client/fast:
 .PHONY : client/fast
 
 #=============================================================================
-# Target rules for targets named server
+# Target rules for targets named allocation
 
 # Build rule for target.
-server: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 server
-.PHONY : server
+allocation: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 allocation
+.PHONY : allocation
 
 # fast build rule for target.
-server/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
-.PHONY : server/fast
+allocation/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/build
+.PHONY : allocation/fast
 
 #=============================================================================
 # Target rules for targets named stack
@@ -169,59 +182,86 @@ stack/fast:
 	$(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/build
 .PHONY : stack/fast
 
-client.o: client.cpp.o
+allocation.o: allocation.c.o
+
+.PHONY : allocation.o
+
+# target to build an object file
+allocation.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/allocation.c.o
+.PHONY : allocation.c.o
+
+allocation.i: allocation.c.i
+
+.PHONY : allocation.i
+
+# target to preprocess a source file
+allocation.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/allocation.c.i
+.PHONY : allocation.c.i
+
+allocation.s: allocation.c.s
+
+.PHONY : allocation.s
+
+# target to generate assembly for a file
+allocation.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/allocation.c.s
+.PHONY : allocation.c.s
+
+client.o: client.c.o
 
 .PHONY : client.o
 
 # target to build an object file
-client.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.cpp.o
-.PHONY : client.cpp.o
+client.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.c.o
+.PHONY : client.c.o
 
-client.i: client.cpp.i
+client.i: client.c.i
 
 .PHONY : client.i
 
 # target to preprocess a source file
-client.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.cpp.i
-.PHONY : client.cpp.i
+client.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.c.i
+.PHONY : client.c.i
 
-client.s: client.cpp.s
+client.s: client.c.s
 
 .PHONY : client.s
 
 # target to generate assembly for a file
-client.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.cpp.s
-.PHONY : client.cpp.s
+client.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.c.s
+.PHONY : client.c.s
 
-multi_threaded_server.o: multi_threaded_server.cpp.o
+multi_threaded_server.o: multi_threaded_server.c.o
 
 .PHONY : multi_threaded_server.o
 
 # target to build an object file
-multi_threaded_server.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.cpp.o
-.PHONY : multi_threaded_server.cpp.o
+multi_threaded_server.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.c.o
+.PHONY : multi_threaded_server.c.o
 
-multi_threaded_server.i: multi_threaded_server.cpp.i
+multi_threaded_server.i: multi_threaded_server.c.i
 
 .PHONY : multi_threaded_server.i
 
 # target to preprocess a source file
-multi_threaded_server.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.cpp.i
-.PHONY : multi_threaded_server.cpp.i
+multi_threaded_server.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.c.i
+.PHONY : multi_threaded_server.c.i
 
-multi_threaded_server.s: multi_threaded_server.cpp.s
+multi_threaded_server.s: multi_threaded_server.c.s
 
 .PHONY : multi_threaded_server.s
 
 # target to generate assembly for a file
-multi_threaded_server.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.cpp.s
-.PHONY : multi_threaded_server.cpp.s
+multi_threaded_server.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.c.s
+.PHONY : multi_threaded_server.c.s
 
 # Help Target
 help:
@@ -231,9 +271,13 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... allocation"
 	@echo "... client"
 	@echo "... server"
 	@echo "... stack"
+	@echo "... allocation.o"
+	@echo "... allocation.i"
+	@echo "... allocation.s"
 	@echo "... client.o"
 	@echo "... client.i"
 	@echo "... client.s"

@@ -1,5 +1,6 @@
 # include "stack.h"
-
+#include "allocation.h"
+extern freeList;
 void PUSH(char* data){
     struct node* new_node = (struct node*)malloc(sizeof(struct node));
     int length = strlen(data);

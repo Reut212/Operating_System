@@ -1,1 +1,1 @@
-/usr/bin/c++  -g   CMakeFiles/server.dir/multi_threaded_server.cpp.o  -o server   -L/home/neta/CLionProjects/OS/ex4/stack  -Wl,-rpath,/home/neta/CLionProjects/OS/ex4/stack stack/libstack.a -pthread 
+/usr/bin/cc -g   CMakeFiles/server.dir/multi_threaded_server.c.o  -o server   -L/home/neta/CLionProjects/OS/ex4/stack  -Wl,-rpath,/home/neta/CLionProjects/OS/ex4/stack stack/libstack.a -pthread 

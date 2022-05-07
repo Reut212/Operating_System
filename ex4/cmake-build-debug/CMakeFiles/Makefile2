@@ -73,8 +73,9 @@ CMAKE_BINARY_DIR = /home/neta/CLionProjects/OS/ex4/cmake-build-debug
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/client.dir/all
 all: CMakeFiles/server.dir/all
+all: CMakeFiles/client.dir/all
+all: CMakeFiles/allocation.dir/all
 all: stack/all
 
 .PHONY : all
@@ -85,8 +86,9 @@ preinstall: stack/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/client.dir/clean
 clean: CMakeFiles/server.dir/clean
+clean: CMakeFiles/client.dir/clean
+clean: CMakeFiles/allocation.dir/clean
 clean: stack/clean
 
 .PHONY : clean
@@ -110,40 +112,13 @@ stack/clean: stack/CMakeFiles/stack.dir/clean
 .PHONY : stack/clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/client.dir
-
-# All Build rule for target.
-CMakeFiles/client.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target client"
-.PHONY : CMakeFiles/client.dir/all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/client.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/client.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles 0
-.PHONY : CMakeFiles/client.dir/rule
-
-# Convenience name for target.
-client: CMakeFiles/client.dir/rule
-
-.PHONY : client
-
-# clean rule for target.
-CMakeFiles/client.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/clean
-.PHONY : CMakeFiles/client.dir/clean
-
-#=============================================================================
 # Target rules for target CMakeFiles/server.dir
 
 # All Build rule for target.
 CMakeFiles/server.dir/all: stack/CMakeFiles/stack.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=3,4 "Built target server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=5,6 "Built target server"
 .PHONY : CMakeFiles/server.dir/all
 
 # Build rule for subdir invocation for target.
@@ -164,13 +139,67 @@ CMakeFiles/server.dir/clean:
 .PHONY : CMakeFiles/server.dir/clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/client.dir
+
+# All Build rule for target.
+CMakeFiles/client.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=3,4 "Built target client"
+.PHONY : CMakeFiles/client.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/client.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/client.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/client.dir/rule
+
+# Convenience name for target.
+client: CMakeFiles/client.dir/rule
+
+.PHONY : client
+
+# clean rule for target.
+CMakeFiles/client.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/clean
+.PHONY : CMakeFiles/client.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/allocation.dir
+
+# All Build rule for target.
+CMakeFiles/allocation.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target allocation"
+.PHONY : CMakeFiles/allocation.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/allocation.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/allocation.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/allocation.dir/rule
+
+# Convenience name for target.
+allocation: CMakeFiles/allocation.dir/rule
+
+.PHONY : allocation
+
+# clean rule for target.
+CMakeFiles/allocation.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/clean
+.PHONY : CMakeFiles/allocation.dir/clean
+
+#=============================================================================
 # Target rules for target stack/CMakeFiles/stack.dir
 
 # All Build rule for target.
 stack/CMakeFiles/stack.dir/all:
 	$(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/depend
 	$(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=5,6 "Built target stack"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=7,8 "Built target stack"
 .PHONY : stack/CMakeFiles/stack.dir/all
 
 # Build rule for subdir invocation for target.

@@ -1,10 +1,10 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/server.dir/multi_threaded_server.cpp.o"
+  "CMakeFiles/server.dir/multi_threaded_server.c.o"
   "server"
   "server.pdb"
 )
 
 # Per-language clean rules from dependency scanning.
-foreach(lang CXX)
+foreach(lang C)
   include(CMakeFiles/server.dir/cmake_clean_${lang}.cmake OPTIONAL)
 endforeach()

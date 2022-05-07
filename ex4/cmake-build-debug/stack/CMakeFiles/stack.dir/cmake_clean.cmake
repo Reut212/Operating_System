@@ -1,10 +1,10 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/stack.dir/__/stack.cpp.o"
+  "CMakeFiles/stack.dir/__/stack.c.o"
   "libstack.a"
   "libstack.pdb"
 )
 
 # Per-language clean rules from dependency scanning.
-foreach(lang CXX)
+foreach(lang C)
   include(CMakeFiles/stack.dir/cmake_clean_${lang}.cmake OPTIONAL)
 endforeach()

@@ -1,1 +1,1 @@
-/usr/bin/c++  -g   CMakeFiles/client.dir/client.cpp.o  -o client   -L/home/neta/CLionProjects/OS/ex4/stack 
+/usr/bin/cc -g   CMakeFiles/client.dir/client.c.o  -o client   -L/home/neta/CLionProjects/OS/ex4/stack 

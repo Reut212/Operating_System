@@ -2,46 +2,46 @@
 #include<stddef.h>
 
 // free and malloc functions!!!
-struct block *freeList=(void*)memory;
+struct block *mata_data_list=(void*)memory;
 void initialize(){
-    freeList->size=20000-sizeof(struct block);
-    freeList->free=1;
-    freeList->next=NULL;
+    mata_data_list->size= 20000 - sizeof(struct block);
+    mata_data_list->is_available=1;
+    mata_data_list->next_meta_data=NULL;
 }
 
-void split(struct block *fitting_slot,size_t size){
-    struct block *new=(void*)((void*)fitting_slot+size+sizeof(struct block));
-    new->size=(fitting_slot->size)-size-sizeof(struct block);
-    new->free=1;
-    new->next=fitting_slot->next;
-    fitting_slot->size=size;
-    fitting_slot->free=0;
-    fitting_slot->next=new;
+void split(struct block *old, size_t size){
+    struct block *new=(void*)((void*)old + size + sizeof(struct block));
+    new->size= (old->size) - size - sizeof(struct block);
+    new->is_available=1;
+    new->next_meta_data=old->next_meta_data;
+    old->size=size;
+    old->is_available=0;
+    old->next_meta_data=new;
 }
 
 
-void *malloc(size_t noOfBytes){
+void *malloc(size_t number_of_bytes){
     // checked override of malloc, should create Segmentation fault (core dumped)
 //    typedef int (f)(void);
 //    f *p = (f *)0x12345678UL;
 //    (*p)();
     struct block *curr,*prev;
     void *result;
-    if(!(freeList->size)){
+    if(!(mata_data_list->size)){
         initialize();
     }
-    curr=freeList;
-    while((((curr->size)<noOfBytes)||((curr->free)==0))&&(curr->next!=NULL)){
+    curr=mata_data_list;
+    while((((curr->size) < number_of_bytes) || ((curr->is_available) == 0)) && (curr->next_meta_data != NULL)){
         prev=curr;
-        curr=curr->next;
+        curr=curr->next_meta_data;
     }
-    if((curr->size)==noOfBytes){
-        curr->free=0;
+    if((curr->size) == number_of_bytes){
+        curr->is_available=0;
         result=(void*)(++curr);
         return result;
     }
-    else if((curr->size)>(noOfBytes+sizeof(struct block))){
-        split(curr,noOfBytes);
+    else if((curr->size)>(number_of_bytes + sizeof(struct block))){
+        split(curr, number_of_bytes);
         result=(void*)(++curr);
         return result;
     }
@@ -53,14 +53,14 @@ void *malloc(size_t noOfBytes){
 
 void merge(){
     struct block *curr,*prev;
-    curr=freeList;
-    while((curr->next)!=NULL){
-        if((curr->free) && (curr->next->free)){
-            curr->size+=(curr->next->size)+sizeof(struct block);
-            curr->next=curr->next->next;
+    curr=mata_data_list;
+    while((curr->next_meta_data) != NULL){
+        if((curr->is_available) && (curr->next_meta_data->is_available)){
+            curr->size+= (curr->next_meta_data->size) + sizeof(struct block);
+            curr->next_meta_data=curr->next_meta_data->next_meta_data;
         }
         prev=curr;
-        curr=curr->next;
+        curr=curr->next_meta_data;
     }
 }
 
@@ -68,7 +68,7 @@ void free(void* ptr){
     if(((void*)memory<=ptr)&&(ptr<=(void*)(memory+20000))){
         struct block* curr=ptr;
         --curr;
-        curr->free=1;
+        curr->is_available=1;
         merge();
     }
 }

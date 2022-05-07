@@ -1,0 +1,7 @@
+/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles/client.dir
+/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles/server.dir
+/home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack/CMakeFiles/rebuild_cache.dir
+/home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack/CMakeFiles/edit_cache.dir
+/home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack/CMakeFiles/stack.dir

@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/deallocation.dir/deallocation.cpp.o  -o deallocation   -L/home/neta/CLionProjects/OS/ex4/stack 

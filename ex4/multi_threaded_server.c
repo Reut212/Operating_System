@@ -3,7 +3,6 @@
 */
 
 #include <stdio.h>
-#include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -16,7 +15,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <pthread.h>
-# include "stack.hpp"
+# include "stack.h"
 pthread_mutex_t lock;
 
 
@@ -25,14 +24,13 @@ pthread_mutex_t lock;
 #define PORT "3490"  // the port users will be connecting to
 
 #define BACKLOG 10   // how many pending connections queue will hold
-using namespace std;
 
 void *socketThread(void *arg) {
     int self = pthread_self();
     int newSocket = *((int *) arg);
     printf("client %d connected\n", self);
     char buf[6];
-    while (true) {
+    while (1) {
         memset(buf, 0, 6);
         if ((recv(newSocket, buf, 6, 0)) == -1)
             perror("recv");

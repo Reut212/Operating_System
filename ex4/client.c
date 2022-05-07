@@ -7,7 +7,6 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <iostream>
 
 #include <arpa/inet.h>
 
@@ -73,7 +72,7 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(servinfo); // all done with this structure
 
-    while (true){
+    while (1){
         printf("Please enter action (PUSH/TOP/POP/EXIT)\n");
         char action[6];
         scanf("%s", action);

@@ -1,14 +1,4 @@
-# include "stack.hpp"
-
-struct node{
-    node* next;
-    char* data_ptr;
-};
-
-struct stack{
-    node* head = NULL;
-    node* top;
-} stk;
+# include "stack.h"
 
 void PUSH(char* data){
     struct node* new_node = (struct node*)malloc(sizeof(struct node));
@@ -21,7 +11,7 @@ void PUSH(char* data){
         stk.head=new_node;
     }
     else{
-        node* curr= stk.head;
+        struct node* curr= stk.head;
         while (curr->next!=NULL){
             curr=curr->next;
         }
@@ -40,7 +30,7 @@ char* TOP(){
 
 void POP(){
     if (stk.head!=NULL){
-        node* curr = stk.head;
+        struct node* curr = stk.head;
         if (stk.head==stk.top){
             free(stk.top->data_ptr);
             free(stk.top);
@@ -51,7 +41,7 @@ void POP(){
             while (curr->next!=stk.top){
                 curr = curr->next;
             }
-            node* old_top = stk.top;
+            struct node* old_top = stk.top;
             curr->next=NULL;
             stk.top=curr;
             free(old_top->data_ptr);

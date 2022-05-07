@@ -145,32 +145,32 @@ stack/fast:
 	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/build
 .PHONY : stack/fast
 
-__/stack.o: __/stack.c.o
+__/funcs.o: __/funcs.c.o
 
-.PHONY : __/stack.o
+.PHONY : __/funcs.o
 
 # target to build an object file
-__/stack.c.o:
-	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/stack.c.o
-.PHONY : __/stack.c.o
+__/funcs.c.o:
+	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/funcs.c.o
+.PHONY : __/funcs.c.o
 
-__/stack.i: __/stack.c.i
+__/funcs.i: __/funcs.c.i
 
-.PHONY : __/stack.i
+.PHONY : __/funcs.i
 
 # target to preprocess a source file
-__/stack.c.i:
-	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/stack.c.i
-.PHONY : __/stack.c.i
+__/funcs.c.i:
+	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/funcs.c.i
+.PHONY : __/funcs.c.i
 
-__/stack.s: __/stack.c.s
+__/funcs.s: __/funcs.c.s
 
-.PHONY : __/stack.s
+.PHONY : __/funcs.s
 
 # target to generate assembly for a file
-__/stack.c.s:
-	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/stack.c.s
-.PHONY : __/stack.c.s
+__/funcs.c.s:
+	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug && $(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/__/funcs.c.s
+.PHONY : __/funcs.c.s
 
 # Help Target
 help:
@@ -181,9 +181,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... stack"
-	@echo "... __/stack.o"
-	@echo "... __/stack.i"
-	@echo "... __/stack.s"
+	@echo "... __/funcs.o"
+	@echo "... __/funcs.i"
+	@echo "... __/funcs.s"
 .PHONY : help
 
 

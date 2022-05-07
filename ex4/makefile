@@ -9,7 +9,7 @@ all: server client
 #	$(CC) $(CFLAGS) -o stack stack.cpp stack.h
 
 server: multi_threaded_server.c
-	$(CC) -pthread $(CFLAGS) -o server multi_threaded_server.c stack.c allocation.c
+	$(CC) -pthread $(CFLAGS) -o server multi_threaded_server.c funcs.c
 
 client: client.c
 	$(CC) -pthread $(CFLAGS) -o client client.c

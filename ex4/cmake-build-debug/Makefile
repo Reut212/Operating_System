@@ -131,19 +131,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named server
-
-# Build rule for target.
-server: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 server
-.PHONY : server
-
-# fast build rule for target.
-server/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
-.PHONY : server/fast
-
-#=============================================================================
 # Target rules for targets named client
 
 # Build rule for target.
@@ -157,17 +144,17 @@ client/fast:
 .PHONY : client/fast
 
 #=============================================================================
-# Target rules for targets named allocation
+# Target rules for targets named server
 
 # Build rule for target.
-allocation: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 allocation
-.PHONY : allocation
+server: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 server
+.PHONY : server
 
 # fast build rule for target.
-allocation/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/build
-.PHONY : allocation/fast
+server/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
+.PHONY : server/fast
 
 #=============================================================================
 # Target rules for targets named stack
@@ -181,33 +168,6 @@ stack: cmake_check_build_system
 stack/fast:
 	$(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/build
 .PHONY : stack/fast
-
-allocation.o: allocation.c.o
-
-.PHONY : allocation.o
-
-# target to build an object file
-allocation.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/allocation.c.o
-.PHONY : allocation.c.o
-
-allocation.i: allocation.c.i
-
-.PHONY : allocation.i
-
-# target to preprocess a source file
-allocation.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/allocation.c.i
-.PHONY : allocation.c.i
-
-allocation.s: allocation.c.s
-
-.PHONY : allocation.s
-
-# target to generate assembly for a file
-allocation.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/allocation.dir/build.make CMakeFiles/allocation.dir/allocation.c.s
-.PHONY : allocation.c.s
 
 client.o: client.c.o
 
@@ -271,13 +231,9 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... allocation"
 	@echo "... client"
 	@echo "... server"
 	@echo "... stack"
-	@echo "... allocation.o"
-	@echo "... allocation.i"
-	@echo "... allocation.s"
 	@echo "... client.o"
 	@echo "... client.i"
 	@echo "... client.s"

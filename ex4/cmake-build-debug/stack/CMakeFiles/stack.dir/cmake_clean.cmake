@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/stack.dir/__/stack.c.o"
+  "CMakeFiles/stack.dir/__/funcs.c.o"
   "libstack.a"
   "libstack.pdb"
 )

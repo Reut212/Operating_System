@@ -15,7 +15,6 @@ add_subdirectory(stack)
 
 add_executable( server ${SOURCE_FILES} )
 add_executable( client client.c)
-add_executable( allocation allocation.c)
 
 
 

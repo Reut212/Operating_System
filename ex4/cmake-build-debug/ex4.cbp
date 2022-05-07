@@ -27,47 +27,11 @@
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="server">
-				<Option output="/home/neta/CLionProjects/OS/ex4/cmake-build-debug/server" prefix_auto="0" extension_auto="0"/>
+			<Target title="edit_cache">
 				<Option working_dir="/home/neta/CLionProjects/OS/ex4/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/home/neta/CLionProjects/OS/ex4/stack"/>
-					<Add directory="/usr/include/c++/9"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
-					<Add directory="/usr/include/c++/9/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
+				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 server"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="server/fast">
-				<Option output="/home/neta/CLionProjects/OS/ex4/cmake-build-debug/server" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/neta/CLionProjects/OS/ex4/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/home/neta/CLionProjects/OS/ex4/stack"/>
-					<Add directory="/usr/include/c++/9"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
-					<Add directory="/usr/include/c++/9/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 server/fast"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
 					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
@@ -119,8 +83,8 @@
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="allocation">
-				<Option output="/home/neta/CLionProjects/OS/ex4/cmake-build-debug/allocation" prefix_auto="0" extension_auto="0"/>
+			<Target title="server">
+				<Option output="/home/neta/CLionProjects/OS/ex4/cmake-build-debug/server" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/neta/CLionProjects/OS/ex4/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
@@ -136,14 +100,14 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 allocation"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 server"/>
 					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="allocation/fast">
-				<Option output="/home/neta/CLionProjects/OS/ex4/cmake-build-debug/allocation" prefix_auto="0" extension_auto="0"/>
+			<Target title="server/fast">
+				<Option output="/home/neta/CLionProjects/OS/ex4/cmake-build-debug/server" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/neta/CLionProjects/OS/ex4/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
@@ -159,17 +123,7 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 allocation/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="edit_cache">
-				<Option working_dir="/home/neta/CLionProjects/OS/ex4/cmake-build-debug"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 server/fast"/>
 					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/neta/CLionProjects/OS/ex4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
@@ -222,23 +176,17 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/neta/CLionProjects/OS/ex4/allocation.c">
-			<Option target="allocation"/>
-		</Unit>
-		<Unit filename="/home/neta/CLionProjects/OS/ex4/allocation.h">
-			<Option target="allocation"/>
-		</Unit>
 		<Unit filename="/home/neta/CLionProjects/OS/ex4/client.c">
 			<Option target="client"/>
 		</Unit>
+		<Unit filename="/home/neta/CLionProjects/OS/ex4/funcs.c">
+			<Option target="stack"/>
+		</Unit>
+		<Unit filename="/home/neta/CLionProjects/OS/ex4/funcs.h">
+			<Option target="stack"/>
+		</Unit>
 		<Unit filename="/home/neta/CLionProjects/OS/ex4/multi_threaded_server.c">
 			<Option target="server"/>
-		</Unit>
-		<Unit filename="/home/neta/CLionProjects/OS/ex4/stack.c">
-			<Option target="stack"/>
-		</Unit>
-		<Unit filename="/home/neta/CLionProjects/OS/ex4/stack.h">
-			<Option target="stack"/>
 		</Unit>
 		<Unit filename="/home/neta/CLionProjects/OS/ex4/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>

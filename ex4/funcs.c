@@ -25,14 +25,13 @@ void *malloc(size_t number_of_bytes){
 //    typedef int (f)(void);
 //    f *p = (f *)0x12345678UL;
 //    (*p)();
-    struct block *curr,*prev;
+    struct block *curr;
     void *result;
     if(!(mata_data_list->size)){
         initialize();
     }
     curr=mata_data_list;
     while((((curr->size) < number_of_bytes) || ((curr->is_available) == 0)) && (curr->next_meta_data != NULL)){
-        prev=curr;
         curr=curr->next_meta_data;
     }
     if((curr->size) == number_of_bytes){
@@ -52,14 +51,13 @@ void *malloc(size_t number_of_bytes){
 }
 
 void merge(){
-    struct block *curr,*prev;
+    struct block *curr;
     curr=mata_data_list;
     while((curr->next_meta_data) != NULL){
         if((curr->is_available) && (curr->next_meta_data->is_available)){
             curr->size+= (curr->next_meta_data->size) + sizeof(struct block);
             curr->next_meta_data=curr->next_meta_data->next_meta_data;
         }
-        prev=curr;
         curr=curr->next_meta_data;
     }
 }

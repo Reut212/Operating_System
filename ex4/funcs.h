@@ -33,3 +33,5 @@ void split(struct block *fitting_slot,size_t size);
 void *malloc(size_t noOfBytes);
 void merge();
 void free(void* ptr);
+void *calloc(size_t nitems, size_t size);
+

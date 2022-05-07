@@ -73,6 +73,11 @@ void free(void* ptr){
     }
 }
 
+void *calloc(size_t nitems, size_t size){
+    void* ptr = malloc(nitems*size);
+    memset(ptr, 0, nitems*size);
+    return ptr;
+}
 
 // stack functions!!!
 void PUSH(char* data){

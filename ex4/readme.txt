@@ -13,3 +13,7 @@ http://tharikasblogs.blogspot.com/p/how-to-write-your-own-malloc-and-free.html
 Assumptions:
 1. Here, We assumed a block of memory of size 20,000 bytes char memory[20000];
 (assuming that the storage for a character is 1 byte in the machine).
+
+How to run the test:
+1. run from terminal 1: ./server
+2. run from terminal 2: ./tests

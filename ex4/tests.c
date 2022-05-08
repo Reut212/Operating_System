@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <sys/types.h>
 #define PORT "3490"
+#include <stdlib.h>
 pthread_mutex_t lock;
 
 void *get_in_addr(struct sockaddr *sa)
@@ -64,18 +65,22 @@ int create_connection(){
     return sockfd;
 }
 
-void *push_client(void *arg) {
-    pthread_mutex_lock(&lock);
-    int clientSocket = *((int *) arg);
-    int self = pthread_self();
-    char snum[5];
-    sprintf(snum,"%d",self);
-    if (send(clientSocket, "PUSH", 4, 0) == -1)
+void *push_client(void* arg) {
+//    pthread_mutex_lock(&lock);
+    int clientSocket = create_connection();
+    if (send(clientSocket, "PUSH", 5, 0) == -1)
         perror("send");
-    if (send(clientSocket, snum, 5, 0) == -1)
+//    int num = *((int *) arg);
+//    char snum[20];
+//    sprintf(snum, "%d", num);
+    char data[1024] = "hi";
+    printf("first: %s\n", data);
+    if (send(clientSocket, data, 1024, 0) == -1)
+        perror("send");
+    if (send(clientSocket, "EXIT", 5, 0) == -1)
         perror("send");
     close(clientSocket);
-    pthread_mutex_unlock(&lock);
+//    pthread_mutex_unlock(&lock);
     pthread_exit(NULL);
 }
 
@@ -90,18 +95,28 @@ void *push_client(void *arg) {
 
 
 int main() {
-    pthread_t PUSHING[5];
-    if (pthread_mutex_init(&lock, NULL) != 0)
-    {
-        printf("\n mutex init failed\n");
-        return 1;
-    }
-    for (int i = 0; i < 5; i++) {  // main accept() loop
-        int clientSocket= create_connection();
-        if (pthread_create(&PUSHING[++i], NULL, push_client, &clientSocket) != 0)
+    int i = 0;
+    pthread_t PUSHING[10];
+//    if (pthread_mutex_init(&lock, NULL) != 0)
+//    {
+//        printf("\n mutex init failed\n");
+//        return 1;
+//    }
+    while(i < 10){  // main accept() loop
+        if (pthread_create(&PUSHING[i], NULL, push_client, &i) != 0)
             printf("Failed to create thread\n");
-        pthread_join(PUSHING[i], NULL);
+        sleep(4);
+        //        pthread_join(PUSHING[i], NULL);
+        i++;
     }
+    sleep(20);
+    i = 0;
+    while(i < 10){
+        pthread_join(PUSHING[i++], NULL);
+        printf("%d:\n", i);
+    }
+
+    return 0;
 //    sleep(2);
 //    int top = create_connection();
 //    if (send(top, "TOP", 3, 0) == -1)
@@ -140,5 +155,5 @@ int main() {
 //            printf("test passed!!!!!!!!");
 //        }
 //    }
-    pthread_mutex_destroy(&lock);
+//    pthread_mutex_destroy(&lock);
 }

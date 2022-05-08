@@ -89,6 +89,7 @@ int main()
             char data[1024];
             printf("please enter the string you want to push: ");
             scanf("%s", data);
+            printf("first: %s\n", data);
             if (send(sockfd, data, 1024, 0) == -1)
                 perror("send");
         }

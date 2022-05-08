@@ -39,9 +39,12 @@ void *socketThread(void *arg) {
             if ((recv(newSocket, data_push, 1024, 0)) == -1)
                 perror("recv");
             else{
+                printf("%s\n", data_push);
                 pthread_mutex_lock(&lock);
                 PUSH(data_push);
-                printf("pushed %s to the stack\n", data_push);
+                char snum[20];
+                sprintf(snum, "%d", self);
+                printf("client %s pushed %s to the stack\n", snum, data_push);
                 pthread_mutex_unlock(&lock);
             }
         } else if (strcmp(buf, "POP") == 0) {
@@ -158,7 +161,6 @@ int main(void) {
                   get_in_addr((struct sockaddr *) &their_addr),
                   s, sizeof s);
         printf("server: got connection from %s\n", s);
-
         //for each client request creates a thread and assign the client request to it to process
         //so the main thread can entertain next request
         if (pthread_create(&tid[++i], NULL, socketThread, &new_fd) != 0)

@@ -77,14 +77,15 @@ int main()
     while (1){
         printf("Please enter action (PUSH/TOP/POP/EXIT)\n");
         char action[6];
+        memset(action, 0, 6);
         scanf("%s", action);
         if (strcmp(action, "EXIT") == 0){
-            if (send(sockfd, "EXIT", 4, 0) == -1)
+            if (send(sockfd, "EXIT", 5, 0) == -1)
                 perror("send");
             break;
         }
         else if (strcmp(action, "PUSH") == 0){
-            if (send(sockfd, "PUSH", 4, 0) == -1)
+            if (send(sockfd, "PUSH", 5, 0) == -1)
                 perror("send");
             char data[1024];
             printf("please enter the string you want to push: ");
@@ -93,15 +94,16 @@ int main()
                 perror("send");
         }
         else if (strcmp(action, "POP") == 0) {
-            if (send(sockfd, "POP", 3, 0) == -1) {
+            if (send(sockfd, "POP", 4, 0) == -1) {
                 perror("send");
             }
         }
         else if (strcmp(action, "TOP") == 0) {
-            if (send(sockfd, "TOP", 3, 0) == -1)
+            if (send(sockfd, "TOP", 4, 0) == -1)
                 perror("send");
             char buf[1024];
-            if ((recv(sockfd, buf, 1024, 0)) == -1)
+            memset(buf, 0, 1024);
+            if ((recv(sockfd, buf, 1025, 0)) == -1)
                 perror("recv");
             else {
                 printf("Top of the stack is '%s'\n", buf);

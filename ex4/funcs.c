@@ -80,7 +80,7 @@ void *calloc(size_t nitems, size_t size){
 // stack functions!!!
 void PUSH(char* data){
     struct node* new_node = (struct node*)malloc(sizeof(struct node));
-    int length = strlen(data);
+    int length = strlen(data)+1;
     char *new_data = (char*) malloc(length * sizeof(char));
     strcpy(new_data,data);
     new_node->data_ptr=new_data;
@@ -125,6 +125,5 @@ void POP(){
             free(old_top->data_ptr);
             free(old_top);
         }
-
     }
 }

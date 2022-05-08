@@ -1,7 +1,7 @@
 How to run the code:
 1. First of all compile with "make all"
 2. Second run the server: ./server
-3. Third run the client: ./client <your computer name>
+3. Third run the client: ./client
 4. Fourth choose command- PUSH/POP/TOP/EXIT
 5. At the end remove all o files with "make clean" :)
 

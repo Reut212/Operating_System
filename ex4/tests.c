@@ -66,93 +66,124 @@ int create_connection(){
 }
 
 void *push_client(void* arg) {
-//    pthread_mutex_lock(&lock);
     int clientSocket = create_connection();
-    if (send(clientSocket, "PUSH", 6, 0) == -1)
-    perror("send");
-//    char data[1024]= "hi";
     int num = *((int *) arg);
     char snum[20];
     sprintf(snum, "%d", num);
+    printf("client %d connected\n", num);
+    if (send(clientSocket, "PUSH", 6, 0) == -1)
+    perror("send");
     if (send(clientSocket, snum, 1024, 0) == -1)
         perror("send");
+    printf("client %d pushed %s to the stack\n", num, snum);
     if (send(clientSocket, "EXIT", 5, 0) == -1)
         perror("send");
+    printf("client %d disconnected\n", num);
     close(clientSocket);
-//    pthread_mutex_unlock(&lock);
     pthread_exit(NULL);
 }
 
-//void *pop_client(void *arg) {
-//    int clientSocket = *((int *) arg);
-//    if (send(clientSocket, "POP", 3, 0) == -1) {
-//        perror("send");
-//    }
-//    close(clientSocket);
-//    pthread_exit(NULL);
-//}
+void *pop_client(void *arg) {
+    int num = *((int *) arg);
+    int clientSocket = create_connection();
+    printf("client %d connected\n", num);
+    if (send(clientSocket, "POP", 6, 0) == -1) {
+        perror("send");
+    }
+    printf("client %d popped from stack\n", num);
+    if (send(clientSocket, "EXIT", 6, 0) == -1) {
+        perror("send");
+    }
+    printf("client %d disconnected\n", num);
+    close(clientSocket);
+    pthread_exit(NULL);
+}
 
 
 int main() {
+    printf("\n"
+           "   ____               _______        _           \n"
+           "  / __ \\             |__   __|      | |        _ \n"
+           " | |  | |_   _ _ __     | | ___  ___| |_ ___  (_)\n"
+           " | |  | | | | | '__|    | |/ _ \\/ __| __/ __|    \n"
+           " | |__| | |_| | |       | |  __/\\__ \\ |_\\__ \\  _ \n"
+           "  \\____/ \\__,_|_|       |_|\\___||___/\\__|___/ (_)\n"
+           "                                                 \n"
+           "                                                 \n");
+    printf("-------------------checking PUSH-------------------\n");
     int i = 0;
     pthread_t PUSHING[10];
-    if (pthread_mutex_init(&lock, NULL) != 0)
-    {
-        printf("\n mutex init failed\n");
-        return 1;
-    }
     while(i < 10){  // main accept() loop
         if (pthread_create(&PUSHING[i], NULL, push_client, &i) != 0)
             printf("Failed to create thread\n");
-        sleep(4);
-        //        pthread_join(PUSHING[i], NULL);
+        sleep(2);
         i++;
     }
-    sleep(20);
-    i = 0;
-    while(i < 10){
-        pthread_join(PUSHING[i++], NULL);
-        printf("%d:\n", i);
-    }
+    printf("\n"
+           "╔╦╗╔═╗╔═╗╔╦╗  ╔═╗╦ ╦╔═╗╦ ╦  ╔═╗╔═╗╔═╗╔═╗╔═╗╔╦╗  ┬\n"
+           " ║ ║╣ ╚═╗ ║   ╠═╝║ ║╚═╗╠═╣  ╠═╝╠═╣╚═╗╚═╗║╣  ║║  │\n"
+           " ╩ ╚═╝╚═╝ ╩   ╩  ╚═╝╚═╝╩ ╩  ╩  ╩ ╩╚═╝╚═╝╚═╝═╩╝  o\n");
+    sleep(2);
+    printf("-------------------checking TOP-------------------\n");
+    int top = create_connection();
+    if (send(top, "TOP", 6, 0) == -1)
+        perror("send");
+    char buf[1024];
+    if ((recv(top, buf, 1024, 0)) == -1)
+        perror("recv");
+    else {
+        int num = atoi(buf);
+        if (num != 9){
+            printf("test failed!!!!!!!!\n");
+            return 0;
+        }
+        else{
+            printf("Top is 9!\n");
+            printf("\n"
+                   "╔╦╗╔═╗╔═╗╔╦╗  ╔╦╗╔═╗╔═╗  ╔═╗╔═╗╔═╗╔═╗╔═╗╔╦╗  ┬\n"
+                   " ║ ║╣ ╚═╗ ║    ║ ║ ║╠═╝  ╠═╝╠═╣╚═╗╚═╗║╣  ║║  │\n"
+                   " ╩ ╚═╝╚═╝ ╩    ╩ ╚═╝╩    ╩  ╩ ╩╚═╝╚═╝╚═╝═╩╝  o\n");
 
-    return 0;
-//    sleep(2);
-//    int top = create_connection();
-//    if (send(top, "TOP", 3, 0) == -1)
-//        perror("send");
-//    char buf[1024];
-//    if ((recv(top, buf, 1024, 0)) == -1)
-//        perror("recv");
-//    else {
+        }
+        if ((send(top, "EXIT", 6, 0)) == -1)
+            perror("recv");
+    }
+    printf("-------------------checking POP-------------------\n");
+    pthread_t POPPING[10];
+    while(i < 20){  // main accept() loop
+        if (pthread_create(&POPPING[i], NULL, pop_client, &i) != 0)
+            printf("Failed to create thread\n");
+        sleep(2);
+        i++;
+    }
+    printf("\n"
+           "╔╦╗╔═╗╔═╗╔╦╗  ╔═╗╔═╗╔═╗  ╔═╗╔═╗╔═╗╔═╗╔═╗╔╦╗  ┬\n"
+           " ║ ║╣ ╚═╗ ║   ╠═╝║ ║╠═╝  ╠═╝╠═╣╚═╗╚═╗║╣  ║║  │\n"
+           " ╩ ╚═╝╚═╝ ╩   ╩  ╚═╝╩    ╩  ╩ ╩╚═╝╚═╝╚═╝═╩╝  o\n");
+    sleep(2);
+
+    printf("-------------------checking TOP-------------------\n");
+    top = create_connection();
+    if (send(top, "TOP", 6, 0) == -1)
+        perror("send");
+    if ((recv(top, buf, 1024, 0)) == -1)
+        perror("recv");
+    else {
 //        int num = atoi(buf);
-//        if (num != 100){
-//            printf("test failed!!!!!!!!");
-//            return 0;
-//        }
-//        else{
-//            printf("test passed!!!!!!!!");
-//        }
-//    }
-//    pthread_t POPPING[100];
-//    for (int i = 0; i < 100; i++) {  // main accept() loop
-//        int clientSocket= create_connection();
-//        if (pthread_create(&POPPING[++i], NULL, pop_client, &clientSocket) != 0)
-//            printf("Failed to create thread\n");
-//        pthread_join(PUSHING[i], NULL);
-//    }
-//    sleep(2);
-//    if (send(top, "TOP", 3, 0) == -1)
-//        perror("send");
-//    if ((recv(top, buf, 1024, 0)) == -1)
-//        perror("recv");
-//    else {
-//        if (strlen(buf) != 0){
-//            printf("test failed!!!!!!!!");
-//            return 0;
-//        }
-//        else{
-//            printf("test passed!!!!!!!!");
-//        }
-//    }
-//    pthread_mutex_destroy(&lock);
+        if (strlen(buf)!=0){
+            printf("test failed!!!!!!!!\n");
+            return 0;
+        }
+        else{
+            printf("Top is empty!\n");
+            printf("\n"
+                   "╔╦╗╔═╗╔═╗╔╦╗  ╔╦╗╔═╗╔═╗  ╔═╗╔═╗╔═╗╔═╗╔═╗╔╦╗  ┬\n"
+                   " ║ ║╣ ╚═╗ ║    ║ ║ ║╠═╝  ╠═╝╠═╣╚═╗╚═╗║╣  ║║  │\n"
+                   " ╩ ╚═╝╚═╝ ╩    ╩ ╚═╝╩    ╩  ╩ ╩╚═╝╚═╝╚═╝═╩╝  o\n");
+
+        }
+        if ((send(top, "EXIT", 6, 0)) == -1)
+            perror("recv");
+    }
+    return 0;
 }

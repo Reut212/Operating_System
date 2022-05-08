@@ -39,17 +39,15 @@ void *socketThread(void *arg) {
             if ((recv(newSocket, data_push, 1024, 0)) == -1)
                 perror("recv");
             else{
-                printf("%s\n", data_push);
                 pthread_mutex_lock(&lock);
                 PUSH(data_push);
-                char snum[20];
-                printf("client %s pushed %s to the stack\n", snum, data_push);
+                printf("client %d pushed %s to the stack\n", self, data_push);
                 pthread_mutex_unlock(&lock);
             }
         } else if (strcmp(buf, "POP") == 0) {
             pthread_mutex_lock(&lock);
             POP();
-            printf("popped from stack");
+            printf("popped from stack\n");
             pthread_mutex_unlock(&lock);
 
         } else if (strcmp(buf, "TOP") == 0) {

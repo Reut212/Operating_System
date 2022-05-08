@@ -68,14 +68,13 @@ int create_connection(){
 void *push_client(void* arg) {
 //    pthread_mutex_lock(&lock);
     int clientSocket = create_connection();
-    if (send(clientSocket, "PUSH", 5, 0) == -1)
-        perror("send");
-//    int num = *((int *) arg);
-//    char snum[20];
-//    sprintf(snum, "%d", num);
-    char data[1024] = "hi";
-    printf("first: %s\n", data);
-    if (send(clientSocket, data, 1024, 0) == -1)
+    if (send(clientSocket, "PUSH", 6, 0) == -1)
+    perror("send");
+//    char data[1024]= "hi";
+    int num = *((int *) arg);
+    char snum[20];
+    sprintf(snum, "%d", num);
+    if (send(clientSocket, snum, 1024, 0) == -1)
         perror("send");
     if (send(clientSocket, "EXIT", 5, 0) == -1)
         perror("send");
@@ -97,11 +96,11 @@ void *push_client(void* arg) {
 int main() {
     int i = 0;
     pthread_t PUSHING[10];
-//    if (pthread_mutex_init(&lock, NULL) != 0)
-//    {
-//        printf("\n mutex init failed\n");
-//        return 1;
-//    }
+    if (pthread_mutex_init(&lock, NULL) != 0)
+    {
+        printf("\n mutex init failed\n");
+        return 1;
+    }
     while(i < 10){  // main accept() loop
         if (pthread_create(&PUSHING[i], NULL, push_client, &i) != 0)
             printf("Failed to create thread\n");

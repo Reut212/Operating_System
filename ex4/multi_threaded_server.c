@@ -43,7 +43,6 @@ void *socketThread(void *arg) {
                 pthread_mutex_lock(&lock);
                 PUSH(data_push);
                 char snum[20];
-                sprintf(snum, "%d", self);
                 printf("client %s pushed %s to the stack\n", snum, data_push);
                 pthread_mutex_unlock(&lock);
             }

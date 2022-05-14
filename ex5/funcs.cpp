@@ -1,12 +1,15 @@
 #include<stddef.h>
 # include "funcs.hpp"
-
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 // free and malloc functions!!!
-char memory[40000];
+char *memory = (char*)mmap(NULL, sizeof(char) * 10000000, PROT_READ | PROT_WRITE,
+                                        MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 struct block *mata_data_list=(struct block*)memory;
 void initialize(){
-    mata_data_list->size= 40000 - sizeof(struct block);
+    mata_data_list->size= 10000000 - sizeof(struct block);
     mata_data_list->is_available=1;
     mata_data_list->next_meta_data=NULL;
 }
@@ -64,8 +67,8 @@ void merge(){
     }
 }
 
-void free(void* ptr){
-    if(((void*)memory<=ptr)&&(ptr<=(void*)(memory+40000))){
+void free(void* ptr) noexcept{
+    if(((void*)memory<=ptr)&&(ptr<=(void*)(memory+10000000))){
         struct block* curr=(struct block*)ptr;
         --curr;
         curr->is_available=1;

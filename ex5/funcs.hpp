@@ -28,6 +28,6 @@ void initialize();
 void split(struct block *old, size_t size);
 void *malloc(size_t number_of_bytes);
 void merge();
-void free(void* ptr);
+void free(void* ptr) noexcept;
 void *calloc(size_t nitems, size_t size);
 

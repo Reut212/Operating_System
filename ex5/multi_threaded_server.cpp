@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include <sys/types.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -15,6 +15,8 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include "funcs.hpp"
+#include <unistd.h>
+#include <sys/mman.h>
 #define PORT "3490"  // the port users will be connecting to
 
 #define BACKLOG 10   // how many pending connections queue will hold
@@ -30,6 +32,9 @@ void sigchld_handler(int s)
 }
 
 void handle_stack(int self, int newSocket) {
+    struct flock lock;
+    memset (&lock, 0, sizeof(lock));
+    lock.l_type = F_WRLCK;
 
     printf("------------------\n");
     printf("client %d connected\n", self);
@@ -43,23 +48,23 @@ void handle_stack(int self, int newSocket) {
             if ((recv(newSocket, data_push, 1024, 0)) == -1)
                 perror("recv");
             else{
-//                pthread_mutex_lock(&lock);
+                fcntl (newSocket, F_SETLKW, &lock);
                 PUSH(data_push);
                 printf("client %d pushed %s to the stack\n", self, data_push);
-//                pthread_mutex_unlock(&lock);
+                fcntl (newSocket, F_SETLKW, &lock);
             }
         } else if (strcmp(buf, "POP") == 0) {
-//            pthread_mutex_lock(&lock);
+            fcntl (newSocket, F_SETLKW, &lock);(&lock);
             POP();
             printf("popped from stack\n");
-//            pthread_mutex_unlock(&lock);
+            fcntl (newSocket, F_SETLKW, &lock);
 
         } else if (strcmp(buf, "TOP") == 0) {
-//            pthread_mutex_lock(&lock);
+            fcntl (newSocket, F_SETLKW, &lock);
             char* top = TOP();
             if (send(newSocket, top, 1024, 0) == -1)
                 perror("send");
-//            pthread_mutex_unlock(&lock);
+            fcntl (newSocket, F_SETLKW, &lock);
         }
         else if (strcmp(buf, "EXIT") == 0) {
             printf("client %d disconnected\n", self);
@@ -144,7 +149,6 @@ int main(void)
     }
 
     printf("server: waiting for connections...\n");
-
     while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
@@ -157,12 +161,12 @@ int main(void)
                   get_in_addr((struct sockaddr *)&their_addr),
                   s, sizeof s);
         printf("server: got connection from %s\n", s);
+
+
         if (!fork()) { // this is the child process
-//            close(sockfd);
             int pid = getpid();
-            handle_stack(pid, sockfd);
+            handle_stack(pid, new_fd);
         }
-//        close(new_fd);  // parent doesn't need this
     }
 
     return 0;

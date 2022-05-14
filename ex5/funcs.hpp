@@ -11,12 +11,15 @@ struct node{
 };
 
 
-void PUSH(char* data);
-char* TOP();
-void POP();
+void PUSH(struct funcs* stk, char* data);
+char* TOP(struct funcs* stk);
+void POP(struct funcs* stk);
 
 // malloc free funcs
-
+struct funcs{
+    struct node* head;
+    struct node* top;
+};
 
 struct block{
     size_t size;

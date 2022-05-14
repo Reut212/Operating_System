@@ -12,7 +12,7 @@ void initialize(){
 }
 
 void split(struct block *old, size_t size){
-    struct block *new_block=(struct block*)((void*)old + size + sizeof(struct block));
+    struct block *new_block=(struct block*)((int*)old + size + sizeof(struct block));
     new_block->size= (old->size) - size - sizeof(struct block);
     new_block->is_available=1;
     new_block->next_meta_data=old->next_meta_data;

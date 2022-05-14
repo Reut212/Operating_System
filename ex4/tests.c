@@ -72,11 +72,11 @@ void *push_client(void* arg) {
     sprintf(snum, "%d", num);
     printf("client %d connected\n", num);
     if (send(clientSocket, "PUSH", 6, 0) == -1)
-    perror("send");
+        perror("send");
     if (send(clientSocket, snum, 1024, 0) == -1)
         perror("send");
     printf("client %d pushed %s to the stack\n", num, snum);
-    if (send(clientSocket, "EXIT", 5, 0) == -1)
+    if (send(clientSocket, "EXIT", 6, 0) == -1)
         perror("send");
     printf("client %d disconnected\n", num);
     close(clientSocket);
@@ -112,8 +112,8 @@ int main() {
            "                                                 \n");
     printf("-------------------checking PUSH-------------------\n");
     int i = 0;
-    pthread_t PUSHING[10];
-    while(i < 10){  // main accept() loop
+    pthread_t PUSHING[5];
+    while(i < 5){  // main accept() loop
         if (pthread_create(&PUSHING[i], NULL, push_client, &i) != 0)
             printf("Failed to create thread\n");
         sleep(2);
@@ -133,12 +133,12 @@ int main() {
         perror("recv");
     else {
         int num = atoi(buf);
-        if (num != 9){
-            printf("test failed!!!!!!!!\n");
+        if (num != 4){
+            printf("test failed!!!!!!!! top is %d\n", num);
             return 0;
         }
         else{
-            printf("Top is 9!\n");
+            printf("Top is 4!\n");
             printf("\n"
                    "╔╦╗╔═╗╔═╗╔╦╗  ╔╦╗╔═╗╔═╗  ╔═╗╔═╗╔═╗╔═╗╔═╗╔╦╗  ┬\n"
                    " ║ ║╣ ╚═╗ ║    ║ ║ ║╠═╝  ╠═╝╠═╣╚═╗╚═╗║╣  ║║  │\n"
@@ -149,8 +149,9 @@ int main() {
             perror("recv");
     }
     printf("-------------------checking POP-------------------\n");
-    pthread_t POPPING[10];
-    while(i < 20){  // main accept() loop
+    pthread_t POPPING[5];
+    i=0;
+    while(i < 5){  // main accept() loop
         if (pthread_create(&POPPING[i], NULL, pop_client, &i) != 0)
             printf("Failed to create thread\n");
         sleep(2);

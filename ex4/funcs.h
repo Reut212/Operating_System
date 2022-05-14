@@ -20,7 +20,7 @@ char* TOP();
 void POP();
 
 // malloc free funcs
-char memory[20000];
+char memory[40000];
 
 struct block{
     size_t size;

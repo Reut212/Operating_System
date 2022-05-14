@@ -23,11 +23,12 @@ pthread_mutex_t lock;
 
 #define PORT "3490"  // the port users will be connecting to
 
-#define BACKLOG 10   // how many pending connections queue will hold
+#define BACKLOG 60   // how many pending connections queue will hold
 
 void *socketThread(void *arg) {
     int self = pthread_self();
     int newSocket = *((int *) arg);
+    printf("------------------\n");
     printf("client %d connected\n", self);
     char buf[6];
     while (1) {
@@ -36,22 +37,18 @@ void *socketThread(void *arg) {
             perror("recv");
         if (strcmp(buf, "PUSH") == 0) {
             char data_push[1024];
-            memset(data_push, 0, 1024);
             if ((recv(newSocket, data_push, 1024, 0)) == -1)
                 perror("recv");
             else{
-                printf("data to push is %s\n", data_push);
                 pthread_mutex_lock(&lock);
                 PUSH(data_push);
                 printf("client %d pushed %s to the stack\n", self, data_push);
-                memset(buf, 0, 6);
                 pthread_mutex_unlock(&lock);
             }
         } else if (strcmp(buf, "POP") == 0) {
             pthread_mutex_lock(&lock);
             POP();
             printf("popped from stack\n");
-            memset(buf, 0, 6);
             pthread_mutex_unlock(&lock);
 
         } else if (strcmp(buf, "TOP") == 0) {
@@ -59,12 +56,10 @@ void *socketThread(void *arg) {
             char* top = TOP();
             if (send(newSocket, top, 1024, 0) == -1)
                 perror("send");
-            memset(buf, 0, 6);
             pthread_mutex_unlock(&lock);
         }
         else if (strcmp(buf, "EXIT") == 0) {
             printf("client %d disconnected\n", self);
-            memset(buf, 0, 6);
             close(newSocket);
             pthread_exit(NULL);
         }

@@ -4,7 +4,7 @@
 // free and malloc functions!!!
 struct block *mata_data_list=(void*)memory;
 void initialize(){
-    mata_data_list->size= 20000 - sizeof(struct block);
+    mata_data_list->size= 40000 - sizeof(struct block);
     mata_data_list->is_available=1;
     mata_data_list->next_meta_data=NULL;
 }
@@ -63,7 +63,7 @@ void merge(){
 }
 
 void free(void* ptr){
-    if(((void*)memory<=ptr)&&(ptr<=(void*)(memory+20000))){
+    if(((void*)memory<=ptr)&&(ptr<=(void*)(memory+40000))){
         struct block* curr=ptr;
         --curr;
         curr->is_available=1;
@@ -80,8 +80,8 @@ void *calloc(size_t nitems, size_t size){
 // stack functions!!!
 void PUSH(char* data){
     struct node* new_node = (struct node*)malloc(sizeof(struct node));
-    int length = strlen(data)+1;
-    char *new_data = (char*) malloc(length * sizeof(char));
+    int length = strlen(data);
+    char *new_data = (char*) malloc(length * sizeof(char)+1);
     strcpy(new_data,data);
     new_node->data_ptr=new_data;
     new_node->next=NULL;

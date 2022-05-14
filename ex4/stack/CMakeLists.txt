@@ -1,5 +1,5 @@
 set(stack_files
-        ../funcs.c
-        ../funcs.h
+        ../funcs.cpp
+        ../funcs.hpp
         )
 add_library(stack ${stack_files})

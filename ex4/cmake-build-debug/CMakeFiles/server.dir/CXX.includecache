@@ -6,18 +6,20 @@
 
 #IncludeRegexTransform: 
 
-../stack/stack.hpp
+/home/neta/CLionProjects/OS/ex4/funcs.hpp
 stdio.h
 -
 stdlib.h
 -
 string.h
 -
+stdio.h
+-
+stddef.h
+-
 
 /home/neta/CLionProjects/OS/ex4/multi_threaded_server.cpp
 stdio.h
--
-iostream
 -
 stdlib.h
 -
@@ -43,6 +45,6 @@ signal.h
 -
 pthread.h
 -
-stack.hpp
-/home/neta/CLionProjects/OS/ex4/stack.hpp
+funcs.hpp
+/home/neta/CLionProjects/OS/ex4/funcs.hpp
 

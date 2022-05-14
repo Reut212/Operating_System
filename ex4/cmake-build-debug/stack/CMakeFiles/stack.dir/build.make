@@ -77,30 +77,30 @@ include stack/CMakeFiles/stack.dir/progress.make
 # Include the compile flags for this target's objects.
 include stack/CMakeFiles/stack.dir/flags.make
 
-stack/CMakeFiles/stack.dir/__/funcs.c.o: stack/CMakeFiles/stack.dir/flags.make
-stack/CMakeFiles/stack.dir/__/funcs.c.o: ../funcs.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object stack/CMakeFiles/stack.dir/__/funcs.c.o"
-	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/stack.dir/__/funcs.c.o   -c /home/neta/CLionProjects/OS/ex4/funcs.c
+stack/CMakeFiles/stack.dir/__/funcs.cpp.o: stack/CMakeFiles/stack.dir/flags.make
+stack/CMakeFiles/stack.dir/__/funcs.cpp.o: ../funcs.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object stack/CMakeFiles/stack.dir/__/funcs.cpp.o"
+	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/stack.dir/__/funcs.cpp.o -c /home/neta/CLionProjects/OS/ex4/funcs.cpp
 
-stack/CMakeFiles/stack.dir/__/funcs.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/stack.dir/__/funcs.c.i"
-	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/neta/CLionProjects/OS/ex4/funcs.c > CMakeFiles/stack.dir/__/funcs.c.i
+stack/CMakeFiles/stack.dir/__/funcs.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/stack.dir/__/funcs.cpp.i"
+	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/neta/CLionProjects/OS/ex4/funcs.cpp > CMakeFiles/stack.dir/__/funcs.cpp.i
 
-stack/CMakeFiles/stack.dir/__/funcs.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/stack.dir/__/funcs.c.s"
-	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack && /usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/neta/CLionProjects/OS/ex4/funcs.c -o CMakeFiles/stack.dir/__/funcs.c.s
+stack/CMakeFiles/stack.dir/__/funcs.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/stack.dir/__/funcs.cpp.s"
+	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/neta/CLionProjects/OS/ex4/funcs.cpp -o CMakeFiles/stack.dir/__/funcs.cpp.s
 
 # Object files for target stack
 stack_OBJECTS = \
-"CMakeFiles/stack.dir/__/funcs.c.o"
+"CMakeFiles/stack.dir/__/funcs.cpp.o"
 
 # External object files for target stack
 stack_EXTERNAL_OBJECTS =
 
-stack/libstack.a: stack/CMakeFiles/stack.dir/__/funcs.c.o
+stack/libstack.a: stack/CMakeFiles/stack.dir/__/funcs.cpp.o
 stack/libstack.a: stack/CMakeFiles/stack.dir/build.make
 stack/libstack.a: stack/CMakeFiles/stack.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C static library libstack.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/neta/CLionProjects/OS/ex4/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libstack.a"
 	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack && $(CMAKE_COMMAND) -P CMakeFiles/stack.dir/cmake_clean_target.cmake
 	cd /home/neta/CLionProjects/OS/ex4/cmake-build-debug/stack && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/stack.dir/link.txt --verbose=$(VERBOSE)
 

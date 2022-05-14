@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.13)
 
 cmake_policy(SET CMP0015 NEW)
 
-set(SOURCE_FILES multi_threaded_server.c)
+set(SOURCE_FILES multi_threaded_server.cpp)
 
 include_directories( stack )
 
@@ -14,8 +14,8 @@ link_directories(stack)
 add_subdirectory(stack)
 
 add_executable( server ${SOURCE_FILES} )
-add_executable( client client.c)
-add_executable( tests tests.c)
+add_executable( client client.cpp)
+add_executable( tests tests.cpp)
 
 
 

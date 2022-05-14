@@ -6,15 +6,21 @@
 
 #IncludeRegexTransform: 
 
-/home/neta/CLionProjects/OS/ex4/stack/stack.cpp
-stack.hpp
-/home/neta/CLionProjects/OS/ex4/stack/stack.hpp
+/home/neta/CLionProjects/OS/ex4/funcs.cpp
+funcs.hpp
+/home/neta/CLionProjects/OS/ex4/funcs.hpp
+stddef.h
+-
 
-/home/neta/CLionProjects/OS/ex4/stack/stack.hpp
+/home/neta/CLionProjects/OS/ex4/funcs.hpp
 stdio.h
 -
 stdlib.h
 -
 string.h
+-
+stdio.h
+-
+stddef.h
 -
 

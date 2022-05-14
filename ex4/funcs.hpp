@@ -10,17 +10,13 @@ struct node{
     char* data_ptr;
 };
 
-struct funcs{
-    struct node* head;
-    struct node* top;
-} stk;
 
 void PUSH(char* data);
 char* TOP();
 void POP();
 
 // malloc free funcs
-char memory[40000];
+
 
 struct block{
     size_t size;

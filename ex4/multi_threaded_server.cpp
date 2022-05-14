@@ -15,7 +15,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <pthread.h>
-# include "funcs.h"
+# include "funcs.hpp"
 pthread_mutex_t lock;
 
 

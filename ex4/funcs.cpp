@@ -1,8 +1,10 @@
-# include "funcs.h"
 #include<stddef.h>
+# include "funcs.hpp"
+
 
 // free and malloc functions!!!
-struct block *mata_data_list=(void*)memory;
+char memory[40000];
+struct block *mata_data_list=(struct block*)memory;
 void initialize(){
     mata_data_list->size= 40000 - sizeof(struct block);
     mata_data_list->is_available=1;
@@ -10,13 +12,13 @@ void initialize(){
 }
 
 void split(struct block *old, size_t size){
-    struct block *new=(void*)((void*)old + size + sizeof(struct block));
-    new->size= (old->size) - size - sizeof(struct block);
-    new->is_available=1;
-    new->next_meta_data=old->next_meta_data;
+    struct block *new_block=(struct block*)((void*)old + size + sizeof(struct block));
+    new_block->size= (old->size) - size - sizeof(struct block);
+    new_block->is_available=1;
+    new_block->next_meta_data=old->next_meta_data;
     old->size=size;
     old->is_available=0;
-    old->next_meta_data=new;
+    old->next_meta_data=new_block;
 }
 
 
@@ -64,7 +66,7 @@ void merge(){
 
 void free(void* ptr){
     if(((void*)memory<=ptr)&&(ptr<=(void*)(memory+40000))){
-        struct block* curr=ptr;
+        struct block* curr=(struct block*)ptr;
         --curr;
         curr->is_available=1;
         merge();
@@ -78,6 +80,11 @@ void *calloc(size_t nitems, size_t size){
 }
 
 // stack functions!!!
+struct funcs{
+    struct node* head;
+    struct node* top;
+} stk;
+
 void PUSH(char* data){
     struct node* new_node = (struct node*)malloc(sizeof(struct node));
     int length = strlen(data);

@@ -222,19 +222,19 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/neta/CLionProjects/OS/ex4/client.c">
+		<Unit filename="/home/neta/CLionProjects/OS/ex4/client.cpp">
 			<Option target="client"/>
 		</Unit>
-		<Unit filename="/home/neta/CLionProjects/OS/ex4/funcs.c">
+		<Unit filename="/home/neta/CLionProjects/OS/ex4/funcs.cpp">
 			<Option target="stack"/>
 		</Unit>
-		<Unit filename="/home/neta/CLionProjects/OS/ex4/funcs.h">
+		<Unit filename="/home/neta/CLionProjects/OS/ex4/funcs.hpp">
 			<Option target="stack"/>
 		</Unit>
-		<Unit filename="/home/neta/CLionProjects/OS/ex4/multi_threaded_server.c">
+		<Unit filename="/home/neta/CLionProjects/OS/ex4/multi_threaded_server.cpp">
 			<Option target="server"/>
 		</Unit>
-		<Unit filename="/home/neta/CLionProjects/OS/ex4/tests.c">
+		<Unit filename="/home/neta/CLionProjects/OS/ex4/tests.cpp">
 			<Option target="tests"/>
 		</Unit>
 		<Unit filename="/home/neta/CLionProjects/OS/ex4/CMakeLists.txt">

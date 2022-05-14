@@ -182,86 +182,86 @@ stack/fast:
 	$(MAKE) $(MAKESILENT) -f stack/CMakeFiles/stack.dir/build.make stack/CMakeFiles/stack.dir/build
 .PHONY : stack/fast
 
-client.o: client.c.o
+client.o: client.cpp.o
 
 .PHONY : client.o
 
 # target to build an object file
-client.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.c.o
-.PHONY : client.c.o
+client.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.cpp.o
+.PHONY : client.cpp.o
 
-client.i: client.c.i
+client.i: client.cpp.i
 
 .PHONY : client.i
 
 # target to preprocess a source file
-client.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.c.i
-.PHONY : client.c.i
+client.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.cpp.i
+.PHONY : client.cpp.i
 
-client.s: client.c.s
+client.s: client.cpp.s
 
 .PHONY : client.s
 
 # target to generate assembly for a file
-client.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.c.s
-.PHONY : client.c.s
+client.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.cpp.s
+.PHONY : client.cpp.s
 
-multi_threaded_server.o: multi_threaded_server.c.o
+multi_threaded_server.o: multi_threaded_server.cpp.o
 
 .PHONY : multi_threaded_server.o
 
 # target to build an object file
-multi_threaded_server.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.c.o
-.PHONY : multi_threaded_server.c.o
+multi_threaded_server.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.cpp.o
+.PHONY : multi_threaded_server.cpp.o
 
-multi_threaded_server.i: multi_threaded_server.c.i
+multi_threaded_server.i: multi_threaded_server.cpp.i
 
 .PHONY : multi_threaded_server.i
 
 # target to preprocess a source file
-multi_threaded_server.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.c.i
-.PHONY : multi_threaded_server.c.i
+multi_threaded_server.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.cpp.i
+.PHONY : multi_threaded_server.cpp.i
 
-multi_threaded_server.s: multi_threaded_server.c.s
+multi_threaded_server.s: multi_threaded_server.cpp.s
 
 .PHONY : multi_threaded_server.s
 
 # target to generate assembly for a file
-multi_threaded_server.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.c.s
-.PHONY : multi_threaded_server.c.s
+multi_threaded_server.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/multi_threaded_server.cpp.s
+.PHONY : multi_threaded_server.cpp.s
 
-tests.o: tests.c.o
+tests.o: tests.cpp.o
 
 .PHONY : tests.o
 
 # target to build an object file
-tests.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/tests.c.o
-.PHONY : tests.c.o
+tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/tests.cpp.o
+.PHONY : tests.cpp.o
 
-tests.i: tests.c.i
+tests.i: tests.cpp.i
 
 .PHONY : tests.i
 
 # target to preprocess a source file
-tests.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/tests.c.i
-.PHONY : tests.c.i
+tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/tests.cpp.i
+.PHONY : tests.cpp.i
 
-tests.s: tests.c.s
+tests.s: tests.cpp.s
 
 .PHONY : tests.s
 
 # target to generate assembly for a file
-tests.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/tests.c.s
-.PHONY : tests.c.s
+tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/tests.cpp.s
+.PHONY : tests.cpp.s
 
 # Help Target
 help:

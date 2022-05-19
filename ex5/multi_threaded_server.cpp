@@ -31,7 +31,7 @@ void sigchld_handler(int s)
     errno = saved_errno;
 }
 
-void handle_stack(int self, int newSocket, struct funcs* stk) {
+void handle_stack(int self, int newSocket) {
     struct flock lock;
     memset (&lock, 0, sizeof(lock));
     lock.l_type = F_WRLCK;
@@ -49,19 +49,19 @@ void handle_stack(int self, int newSocket, struct funcs* stk) {
                 perror("recv");
             else{
                 fcntl (newSocket, F_SETLKW, &lock);
-                PUSH(stk,data_push);
+                PUSH(data_push);
                 printf("client %d pushed %s to the stack\n", self, data_push);
                 fcntl (newSocket, F_SETLKW, &lock);
             }
         } else if (strcmp(buf, "POP") == 0) {
             fcntl (newSocket, F_SETLKW, &lock);(&lock);
-            POP(stk);
+            POP();
             printf("popped from stack\n");
             fcntl (newSocket, F_SETLKW, &lock);
 
         } else if (strcmp(buf, "TOP") == 0) {
             fcntl (newSocket, F_SETLKW, &lock);
-            char* top = TOP(stk);
+            char* top = TOP();
             if (send(newSocket, top, 1024, 0) == -1)
                 perror("send");
             fcntl (newSocket, F_SETLKW, &lock);
@@ -148,7 +148,6 @@ int main(void)
         exit(1);
     }
 
-    struct funcs* stk = (struct funcs*)malloc(sizeof(struct funcs));
     printf("server: waiting for connections...\n");
     while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
@@ -166,7 +165,7 @@ int main(void)
 
         if (!fork()) { // this is the child process
             int pid = getpid();
-            handle_stack(pid, new_fd, stk);
+            handle_stack(pid, new_fd);
         }
     }
 

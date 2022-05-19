@@ -29,14 +29,15 @@ void split(struct block *old, size_t size) {
 #define CHUNK_SIZE (1 << 14)
 #define CHUNK_ALIGN(size) (((size)+(CHUNK_SIZE-1)) & ~(CHUNK_SIZE-1))
 
-void *current_avail = NULL;
+char *current_avail = NULL;
 size_t current_avail_size = 0;
 
 void *malloc(size_t size) {
+    // old code
     size_t newsize = ALIGN(size);
     void *p;
     if (current_avail_size < newsize) {
-        current_avail = mmap(0, CHUNK_ALIGN(newsize),
+        current_avail = (char*)mmap(0, CHUNK_ALIGN(newsize),
                              PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS,
                              -1, 0);
         current_avail_size = CHUNK_ALIGN(newsize);
@@ -45,6 +46,32 @@ void *malloc(size_t size) {
     current_avail = current_avail+ newsize;
     current_avail_size -= newsize;
     return p;
+    /// ex4 code
+    struct block *curr;
+    void *result;
+    if(!(mata_data_list->size)){
+        initialize();
+    }
+    curr=mata_data_list;
+    size_t number_of_bytes = ALIGN(size);
+    while((((curr->size) < number_of_bytes) || ((curr->is_available) == 0)) && (curr->next_meta_data != NULL)){
+        curr=curr->next_meta_data;
+    }
+    if((curr->size) == number_of_bytes){
+        curr->is_available=0;
+        result=(void*)(++curr);
+        return result;
+    }
+    else if((curr->size)>(number_of_bytes + sizeof(struct block))){
+        split(curr, number_of_bytes);
+        result=(void*)(++curr);
+        return result;
+    }
+    else{
+        result=NULL;
+        return result;
+    }
+
 }
 
 void merge() {
@@ -63,6 +90,7 @@ void free(void *ptr) noexcept {
     if (((void *) memory <= ptr) && (ptr <= (void *) (memory + 10000000))) {
         struct block *curr = (struct block *) ptr;
         --curr;
+        --current_avail;
         curr->is_available = 1;
         merge();
     }
@@ -76,49 +104,53 @@ void *calloc(size_t nitems, size_t size) {
 
 // stack functions!!!
 
+struct funcs{
+    struct node* head;
+    struct node* top;
+}stk;
 
-void PUSH(struct funcs *stk, char *data) {
+void PUSH(char *data) {
     struct node *new_node = (struct node *) malloc(sizeof(struct node));
     int length = strlen(data);
     char *new_data = (char *) malloc(length * sizeof(char) + 1);
     strcpy(new_data, data);
     new_node->data_ptr = new_data;
     new_node->next = NULL;
-    if (stk->head == NULL) {
-        stk->head = new_node;
+    if (stk.head == NULL) {
+        stk.head = new_node;
     } else {
-        struct node *curr = stk->head;
+        struct node *curr = stk.head;
         while (curr->next != NULL) {
             curr = curr->next;
         }
         curr->next = new_node;
     }
-    stk->top = new_node;
+    stk.top = new_node;
 }
 
-char *TOP(struct funcs *stk) {
-    if (stk->head == NULL) {
+char *TOP() {
+    if (stk.head == NULL) {
         return (strdup(""));
     }
 //    printf("%s", stk.top->data_ptr);
-    return (stk->top->data_ptr);
+    return (stk.top->data_ptr);
 }
 
-void POP(struct funcs *stk) {
-    if (stk->head != NULL) {
-        struct node *curr = stk->head;
-        if (stk->head == stk->top) {
-            free(stk->top->data_ptr);
-            free(stk->top);
-            stk->top = NULL;
-            stk->head = NULL;
+void POP() {
+    if (stk.head != NULL) {
+        struct node *curr = stk.head;
+        if (stk.head == stk.top) {
+            free(stk.top->data_ptr);
+            free(stk.top);
+            stk.top = NULL;
+            stk.head = NULL;
         } else {
-            while (curr->next != stk->top) {
+            while (curr->next != stk.top) {
                 curr = curr->next;
             }
-            struct node *old_top = stk->top;
+            struct node *old_top = stk.top;
             curr->next = NULL;
-            stk->top = curr;
+            stk.top = curr;
             free(old_top->data_ptr);
             free(old_top);
         }

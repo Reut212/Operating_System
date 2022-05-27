@@ -1,21 +1,18 @@
-CC = g++
+CC = gcc
 
 CFLAGS  = -g -Wall
 
 
-all: server client tests
+all: server client
 
 #stack: stack.cpp stack.h
 #	$(CC) $(CFLAGS) -o stack stack.cpp stack.h
 
 server: multi_threaded_server.cpp
-	$(CC) -pthread $(CFLAGS) -o server multi_threaded_server.cpp funcs.cpp
+	$(CC) $(CFLAGS) -o server multi_threaded_server.cpp
 
 client: client.cpp
-	$(CC) -pthread $(CFLAGS) -o client client.cpp
-
-tests: tests.cpp
-	$(CC) -pthread $(CFLAGS) -o tests tests.cpp
+	$(CC) $(CFLAGS) -o client client.cpp
 
 clean:
-	rm server client tests
+	rm server client

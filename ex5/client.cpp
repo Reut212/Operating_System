@@ -7,7 +7,6 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "funcs.hpp"
 
 #include <arpa/inet.h>
 

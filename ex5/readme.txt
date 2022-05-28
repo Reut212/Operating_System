@@ -12,8 +12,8 @@ Notes:
 http://tharikasblogs.blogspot.com/p/how-to-write-your-own-malloc-and-free.html
 
 Assumptions:
-1. Here, We assumed a block of memory of size 20,000 bytes char memory[20000];
-(assuming that the storage for a character is 1 byte in the machine).
+1. available memory: 40000 chars (malloc mmap)
+2. available stack memory: 1024 chars (#define MAXDATASIZE 1024 in funcs.h)
 
 How to run the test:
 1. before running tests make sure you closed the code's server!

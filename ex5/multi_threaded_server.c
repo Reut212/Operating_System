@@ -14,7 +14,8 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <sys/mman.h>
-# include "funcs.h"
+#include <fcntl.h>
+# include "funcs.c"
 #define PORT "3490"  // the port users will be connecting to
 #define BACKLOG 10   // how many pending connections queue will hold
 

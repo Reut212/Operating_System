@@ -88,58 +88,42 @@
 //    return ptr;
 //}
 // stack functions!!!
-struct funcs{
-    struct node* head;
-    struct node* top;
-};
-struct node{
-    struct node* next;
-    char* data_ptr;
-};
-void PUSH(struct funcs *stk, char *data) {
-    struct node *new_node = (struct node *) malloc(sizeof(struct node));
-    int length = strlen(data);
-    char *new_data = (char *) malloc(length * sizeof(char) + 1);
-    strcpy(new_data, data);
-    new_node->data_ptr = new_data;
-    new_node->next = NULL;
-    if (stk->head == NULL) {
-        stk->head = new_node;
-    } else {
-        struct node *curr = stk->head;
-        while (curr->next != NULL) {
-            curr = curr->next;
-        }
-        curr->next = new_node;
+#define MAXDATASIZE 1024
+#include <fcntl.h>
+// TODO: add locks
+typedef struct Stack{
+    int counter;
+    char data[MAXDATASIZE];
+} stack;
+void PUSH(stack* stk, char *data) {
+    for(int i = 0; i < strlen(data); i++){
+        stk->data[stk->counter] = data[i];
+        stk->counter++;
     }
-    stk->top = new_node;
+    stk->data[stk->counter++] = '\0';
 }
 
-char *TOP(struct funcs *stk) {
-//    if (stk->head == NULL) {
-//        return (strdup(""));
-//    }
-//    printf("%s", stk.top->data_ptr);
-    return (stk->top->data_ptr);
+char *TOP(stack *stk) {
+    int t = 0;
+
+    if(stk->counter == 0){
+        perror("stack is empty");
+    }
+
+    char* res = (char*)malloc(sizeof(char)*1024);
+
+    int x = (stk->counter)-2;
+    while(stk->data[x] != '\0'){
+        x--;
+    }
+    x++;
+    strcpy(res,&(stk->data[x]));
+    return res;
 }
 
-void POP(struct funcs *stk) {
-    if (stk->head != NULL) {
-        struct node *curr = stk->head;
-        if (stk->head == stk->top) {
-            free(stk->top->data_ptr);
-            free(stk->top);
-            stk->top = NULL;
-            stk->head = NULL;
-        } else {
-            while (curr->next != stk->top) {
-                curr = curr->next;
-            }
-            struct node *old_top = stk->top;
-            curr->next = NULL;
-            stk->top = curr;
-            free(old_top->data_ptr);
-            free(old_top);
-        }
+void POP(stack *stk) {
+    while(stk->data[stk->counter-2] != '\0'){
+        stk->counter--;
     }
+    stk->counter--;
 }

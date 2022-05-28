@@ -15,11 +15,11 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <sys/mman.h>
-# include "funcs.hpp"
+# include "funcs.h"
 #define PORT "3490"  // the port users will be connecting to
 #define BACKLOG 10   // how many pending connections queue will hold
 
-funcs *stk = NULL;
+stack* stk = NULL;
 
 void sigchld_handler(int s)
 {
@@ -86,6 +86,7 @@ void *get_in_addr(struct sockaddr *sa)
 
 int main(void)
 {
+    stk = (stack*)mmap(NULL, sizeof(stack), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
     struct addrinfo hints, *servinfo, *p;
     struct sockaddr_storage their_addr; // connector's address information
@@ -162,11 +163,13 @@ int main(void)
                   s, sizeof s);
         printf("server: got connection from %s\n", s);
 
-        stk = (struct funcs*)mmap(NULL, sizeof(struct funcs*), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
         if (!fork()) { // this is the child process
             int pid = getpid();
             handle_stack(pid, new_fd);
+            close(sockfd);
+            exit(1);
         }
     }
+    munmap(stk, sizeof(stack));
     return 0;
 }

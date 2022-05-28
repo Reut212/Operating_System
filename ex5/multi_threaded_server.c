@@ -33,6 +33,9 @@ void sigchld_handler(int s)
 void handle_stack(int self, int newSocket) {
     printf("------------------\n");
     printf("client %d connected\n", self);
+    struct flock lock;
+    memset (&lock, 0, sizeof(lock));
+    lock.l_type = F_WRLCK;
     char buf[6];
     while (1) {
         memset(buf, 0, 6);
@@ -43,17 +46,23 @@ void handle_stack(int self, int newSocket) {
             if ((recv(newSocket, data_push, 1024, 0)) == -1)
                 perror("recv");
             else{
+                fcntl (newSocket, F_SETLKW, &lock);
                 PUSH(stk, data_push);
                 printf("client %d pushed %s to the stack\n", self, data_push);
+                fcntl (newSocket, F_SETLKW, &lock);
             }
         } else if (strcmp(buf, "POP") == 0) {
+            fcntl (newSocket, F_SETLKW, &lock);
             POP(stk);
             printf("popped from stack\n");
+            fcntl (newSocket, F_SETLKW, &lock);
 
         } else if (strcmp(buf, "TOP") == 0) {
+            fcntl (newSocket, F_SETLKW, &lock);
             char* top = TOP(stk);
             if (send(newSocket, top, 1024, 0) == -1)
                 perror("send");
+            fcntl (newSocket, F_SETLKW, &lock);
         }
         else if (strcmp(buf, "EXIT") == 0) {
             printf("client %d disconnected\n", self);

@@ -90,8 +90,6 @@
 // stack functions!!!
 
 #define MAXDATASIZE 1024
-#include <fcntl.h>
-// TODO: add locks
 
 typedef struct Stack{
     int counter;

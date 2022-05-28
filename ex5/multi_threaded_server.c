@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -32,10 +31,6 @@ void sigchld_handler(int s)
 }
 
 void handle_stack(int self, int newSocket) {
-//    struct flock lock;
-//    memset (&lock, 0, sizeof(lock));
-//    lock.l_type = F_WRLCK;
-
     printf("------------------\n");
     printf("client %d connected\n", self);
     char buf[6];
@@ -48,23 +43,17 @@ void handle_stack(int self, int newSocket) {
             if ((recv(newSocket, data_push, 1024, 0)) == -1)
                 perror("recv");
             else{
-//                fcntl (newSocket, F_SETLKW, &lock);
                 PUSH(stk, data_push);
                 printf("client %d pushed %s to the stack\n", self, data_push);
-//                fcntl (newSocket, F_SETLKW, &lock);
             }
         } else if (strcmp(buf, "POP") == 0) {
-//            fcntl (newSocket, F_SETLKW, &lock);(&lock);
             POP(stk);
             printf("popped from stack\n");
-//            fcntl (newSocket, F_SETLKW, &lock);
 
         } else if (strcmp(buf, "TOP") == 0) {
-//            fcntl (newSocket, F_SETLKW, &lock);
             char* top = TOP(stk);
             if (send(newSocket, top, 1024, 0) == -1)
                 perror("send");
-//            fcntl (newSocket, F_SETLKW, &lock);
         }
         else if (strcmp(buf, "EXIT") == 0) {
             printf("client %d disconnected\n", self);

@@ -88,13 +88,16 @@
 //    return ptr;
 //}
 // stack functions!!!
+
 #define MAXDATASIZE 1024
 #include <fcntl.h>
 // TODO: add locks
+
 typedef struct Stack{
     int counter;
     char data[MAXDATASIZE];
 } stack;
+
 void PUSH(stack* stk, char *data) {
     for(int i = 0; i < strlen(data); i++){
         stk->data[stk->counter] = data[i];
@@ -104,15 +107,15 @@ void PUSH(stack* stk, char *data) {
 }
 
 char *TOP(stack *stk) {
-    int t = 0;
-
     if(stk->counter == 0){
         perror("stack is empty");
     }
-
     char* res = (char*)malloc(sizeof(char)*1024);
-
+    // memory looks like this: ___/0____/0
+    // we are now pointing to the cell after the last /0
+    // so we want to go 2 cells back to point to the last char
     int x = (stk->counter)-2;
+    // now we'll seek for the separating /0
     while(stk->data[x] != '\0'){
         x--;
     }
@@ -122,6 +125,8 @@ char *TOP(stack *stk) {
 }
 
 void POP(stack *stk) {
+    // note: freeing space that had been malloc at the end when stack is destroyed
+    // munmap at the end of the server
     while(stk->data[stk->counter-2] != '\0'){
         stk->counter--;
     }

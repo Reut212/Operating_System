@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
+
+pthread_mutex_t lock;
 
 typedef struct QNode {
     void* data;
@@ -14,4 +17,4 @@ typedef struct Queue {
 void* createQ();
 void destoryQ(void* q);
 void enQ(void* q,void* n);
-void deQ();
+void deQ(void* q);

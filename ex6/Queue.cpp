@@ -1,4 +1,4 @@
-# include "Queue.h"
+# include "Queue.hpp"
 
 node* newNode(void* k)
 {
@@ -11,19 +11,27 @@ node* newNode(void* k)
 void* createQ(){
     queue* q = (queue*)malloc(sizeof(queue));
     q->front = q->rear = NULL;
+    if (pthread_mutex_init(&lock, NULL) != 0)
+    {
+        perror("mutex init failed");
+    }
     void* the_queue = (void*)q;
     return the_queue;
 }
 
 void destoryQ(void* q){
+    pthread_mutex_lock(&lock);
     queue* the_queue = (queue*)q;
     while (the_queue->front!=NULL){
         deQ(q);
     }
     free(q);
+    pthread_mutex_unlock(&lock);
+    pthread_mutex_destroy(&lock);
 }
 
 void enQ(void* q, void* n){
+    pthread_mutex_lock(&lock);
     node* temp = newNode(n);
     queue* the_queue = (queue*)q;
     if (the_queue->rear == NULL) { //empty queue
@@ -34,9 +42,11 @@ void enQ(void* q, void* n){
     the_queue->rear->next = temp;
     the_queue->rear = temp;
     temp->prev = curr;
+    pthread_mutex_destroy(&lock);
 }
 
 void deQ(void* q){
+    pthread_mutex_lock(&lock);
     queue* the_queue = (queue*)q;
     if (the_queue->front == NULL)
         return;
@@ -53,6 +63,7 @@ void deQ(void* q){
     }
 
     free(temp);
+    pthread_mutex_destroy(&lock);
 }
 
 int main(){

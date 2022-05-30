@@ -1,14 +1,5 @@
-# include "Queue.hpp"
-
-typedef void* (*beforeFun)(void*);
-typedef void (*afterFun)(void*);
-
-typedef struct ao{
-    queue* q;
-    beforeFun beforePtr;
-    afterFun afterPtr;
-    pthread_t thread;
-} ao;
+#include "active_object.hpp"
+#include <pthread.h>
 
 void * run(void *arg){
     ao* active_object = (ao*)arg;

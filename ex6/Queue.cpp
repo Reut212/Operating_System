@@ -4,14 +4,14 @@ node* newNode(void* k)
 {
     node* temp = (node*)malloc(sizeof(node));
     temp->data = k;
-    temp->next = NULL;
+    temp->next = nullptr;
     return temp;
 }
 
 void* createQ(){
     queue* q = (queue*)malloc(sizeof(queue));
-    q->front = q->rear = NULL;
-    if (pthread_mutex_init(&lock, NULL) != 0)
+    q->front = q->rear = nullptr;
+    if (pthread_mutex_init(&lock, nullptr) != 0)
     {
         perror("mutex init failed");
     }
@@ -22,7 +22,7 @@ void* createQ(){
 void destoryQ(void* q){
     pthread_mutex_lock(&lock);
     queue* the_queue = (queue*)q;
-    while (the_queue->front!=NULL){
+    while (the_queue->front!=nullptr){
         deQ(q);
     }
     free(q);
@@ -34,7 +34,7 @@ void enQ(void* q, void* n){
     pthread_mutex_lock(&lock);
     node* temp = newNode(n);
     queue* the_queue = (queue*)q;
-    if (the_queue->rear == NULL) { //empty queue
+    if (the_queue->rear == nullptr) { //empty queue
         the_queue->front = the_queue->rear = temp;
         return;
     }
@@ -45,35 +45,25 @@ void enQ(void* q, void* n){
     pthread_mutex_destroy(&lock);
 }
 
-void deQ(void* q){
+void* deQ(void* q){
     pthread_mutex_lock(&lock);
     queue* the_queue = (queue*)q;
-    if (the_queue->front == NULL)
-        return;
-
+    if (the_queue->front == nullptr) {
+        pthread_cond_wait(&cond, &lock);
+    }
+    void* res = the_queue->front->data;
     // Store previous front and move front one node ahead
     node* temp = the_queue->front;
 
     the_queue->front = the_queue->front->next;
     // If front becomes NULL, then change rear also as NULL
-    if (the_queue->front == NULL)
-        the_queue->rear = NULL;
+    if (the_queue->front == nullptr)
+        the_queue->rear = nullptr;
     else{
-        the_queue->front->prev = NULL;
+        the_queue->front->prev = nullptr;
     }
 
     free(temp);
     pthread_mutex_destroy(&lock);
-}
-
-int main(){
-    void* q = createQ();
-    enQ(q, (void*)1);
-    enQ(q, (void*)2);
-    enQ(q, (void*)3);
-    enQ(q, (void*)4);
-    enQ(q, (void*)5);
-    deQ(q);
-    destoryQ(q);
-    return 0;
+    return res;
 }

@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-pthread_mutex_t lock;
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
 
 typedef struct QNode {
     void* data;
@@ -17,4 +19,4 @@ typedef struct Queue {
 void* createQ();
 void destoryQ(void* q);
 void enQ(void* q,void* n);
-void deQ(void* q);
+void* deQ(void* q);

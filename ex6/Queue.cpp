@@ -1,7 +1,5 @@
 # include "Queue.hpp"
 
-
-
 node* newNode(void* k)
 {
     node* temp = (node*)malloc(sizeof(node));

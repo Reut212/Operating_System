@@ -1,6 +1,4 @@
-#include <cstdio>
-#include "active_object.hpp"
-#include "Queue.hpp"
+# include "pipline.hpp"
 
 char caesar_cipher(char c) {
     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {

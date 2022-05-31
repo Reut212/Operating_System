@@ -12,7 +12,7 @@ all: pipeline
 #	$(CC) $(CFLAGS) -o active active_object.cpp Queue.cpp
 
 pipeline: pipeline.cpp
-	$(CC) $(CFLAGS) pipeline.cpp active_object.cpp Queue.cpp -o pipeline
+	$(CC) $(CFLAGS) pipeline.cpp active_object.cpp Queue.cpp server.cpp -o pipeline
 
 clean:
 	rm pipeline

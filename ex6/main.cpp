@@ -11,12 +11,7 @@
 #include <pthread.h>
 #include "Queue.hpp"
 #include "active_object.hpp"
-typedef struct pipeline{
-    ao ao1;
-    ao ao2;
-    ao ao3;
-//    ao ao4;
-} pipeline;
+# include "main.hpp"
 
 #define PORT "3490"  // the port users will be connecting to
 #define MAX_SIZE 1024
@@ -27,6 +22,105 @@ void* queue1;
 void* queue2;
 void* queue3;
 
+// queue functions
+node* newNode(void* k)
+{
+    node* temp = (node*)malloc(sizeof(node));
+    temp->data = k;
+    temp->next = nullptr;
+    return temp;
+}
+
+void* createQ(){
+    queue* q = (queue*)malloc(sizeof(queue));
+    q->front = q->rear = nullptr;
+    if (pthread_mutex_init(&q->lock, nullptr) != 0)
+    {
+        perror("mutex init failed");
+    }
+    pthread_cond_init(&q->cond, NULL);
+    void* the_queue = (void*)q;
+    return the_queue;
+}
+
+void destoryQ(void* q){
+    queue* the_queue = (queue*)q;
+    pthread_mutex_lock(&the_queue->lock);
+    while (the_queue->front!=nullptr){
+        deQ(q);
+    }
+    free(q);
+    pthread_mutex_unlock(&the_queue->lock);
+    pthread_mutex_destroy(&the_queue->lock);
+}
+
+void enQ(void* q, void* n){
+    queue* the_queue = (queue*)q;
+    pthread_mutex_lock(&the_queue->lock);
+    node* temp = newNode(n);
+    if (the_queue->rear == nullptr) { //empty queue
+        the_queue->front = the_queue->rear = temp;
+        pthread_mutex_unlock(&the_queue->lock);
+        return;
+    }
+    node* curr = the_queue->rear;
+    the_queue->rear->next = temp;
+    the_queue->rear = temp;
+    temp->prev = curr;
+    pthread_mutex_unlock(&the_queue->lock);
+}
+
+void* deQ(void* q){
+    queue* the_queue = (queue*)q;
+    pthread_mutex_lock(&the_queue->lock);
+    if (the_queue->front == nullptr) {
+        pthread_cond_wait(&the_queue->cond, &the_queue->lock);
+    }
+    void* res = the_queue->front->data;
+    // Store previous front and move front one node ahead
+    node* temp = the_queue->front;
+
+    the_queue->front = the_queue->front->next;
+    // If front becomes NULL, then change rear also as NULL
+    if (the_queue->front == nullptr)
+        the_queue->rear = nullptr;
+    else{
+        the_queue->front->prev = nullptr;
+    }
+
+    free(temp);
+    pthread_mutex_unlock(&the_queue->lock);
+    return res;
+}
+
+void *run(void *arg) {
+    ao *active_object = (ao *) arg;
+//    queue* the_queue = (queue*)active_object->q;
+    while (1) {
+        void *element = deQ(active_object->q);
+        element = active_object->afterPtr(active_object->beforePtr(element));
+    }
+}
+
+//active object functions
+
+void destroyAO(ao *active_obj) {
+    pthread_cancel(active_obj->thread);
+}
+
+ao newAO(void *q, beforeFun beforePtr, afterFun afterPtr) {
+    pthread_t t;
+    ao *active_obj = (ao *) malloc(sizeof(ao));
+    active_obj->q = q;
+    active_obj->beforePtr = beforePtr;
+    active_obj->afterPtr = afterPtr;
+    if (pthread_create(&t, NULL, run, (void *) active_obj) != 0)
+        perror("Failed to create thread");
+    active_obj->thread = t;
+    return *active_obj;
+}
+
+//pipeline functions
 void enQ_to_queue2(void* n){
     enQ(queue2,n);
 }
@@ -34,6 +128,8 @@ void enQ_to_queue2(void* n){
 void enQ_to_queue3(void* n){
     enQ(queue3,n);
 }
+
+void do_nothing(void* n){}
 
 char cesare_cipher_char(char c){
     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
@@ -77,8 +173,12 @@ void* small_big_letters(void* s) {
     return (void*)str;
 }
 
-void destroy_pipeline(){
-    //TODO: complete this function
+void destroy_pipeline(pipeline* p){
+    pipeline* pipe= (pipeline*)p;
+    destroyAO(&pipe->ao1);
+    destroyAO(&pipe->ao2);
+    destroyAO(&pipe->ao3);
+    free(p);
 }
 
 void* send_response(void* s) {
@@ -91,13 +191,13 @@ pipeline* create_pipeline(){
     pipeline *p = (pipeline *) malloc(sizeof(pipeline));
     p->ao1 = newAO(queue1, (beforeFun)caesar_cipher, (afterFun)enQ_to_queue2);
     p->ao2 = newAO(queue2, (beforeFun)small_big_letters, (afterFun)enQ_to_queue3);
-    p->ao3 = newAO(queue3,(beforeFun)send_response,(afterFun)destroy_pipeline);
+    p->ao3 = newAO(queue3,(beforeFun)send_response,(afterFun)do_nothing);
     return p;
 }
 
-
 void *socketThread(void *arg) {
     int self = pthread_self();
+    pipeline* pipe = create_pipeline();
     int newSocket = *((int *) arg);
     printf("client %d connected\n", self);
     char buf[MAX_SIZE];
@@ -106,7 +206,6 @@ void *socketThread(void *arg) {
         if ((recv(newSocket, buf, 6, 0)) == -1)
             perror("recv");
         if (strcmp(buf, "STRING") == 0) {
-            create_pipeline();
             char data[1024];
             if ((recv(newSocket, data, 1024, 0)) == -1)
                 perror("recv");
@@ -116,6 +215,7 @@ void *socketThread(void *arg) {
         }
         else if (strcmp(buf, "EXIT") == 0) {
             printf("client %d disconnected\n", self);
+            destroy_pipeline(pipe);
             close(newSocket);
             pthread_exit(NULL);
         }
@@ -218,6 +318,9 @@ int main(void) {
         if (pthread_create(&tid[i++], NULL, socketThread, &new_fd) != 0)
             printf("Failed to create thread\n");
     }
+    destoryQ(queue1);
+    destoryQ(queue2);
+    destoryQ(queue3);
 
     return 0;
 }

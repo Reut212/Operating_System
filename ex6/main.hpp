@@ -41,6 +41,11 @@ typedef struct pipeline{
     ao ao3;
 } pipeline;
 
+typedef struct massage{
+    int socket;
+    char* data;
+}message;
+
 pipeline* create_pipeline();
 
 void* caesar_cipher(void* s); //first before function
@@ -49,6 +54,6 @@ void* send_response(void* s); //third before function
 
 void enQ_to_queue2(void* n); //first after function
 void enQ_to_queue3(void* n); //second after function
-void do_nothing(void* n);  //third after function
+void destroy_message(void* n);  //third after function
 
 void destroy_pipeline(pipeline* p);

@@ -20,6 +20,8 @@ void* queue1;
 void* queue2;
 void* queue3;
 
+char response[MAX_SIZE];
+
 // queue functions
 node* newNode(void* k)
 {
@@ -93,10 +95,9 @@ void* deQ(void* q){
 
 void *run(void *arg) {
     ao *active_object = (ao *) arg;
-//    queue* the_queue = (queue*)active_object->q;
     while (1) {
         void *element = deQ(active_object->q);
-        element = active_object->afterPtr(active_object->beforePtr(element));
+        active_object->afterPtr(active_object->beforePtr(element));
     }
 }
 
@@ -127,7 +128,9 @@ void enQ_to_queue3(void* n){
     enQ(queue3,n);
 }
 
-void do_nothing(void* n){}
+void destroy_message(void* n){
+    free(n);
+}
 
 char cesare_cipher_char(char c){
     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
@@ -144,12 +147,14 @@ char cesare_cipher_char(char c){
     }
 }
 
-void* caesar_cipher(void* s) {
-    char* str = (char*)s;
+void* caesar_cipher(void* mes) {
+    message* m = (message*)mes;
+    char* str = (char*)m->data;
     for (size_t i=0; i<strlen(str); i++){
         str[i] = cesare_cipher_char(str[i]);
     }
-    return (void*)str;
+    m->data=str;
+    return (void*)m;
 }
 
 char small_big_letters_char(char c) {
@@ -163,12 +168,14 @@ char small_big_letters_char(char c) {
     }
 }
 
-void* small_big_letters(void* s) {
-    char* str = (char*)s;
+void* small_big_letters(void* mes) {
+    message* m = (message*)mes;
+    char* str = (char*)m->data;
     for (size_t i=0; i<strlen(str); i++){
         str[i] = small_big_letters_char(str[i]);
     }
-    return (void*)str;
+    m->data=str;
+    return (void*)m;
 }
 
 void destroy_pipeline(pipeline* p){
@@ -179,17 +186,26 @@ void destroy_pipeline(pipeline* p){
     free(p);
 }
 
-void* send_response(void* s) {
-    char* str = (char*)s;
-    // TODO: complete this function
-    return (void*)str;
+void* send_response(void* mes) {
+    message* m = (message*)mes;
+    char* str = (char*)m->data;
+    if (send(m->socket, str, 1024, 0) == -1)
+        perror("send");
+    return (void*)m;
+}
+
+message* create_massage(int sock, char* data){
+    message* mes = (message*)malloc(sizeof (message));
+    mes->socket=sock;
+    mes->data=data;
+    return mes;
 }
 
 pipeline* create_pipeline(){
     pipeline *p = (pipeline *) malloc(sizeof(pipeline));
     p->ao1 = newAO(queue1, (beforeFun)caesar_cipher, (afterFun)enQ_to_queue2);
     p->ao2 = newAO(queue2, (beforeFun)small_big_letters, (afterFun)enQ_to_queue3);
-    p->ao3 = newAO(queue3,(beforeFun)send_response,(afterFun)do_nothing);
+    p->ao3 = newAO(queue3,(beforeFun)send_response,(afterFun)destroy_message);
     return p;
 }
 
@@ -208,7 +224,8 @@ void *socketThread(void *arg) {
             if ((recv(newSocket, data, 1024, 0)) == -1)
                 perror("recv");
             else {
-                enQ(queue1,data);
+                message* mes = create_massage(newSocket, data);
+                enQ(queue1,mes);
             }
         }
         else if (strcmp(buf, "EXIT") == 0) {

@@ -4,7 +4,7 @@
 
 
 typedef void* (*beforeFun)(void*);
-typedef void (*afterFun)(void*);
+typedef void* (*afterFun)(void*);
 
 typedef struct ao{
     void* q;

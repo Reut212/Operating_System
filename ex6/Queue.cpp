@@ -39,13 +39,14 @@ void enQ(void* q, void* n){
     queue* the_queue = (queue*)q;
     if (the_queue->rear == nullptr) { //empty queue
         the_queue->front = the_queue->rear = temp;
+        pthread_mutex_unlock(&lock);
         return;
     }
     node* curr = the_queue->rear;
     the_queue->rear->next = temp;
     the_queue->rear = temp;
     temp->prev = curr;
-    pthread_mutex_destroy(&lock);
+    pthread_mutex_unlock(&lock);
 }
 
 void* deQ(void* q){
@@ -67,6 +68,6 @@ void* deQ(void* q){
     }
 
     free(temp);
-    pthread_mutex_destroy(&lock);
+    pthread_mutex_unlock(&lock);
     return res;
 }

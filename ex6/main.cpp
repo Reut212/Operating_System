@@ -209,7 +209,7 @@ pipeline *create_pipeline() {
 
 void *socketThread(void *arg) {
     int self = pthread_self();
-    pipeline *pipe = create_pipeline();
+    pipeline *pipe = nullptr;
     int newSocket = *((int *) arg);
     printf("client %d connected\n", self);
     char buf[MAX_SIZE];
@@ -224,10 +224,13 @@ void *socketThread(void *arg) {
             else {
                 message *mes = create_massage(newSocket, data);
                 enQ(queue1, mes);
+                sleep(1);
+                pipe = create_pipeline();
+//                destroy_pipeline(pipe);
             }
         } else if (strcmp(buf, "EXIT") == 0) {
             printf("client %d disconnected\n", self);
-            destroy_pipeline(pipe);
+//            destroy_pipeline(pipe);
             close(newSocket);
             pthread_exit(NULL);
         }

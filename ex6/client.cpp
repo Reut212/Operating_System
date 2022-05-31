@@ -1,10 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <errno.h>
 #include <string.h>
 #include <netdb.h>
-#include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 
@@ -14,13 +11,12 @@
 
 
 // get sockaddr, IPv4 or IPv6:
-void *get_in_addr(struct sockaddr *sa)
-{
+void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
+        return &(((struct sockaddr_in *) sa)->sin_addr);
     }
 
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+    return &(((struct sockaddr_in6 *) sa)->sin6_addr);
 }
 
 int main() {
@@ -82,12 +78,15 @@ int main() {
             scanf("%s", data);
             if (send(sockfd, data, 1024, 0) == -1)
                 perror("send");
-            else {
-                printf("Invalid action, please try again or exit!\n");
-            }
+            memset(action, 0, 6);
+            if ((recv(sockfd, data, 1024, 0)) == -1)
+                perror("recv");
+            printf("You're new string is: %s\n",data);
+        } else {
+            printf("Invalid action, please try again or exit!\n");
         }
-        close(sockfd);
-
-        return 0;
     }
+    close(sockfd);
+
+    return 0;
 }

@@ -7,7 +7,6 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "funcs.hpp"
 
 #include <arpa/inet.h>
 
@@ -24,8 +23,7 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int main()
-{
+int main() {
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
@@ -40,7 +38,7 @@ int main()
         return 1;
     }
 
-    for(p = servinfo; p != NULL; p = p->ai_next) {
+    for (p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                              p->ai_protocol)) == -1) {
             perror("client: socket");
@@ -61,23 +59,22 @@ int main()
         return 2;
     }
 
-    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
+    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *) p->ai_addr),
               s, sizeof s);
     printf("client: connecting to %s\n", s);
 
     freeaddrinfo(servinfo); // all done with this structure
 
-    while (1){
+    while (1) {
         printf("Please enter action (STRING/EXIT)\n");
         char action[6];
         memset(action, 0, 6);
         scanf("%s", action);
-        if (strcmp(action, "EXIT") == 0){
+        if (strcmp(action, "EXIT") == 0) {
             if (send(sockfd, "EXIT", 5, 0) == -1)
                 perror("send");
             break;
-        }
-        else if (strcmp(action, "STRING") == 0){
+        } else if (strcmp(action, "STRING") == 0) {
             if (send(sockfd, "STRING", 6, 0) == -1)
                 perror("send");
             char data[1024];
@@ -85,11 +82,12 @@ int main()
             scanf("%s", data);
             if (send(sockfd, data, 1024, 0) == -1)
                 perror("send");
-        else{
-            printf("Invalid action, please try again or exit!\n");
+            else {
+                printf("Invalid action, please try again or exit!\n");
+            }
         }
-    }
-    close(sockfd);
+        close(sockfd);
 
-    return 0;
+        return 0;
+    }
 }

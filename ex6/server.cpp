@@ -10,12 +10,91 @@
 #include <signal.h>
 #include <pthread.h>
 #include "Queue.hpp"
+#include "active_object.hpp"
+typedef struct pipeline{
+    ao ao1;
+    ao ao2;
+    ao ao3;
+//    ao ao4;
+} pipeline;
 
 #define PORT "3490"  // the port users will be connecting to
 #define MAX_SIZE 1024
 
 #define BACKLOG 10   // how many pending connections queue will hold
-void *q;
+
+void* queue1;
+void* queue2;
+void* queue3;
+
+void enQ_to_queue2(void* n){
+    enQ(queue2,n);
+}
+
+void enQ_to_queue3(void* n){
+    enQ(queue3,n);
+}
+
+char cesare_cipher_char(char c){
+    if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
+        if (c == 'z') {
+            return 'a';
+        } else if (c == 'Z') {
+            return 'A';
+        } else {
+            return (char) ((int) c + 1);
+        }
+    } else {
+        perror("not a valid char");
+        return '!';
+    }
+}
+
+void* caesar_cipher(void* s) {
+    char* str = (char*)s;
+    for (int i=0; i<strlen(str); i++){
+        str[i] = cesare_cipher_char(str[i]);
+    }
+    return (void*)str;
+}
+
+char small_big_letters_char(char c) {
+    if ('A' <= c && c <= 'Z') {
+        return (char) ((int) c + 'a' - 'A');
+    } else if ('a' <= c && c <= 'z') {
+        return (char) ((int) c - 'a' + 'A');
+    } else {
+        perror("not a valid char");
+        return '!';
+    }
+}
+
+void* small_big_letters(void* s) {
+    char* str = (char*)s;
+    for (int i=0; i<strlen(str); i++){
+        str[i] = small_big_letters_char(str[i]);
+    }
+    return (void*)str;
+}
+
+void destroy_pipeline(){
+    //TODO: complete this function
+}
+
+void* send_response(void* s) {
+    char* str = (char*)s;
+    // TODO: complete this function
+    return (void*)str;
+}
+
+pipeline* create_pipeline(){
+    pipeline *p = (pipeline *) malloc(sizeof(pipeline));
+    p->ao1 = newAO(queue1, (beforeFun)caesar_cipher, (afterFun)enQ_to_queue2);
+    p->ao2 = newAO(queue2, (beforeFun)small_big_letters, (afterFun)enQ_to_queue3);
+    p->ao3 = newAO(queue3,(beforeFun)send_response,(afterFun)destroy_pipeline);
+    return p;
+}
+
 
 void *socketThread(void *arg) {
     int self = pthread_self();
@@ -27,11 +106,12 @@ void *socketThread(void *arg) {
         if ((recv(newSocket, buf, 6, 0)) == -1)
             perror("recv");
         if (strcmp(buf, "STRING") == 0) {
+            create_pipeline();
             char data[1024];
             if ((recv(newSocket, data, 1024, 0)) == -1)
                 perror("recv");
             else {
-                enQ(q,data);
+                enQ(queue1,data);
             }
         }
         else if (strcmp(buf, "EXIT") == 0) {
@@ -53,7 +133,9 @@ void *get_in_addr(struct sockaddr *sa) {
 }
 
 int main(void) {
-    q = createQ();
+    queue1 = createQ();
+    queue2 = createQ();
+    queue3 = createQ();
     int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
     struct addrinfo hints, *servinfo, *p;
     struct sockaddr_storage their_addr; // connector's address information

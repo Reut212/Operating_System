@@ -1,6 +1,26 @@
 # include "pipline.hpp"
+#include "server.cpp"
 
-char caesar_cipher(char c) {
+void* queue1 = q;
+void* queue2 = createQ();
+void* queue3 = createQ();
+
+void enQ_to_queue2(void* n){
+    enQ(queue2,n);
+}
+
+void enQ_to_queue3(void* n){
+    enQ(queue3,n);
+}
+
+pipeline* create_pipeline(){
+    pipeline *p = (pipeline *) malloc(sizeof(pipeline));
+    p->ao1 = newAO(queue1, (beforeFun)caesar_cipher, (afterFun)enQ_to_queue2);
+    p->ao1 = newAO(queue1, (beforeFun)small_big_letters, (afterFun)enQ_to_queue3);
+    return p;
+}
+
+char cesare_cipher_char(char c){
     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
         if (c == 'z') {
             return 'a';
@@ -15,7 +35,15 @@ char caesar_cipher(char c) {
     }
 }
 
-char small_big_letters(char c) {
+void* caesar_cipher(void* s) {
+    char* str = (char*)s;
+    for (int i=0; i<strlen(str); i++){
+        str[i] = cesare_cipher_char(str[i]);
+    }
+    return (void*)str;
+}
+
+char small_big_letters_char(char c) {
     if ('A' <= c && c <= 'Z') {
         return (char) ((int) c + 'a' - 'A');
     } else if ('a' <= c && c <= 'z') {
@@ -26,12 +54,15 @@ char small_big_letters(char c) {
     }
 }
 
+void* small_big_letters(void* s) {
+    char* str = (char*)s;
+    for (int i=0; i<strlen(str); i++){
+        str[i] = small_big_letters_char(str[i]);
+    }
+    return (void*)str;
+}
+
 int main() {
-    void *q = createQ();
-    enQ(q, (void *) 'a');
-    enQ(q, (void *) 'V');
-    enQ(q, (void *) 'z');
-    enQ(q, (void *) 'Z');
-    ao active_obj = newAO(q, (beforeFun) caesar_cipher, (afterFun) small_big_letters);
-    pthread_join(active_obj.thread, NULL);
+    create_pipeline();
+
 }

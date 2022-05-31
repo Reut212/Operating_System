@@ -35,4 +35,5 @@ int main() {
     enQ(q, (void*) 'z');
     enQ(q, (void*) 'Z');
     ao active_obj = newAO((void*) q, (beforeFun)caesar_cipher, (afterFun)small_big_letters);
+    printQ(active_obj.q);
 }

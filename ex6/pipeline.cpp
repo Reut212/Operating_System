@@ -29,11 +29,11 @@ char small_big_letters(char c) {
 }
 
 int main() {
-    void* q = createQ();
-    enQ(q, (void*) 'a');
-    enQ(q, (void*) 'V');
-    enQ(q, (void*) 'z');
-    enQ(q, (void*) 'Z');
-    ao active_obj = newAO((void*) q, (beforeFun)caesar_cipher, (afterFun)small_big_letters);
-    printQ(active_obj.q);
+    void *q = createQ();
+    enQ(q, (void *) 'a');
+    enQ(q, (void *) 'V');
+    enQ(q, (void *) 'z');
+    enQ(q, (void *) 'Z');
+    ao active_obj = newAO(q, (beforeFun) caesar_cipher, (afterFun) small_big_letters);
+    pthread_join(active_obj.thread, NULL);
 }

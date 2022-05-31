@@ -7,7 +7,7 @@ typedef void* (*beforeFun)(void*);
 typedef void (*afterFun)(void*);
 
 typedef struct ao{
-    queue* q;
+    void* q;
     beforeFun beforePtr;
     afterFun afterPtr;
     pthread_t thread;

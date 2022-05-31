@@ -17,6 +17,7 @@ void* createQ(){
     {
         perror("mutex init failed");
     }
+    pthread_cond_init(&q->cond, NULL);
     void* the_queue = (void*)q;
     return the_queue;
 }

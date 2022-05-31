@@ -9,8 +9,6 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <pthread.h>
-#include "Queue.hpp"
-#include "active_object.hpp"
 # include "main.hpp"
 
 #define PORT "3490"  // the port users will be connecting to
@@ -148,7 +146,7 @@ char cesare_cipher_char(char c){
 
 void* caesar_cipher(void* s) {
     char* str = (char*)s;
-    for (int i=0; i<strlen(str); i++){
+    for (size_t i=0; i<strlen(str); i++){
         str[i] = cesare_cipher_char(str[i]);
     }
     return (void*)str;
@@ -167,7 +165,7 @@ char small_big_letters_char(char c) {
 
 void* small_big_letters(void* s) {
     char* str = (char*)s;
-    for (int i=0; i<strlen(str); i++){
+    for (size_t i=0; i<strlen(str); i++){
         str[i] = small_big_letters_char(str[i]);
     }
     return (void*)str;

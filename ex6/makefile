@@ -1,18 +1,15 @@
 CC = g++
 
-CFLAGS  = -g -Wall -pthread
+CFLAGS  = -g -Wall
 
 
-all: pipeline
+all: main client
 
-#queue: Queue.cpp
-#	$(CC) $(CFLAGS) -o queue Queue.cpp
-#
-#active: active_object.cpp
-#	$(CC) $(CFLAGS) -o active active_object.cpp Queue.cpp
+main: main.cpp
+	$(CC) -pthread $(CFLAGS) main.cpp -o main
 
-pipeline: pipeline.cpp
-	$(CC) $(CFLAGS) pipeline.cpp active_object.cpp Queue.cpp server.cpp client.cpp -o pipeline
+client: client.cpp
+	$(CC) -pthread $(CFLAGS) client.cpp -o client
 
 clean:
-	rm pipeline
+	rm main client

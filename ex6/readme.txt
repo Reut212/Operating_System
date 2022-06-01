@@ -4,12 +4,11 @@ References:
 Assumptions:
 1. string's max size as an argument to the queue is 1024 bytes.
 2. the string "EXIT" is invalid and used to disconnect from the server.
-3. the string "STRING" is invalid and used to mark the client's code you would like to enQ a string.
+3. ! will be returned from function when invalid (not alphabetic) char is being inserted.
 
 Notes:
 1. to run pipeline:
 - first run "make all"
-- second run "./server"
-- third run "./pipeline"
+- second run "./main"
 - for new string run "./client"
-    - then enter the string you would like
+    - then enter the string you would like ir 'EXIT' to exit

@@ -223,13 +223,9 @@ void *socketThread(void *arg) {
             else {
                 message *mes = create_massage(newSocket, data);
                 enQ(queue1, mes);
-                sleep(1);
-
-//                destroy_pipeline(pipe);
             }
         } else if (strcmp(buf, "EXIT") == 0) {
             printf("client %d disconnected\n", self);
-//            destroy_pipeline(pipe);
             close(newSocket);
             pthread_exit(NULL);
         }
@@ -333,9 +329,9 @@ int main(void) {
         if (pthread_create(&tid[i++], NULL, socketThread, &new_fd) != 0)
             printf("Failed to create thread\n");
     }
+    destroy_pipeline(pipe1);
     destoryQ(queue1);
     destoryQ(queue2);
     destoryQ(queue3);
-
     return 0;
 }

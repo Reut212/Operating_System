@@ -62,28 +62,23 @@ int main() {
     freeaddrinfo(servinfo); // all done with this structure
 
     while (1) {
-        printf("Please enter action (STRING/EXIT)\n");
-        char action[6];
-        memset(action, 0, 6);
-        scanf("%s", action);
-        if (strcmp(action, "EXIT") == 0) {
+        printf("Please enter STRING OR 'EXIT' to exit\n");
+        char data[1024];
+        memset(data, 0, 6);
+        scanf("%s", data);
+        if (strcmp(data, "EXIT") == 0) {
             if (send(sockfd, "EXIT", 5, 0) == -1)
                 perror("send");
             break;
-        } else if (strcmp(action, "STRING") == 0) {
+        } else {
             if (send(sockfd, "STRING", 6, 0) == -1)
                 perror("send");
-            char data[1024];
-            printf("please enter the string you want : ");
-            scanf("%s", data);
             if (send(sockfd, data, 1024, 0) == -1)
                 perror("send");
-            memset(action, 0, 6);
+            memset(data, 0, 6);
             if ((recv(sockfd, data, 1024, 0)) == -1)
                 perror("recv");
             printf("You're new string is: %s\n",data);
-        } else {
-            printf("Invalid action, please try again or exit!\n");
         }
     }
     close(sockfd);

@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <pthread.h>
-# include "main.hpp"
+# include "main1.hpp"
 
 #define PORT "3490"  // the port users will be connecting to
 #define MAX_SIZE 1024

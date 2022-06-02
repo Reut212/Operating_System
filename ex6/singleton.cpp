@@ -23,6 +23,10 @@ template<typename T> bool singleton<T>::initialized = false;
 template<typename T> singleton<T> *singleton<T>::instance = NULL;
 template<typename T> pthread_mutex_t singleton<T>::lock = PTHREAD_MUTEX_INITIALIZER;
 
+class mapped_file_params;
+
+class mapped_file_params;
+
 template<typename T>
 singleton<T> *singleton<T>::Instance(T data2) {
     if (!initialized) { // no available instance
@@ -52,10 +56,7 @@ void singleton<T>::Destroy() {
 //    char* str = "hello ";
 //    fwrite(&str, sizeof(str), 1, reinterpret_cast<FILE *>(a));
 //}
-void *sram(void *arg) {
-    int a = *((int *) arg);
-    singleton<int> *sin = singleton<int>::Instance(a);
-    printf("%d", a);
+void *map(void *arg) {
 }
 
 int main() {
@@ -63,8 +64,8 @@ int main() {
 //    out = fopen("output.txt","w");
     int a = 5;
     pthread_t t1, t2;
-    pthread_create(&t1, NULL, sram, &a);
-    pthread_create(&t2, NULL, sram, &a);
+    pthread_create(&t1, NULL, map, &a);
+    pthread_create(&t2, NULL, map, &a);
     pthread_join(t1, NULL);
     pthread_join(t2, NULL);
 //    fclose(out);

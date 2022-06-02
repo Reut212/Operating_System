@@ -5,8 +5,8 @@ CFLAGS  = -g -Wall
 
 all: main client singleton
 
-main: main.cpp
-	$(CC) -pthread $(CFLAGS) main.cpp -o main
+main: main1.cpp
+	$(CC) -pthread $(CFLAGS) main1.cpp -o main
 
 client: client.cpp
 	$(CC) -pthread $(CFLAGS) client.cpp -o client

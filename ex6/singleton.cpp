@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
+#include <ftw.h>
 
 using namespace std;
 
@@ -49,23 +50,17 @@ void singleton<T>::Destroy() {
     initialized = false;
 }
 
-void *map(void *arg) {
-    int fd = *((int *) arg);
-    char* message = "example file";
-    int fsize = strlen(message);
-    void* addr = mmap(NULL, fsize, PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-    ftruncate(fd, fsize);
-    memcpy(addr, message, strlen(message));
-    msync(addr, fsize, MS_SYNC);
-    munmap(addr, fsize);
-}
-
 int main() {
-    int fd = open("example.txt", O_CREAT | O_RDWR | O_TRUNC, 0664);
-    pthread_t t1, t2;
-    pthread_create(&t1, NULL, map, &fd);
-    pthread_create(&t2, NULL, map, &fd);
-    pthread_join(t1, NULL);
-    pthread_join(t2, NULL);
-//    fclose(out);
+    int fd = open("example.txt", O_CREAT | O_RDWR | O_SYNC, 0666);
+    struct stat st;
+    fstat(fd, &st);
+    uint8_t *byte_ptr = (uint8_t *) mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    singleton<uint8_t *> *singleton1 = singleton<uint8_t *>::Instance(byte_ptr);
+    singleton<uint8_t *> *singleton2 = singleton<uint8_t *>::Instance(byte_ptr);
+    if (singleton1==singleton2){
+        printf("pass!");
+    }
+    singleton1->Destroy();
+    singleton2->Destroy();
+    close(fd);
 }

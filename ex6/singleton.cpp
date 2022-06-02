@@ -1,5 +1,9 @@
 #include <mutex>
 #include <iostream>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstring>
 
 using namespace std;
 
@@ -23,10 +27,6 @@ template<typename T> bool singleton<T>::initialized = false;
 template<typename T> singleton<T> *singleton<T>::instance = NULL;
 template<typename T> pthread_mutex_t singleton<T>::lock = PTHREAD_MUTEX_INITIALIZER;
 
-class mapped_file_params;
-
-class mapped_file_params;
-
 template<typename T>
 singleton<T> *singleton<T>::Instance(T data2) {
     if (!initialized) { // no available instance
@@ -49,23 +49,22 @@ void singleton<T>::Destroy() {
     initialized = false;
 }
 
-//
-//void *write_to_file(void *arg){
-//    FILE* out = *((FILE **) arg);
-//    singleton<FILE *>* a = singleton<FILE *>::Instance(out);
-//    char* str = "hello ";
-//    fwrite(&str, sizeof(str), 1, reinterpret_cast<FILE *>(a));
-//}
 void *map(void *arg) {
+    int fd = *((int *) arg);
+    char* message = "example file";
+    int fsize = strlen(message);
+    void* addr = mmap(NULL, fsize, PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+    ftruncate(fd, fsize);
+    memcpy(addr, message, strlen(message));
+    msync(addr, fsize, MS_SYNC);
+    munmap(addr, fsize);
 }
 
 int main() {
-//    FILE *out;
-//    out = fopen("output.txt","w");
-    int a = 5;
+    int fd = open("example.txt", O_CREAT | O_RDWR | O_TRUNC, 0664);
     pthread_t t1, t2;
-    pthread_create(&t1, NULL, map, &a);
-    pthread_create(&t2, NULL, map, &a);
+    pthread_create(&t1, NULL, map, &fd);
+    pthread_create(&t2, NULL, map, &fd);
     pthread_join(t1, NULL);
     pthread_join(t2, NULL);
 //    fclose(out);

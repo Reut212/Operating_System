@@ -4,6 +4,9 @@ void* newReactor(){
     reactor *rec = (reactor *) malloc(sizeof(reactor));
     rec->avail=0;
     rec->capacity=3;
+    for (int i=0; i<rec->capacity;i++){
+        rec->reactors[i].pfd.fd=-1;
+    }
     return (void*)rec;
 }
 

@@ -15,3 +15,8 @@ Notes:
 - second run "./main"
 - for new string run "./client"
     - then enter the string you would like ir 'EXIT' to exit
+
+Important note:
+Did not use the poll function to monitor incoming recv data from socket
+https://stackoverflow.com/questions/26517373/use-poll-timeout-only-for-new-data-on-socket
+according to this it is not possible to monitor such events on poll!

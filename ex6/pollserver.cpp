@@ -82,15 +82,18 @@ int listener = get_listener_socket();    // Listening socket descriptor
 void *client_func(void *args) {
     int index = *((int *) args);
     for (;;) {
+        for (int i=0; i<r->capacity;i++){
+            r->reactors[0].pfd.revents = 0;
+        }
         int poll_count = poll((pollfd *) (r->reactors), r->avail, -1);
         if (poll_count == -1) {
             perror("poll");
             exit(1);
         }
         // Run through the existing connections looking for data to read
-        for (int i = 0; i < r->capacity; i++) {
+        for (int i = 1; i < r->avail; i++) {
             // Check if someone's ready to read
-            if (r->reactors[i].pfd.revents & POLLIN) { // We got one!!
+            if (r->reactors[i].pfd.revents & POLLOUT) { // We got one!!
                 if (r->reactors[i].pfd.fd == r->reactors[index].pfd.fd) {
                     int nbytes = recv(r->reactors[i].pfd.fd, buf, sizeof buf, 0);
                     int sender_fd = r->reactors[i].pfd.fd;
@@ -125,6 +128,9 @@ void *client_func(void *args) {
 
 void *listen_func(void *args) {
     for (;;) {
+        for (int i=0; i<r->capacity;i++){
+            r->reactors[0].pfd.revents = 0;
+        }
         int poll_count = poll((pollfd *) (r->reactors), r->avail, -1);
         if (poll_count == -1) {
             perror("poll");

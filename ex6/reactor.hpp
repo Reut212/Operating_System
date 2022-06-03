@@ -4,7 +4,7 @@
 #include <cstdio>
 #define MAX_FD 1000
 
-typedef void *(*func)(void *arg);
+typedef void*(*func)(void *);
 
 typedef struct reactor{
     struct pollfd *pfds[MAX_FD];

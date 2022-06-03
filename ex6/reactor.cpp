@@ -20,7 +20,9 @@ void InstallHandler(reactor* r, func* f, int fd){
             r->pfds[i]->fd = fd;
             r->pfds[i]->events=POLLIN;
             r->funcs[i] = f;
-            // TODO: start a thread
+            pthread_t t;
+            r->threads[i] = t;
+            pthread_create(&t, NULL, *f, NULL);
             break;
         }
     }
@@ -32,8 +34,7 @@ void RemoveHandler(reactor* r, int fd){
             r->count--;
             r->pfds[i]=NULL;
             r->funcs[i] = NULL;
-            //TODO: candle thread!
+            pthread_cancel(r->threads[i]);
             break;
         }
     }
-}

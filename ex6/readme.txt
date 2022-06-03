@@ -1,6 +1,6 @@
 References:
 1. for queue code- used https://www.geeksforgeeks.org/queue-linked-list-implementation/
-2. for guard code - used the code that Yuval taught us on practice lesson. Answer for 4th question in guard.cpp file.
+2. for guard code - used the code that Yuval taught us on practice lesson. Answer for 4th question down below.
 
 Assumptions:
 1. string's max size as an argument to the queue is 1024 bytes.
@@ -24,7 +24,6 @@ https://stackoverflow.com/questions/20820937/strtok-function-and-multithreading
 and does so in a probably-not-thread-safe way, so even if we don't rely on
 repeating calls to 'strtok' to get successive "tokens" from the same string,
 it may not be safe to use it in a multi-threaded environment without guards, etc.
-
 
 Important note:
 Did not use the poll function to monitor incoming recv data from socket

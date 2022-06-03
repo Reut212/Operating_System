@@ -58,9 +58,3 @@ int main(int argc, char const *argv[])
     printf("Thread 2 returns: %d\n", thread2);
     exit(0);
 }
-
-//Answer for 4th question:
-//strtok modifies and potentially uses global (or static, whatever) variables,
-// and does so in a probably-not-thread-safe way, so even if we don't rely on
-// repeating calls to strtok to get successive "tokens" from the same string,
-// it may not be safe to use it in a multi-threaded environment without guards, etc.

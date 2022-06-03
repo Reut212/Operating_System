@@ -5,7 +5,9 @@ Assumptions:
 1. string's max size as an argument to the queue is 1024 bytes.
 2. the string "EXIT" is invalid and used to disconnect from the server.
 3. ! will be returned from function when invalid (not alphabetic) char is being inserted.
-4. reactor struct can contains maximum 1000 connections.
+4. reactor struct can contains maximum 1000 file descriptors.
+5. if the same file descriptor is placed again it will be placed in a different cell
+and when removing it will be removed from the first cell it appeared on.
 
 Notes:
 1. to run pipeline:

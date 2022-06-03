@@ -2,18 +2,18 @@
 # include "pthread.h"
 #include <cstdlib>
 #include <cstdio>
-#define INIT 10; //first init value of capacity variable
+#include <fcntl.h>
 
-typedef void*(*func)(void *);
+typedef void*(func)(void *);
 
 typedef struct reactor_unit{
-    pollfd *pfd;
+    pollfd pfd;
     func* f;
     pthread_t thread;
 }reactor_unit;
 
 typedef struct reactor{
-    reactor_unit* reactors;
+    reactor_unit reactors[1000];
     int avail; //taken reactor_units
     int capacity; //capacity of reactor_units
 } reactor;

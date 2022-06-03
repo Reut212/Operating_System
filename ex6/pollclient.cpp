@@ -22,6 +22,7 @@ void *get_in_addr(struct sockaddr *sa) {
 
 void* write_to_all(void* args) {
     int index = *((int *) args);
+    free(args);
     while (1) {
         printf("Please enter a string to send to everyone 'EXIT' to exit\n");
         char data[1024];
@@ -42,6 +43,7 @@ void* write_to_all(void* args) {
 
 void* read_from_all(void* args){
     int index = *((int *) args);
+    free(args);
     while (1) {
         char buf[1024];
         memset(buf, 0, 1024);
@@ -96,7 +98,9 @@ int main() {
 
     InstallHandler(r, write_to_all, sockfd);
     InstallHandler(r, read_from_all, sockfd);
+    pthread_join(r->reactors[0].thread, NULL);
+    pthread_join(r->reactors[1].thread, NULL);
     RemoveHandler(r, sockfd); // when client wants to disconnect
-    // program will end because there is no join!
+
     return 0;
 }

@@ -170,5 +170,6 @@ int main(void){
     }
 
     InstallHandler(r, listen_func, listener);
+    pthread_join(r->reactors[0].thread, NULL);
     return 0;
 }

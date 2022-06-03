@@ -18,7 +18,9 @@ void InstallHandler(reactor* r, func* f, int fd){
             r->reactors[i].pfd.fd=fd;
             r->reactors[i].pfd.events=POLLIN;
             r->reactors[i].f=f;
-            pthread_create(&r->reactors[i].thread, NULL, f, (void*)i);
+            int *index = (int*)(char*)malloc(sizeof(char));
+            *index = i;
+            pthread_create(&r->reactors[i].thread, NULL, f,index);
             return;
         }
     }

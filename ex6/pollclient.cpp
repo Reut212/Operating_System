@@ -21,7 +21,6 @@ void *get_in_addr(struct sockaddr *sa) {
 
 void *write_to_all(void *args) {
     int sock = *((int *) args);
-    free(args);
     while (1) {
         printf("Please enter a string to send to everyone 'EXIT' to exit\n");
         char data[1024];
@@ -43,15 +42,17 @@ void *write_to_all(void *args) {
 
 void *read_from_all(void *args) {
     int sock = *((int *) args);
-    free(args);
     while (1) {
         char buf[1024];
         memset(buf, 0, 1024);
-        if ((recv(sock, buf, 1024, 0)) == -1){
+        int num_of_bytes = recv(sock, buf, 1024, 0);
+        if (num_of_bytes==-1){
             perror("recv");
             pthread_exit(NULL);
         }
-        printf("new message: %s", buf);
+        else if (num_of_bytes>0){
+            printf("new message: %s", buf);
+        }
     }
 }
 

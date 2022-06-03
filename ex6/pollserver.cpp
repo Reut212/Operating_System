@@ -82,7 +82,6 @@ int listener = get_listener_socket();    // Listening socket descriptor
 
 void *client(void *args) {
     int index = *((int *) args);
-    free(args);
     for (;;) {
         int poll_count = poll((pollfd *) (r->reactors), r->avail, -1);
         if (poll_count == -1) {
@@ -94,18 +93,32 @@ void *client(void *args) {
         for (int i = 0; i < r->avail; i++) {
             // Check if someone's ready to read
             if (r->reactors[i].pfd.revents & POLLIN) { // We got one!!
-                int nbytes = recv(r->reactors[i].pfd.fd, buf, sizeof buf, 0);
-                int sender_fd = r->reactors[i].pfd.fd;
-                if (nbytes <= 0) {
-                    // Got error or connection closed by client
-                    if (nbytes == 0) {
-                        // Connection closed
-                        printf("pollserver: socket %d hung up\n", sender_fd);
+                if (r->reactors[i].pfd.fd == r->reactors[index].pfd.fd) {
+                    int nbytes = recv(r->reactors[i].pfd.fd, buf, sizeof buf, 0);
+                    int sender_fd = r->reactors[i].pfd.fd;
+                    if (nbytes <= 0) {
+                        // Got error or connection closed by client
+                        if (nbytes == 0) {
+                            // Connection closed
+                            printf("pollserver: socket %d hung up\n", sender_fd);
+                        } else {
+                            perror("recv");
+                        }
+                        close(r->reactors[i].pfd.fd); // Bye!
+                        RemoveHandler(r, r->reactors[i].pfd.fd);
                     } else {
-                        perror("recv");
+                        for (int j = 0; j < r->avail; j++) {
+                            // Send to everyone!
+                            int dest_fd = r->reactors[j].pfd.fd;
+
+                            // Except the listener and ourselves
+                            if (dest_fd != listener && dest_fd != sender_fd) {
+                                if (send(dest_fd, buf, nbytes, 0) == -1) {
+                                    perror("send");
+                                }
+                            }
+                        }
                     }
-                    close(r->reactors[i].pfd.fd); // Bye!
-                    RemoveHandler(r, r->reactors[i].pfd.fd);
                 }
             }
         }
@@ -113,44 +126,45 @@ void *client(void *args) {
 }
 
 
-void *listener_func(void *args) {
-    int index = *((int *) args);
-    free(args);
-    for (;;) {
-        int poll_count = poll((pollfd *) (r->reactors), r->avail, -1);
-        if (poll_count == -1) {
-            perror("poll");
-            exit(1);
-        }
-        if (poll_count > 0) {
-            // Run through the existing connections looking for data to read
-            for (int i = 0; i < r->capacity; i++) {
-                // Check if someone's ready to read
-                if (r->reactors[i].pfd.revents & POLLIN) { // We got one!!
-                    // If listener is ready to read, handle new connection
-                    addrlen = sizeof remoteaddr;
-                    newfd = accept(listener, (struct sockaddr *) &remoteaddr, &addrlen);
-                    if (newfd == -1) {
-                        perror("accept");
-                    } else {
-                        InstallHandler(r, client, r->reactors[i].pfd.fd);
-                        pthread_join(r->reactors[i].thread, NULL);
+    void *listener_func(void *args) {
+        int index = *((int *) args);
+        for (;;) {
+            int poll_count = poll((pollfd *) (r->reactors), r->avail, -1);
+            if (poll_count == -1) {
+                perror("poll");
+                exit(1);
+            }
+            if (poll_count > 0) {
+                // Run through the existing connections looking for data to read
+                for (int i = 0; i < r->capacity; i++) {
+                    // Check if someone's ready to read
+                    if (r->reactors[i].pfd.revents & POLLIN) { // We got one!!
+                        if (r->reactors[i].pfd.fd == listener) {
+                            // If listener is ready to read, handle new connection
+                            addrlen = sizeof remoteaddr;
+                            newfd = accept(listener, (struct sockaddr *) &remoteaddr, &addrlen);
+                            if (newfd == -1) {
+                                perror("accept");
+                            } else {
+                                InstallHandler(r, client, r->reactors[i].pfd.fd);
+                                pthread_join(r->reactors[i].thread, NULL);
+                            }
+                        }
                     }
                 }
             }
         }
     }
-}
 
 
 // Main
-int main(void) {
-    if (listener == -1) {
-        fprintf(stderr, "error getting listening socket\n");
-        exit(1);
+    int main(void) {
+        if (listener == -1) {
+            fprintf(stderr, "error getting listening socket\n");
+            exit(1);
+        }
+        InstallHandler(r, listener_func, listener);
+        pthread_join(r->reactors[0].thread, NULL);
+        RemoveHandler(r, listener);
+        return 0;
     }
-    InstallHandler(r, listener_func, listener);
-    pthread_join(r->reactors[0].thread, NULL);
-    RemoveHandler(r, listener);
-    return 0;
-}

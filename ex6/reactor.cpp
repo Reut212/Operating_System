@@ -2,39 +2,31 @@
 
 void* newReactor(){
     reactor *rec = (reactor *) malloc(sizeof(reactor));
-    rec->count=0;
-    for (int i=0; i<MAX_FD; i++){
-        rec->pfds[i]=NULL;
-    }
+    rec->avail=0;
+    rec->capacity=INIT;
+    rec->reactors= (reactor_unit *) malloc(rec->capacity * sizeof(reactor_unit));
     return (void*)rec;
 }
 
 void InstallHandler(reactor* r, func* f, int fd){
-    if (r->count == MAX_FD){
-        perror("not available space");
-        return;
+    if (r->capacity==r->avail){ //not available space for a new reactor_unit
+        r->capacity*=2;
+        r->reactors =(reactor_unit *) realloc(r->reactors,r->capacity * sizeof(reactor_unit));
     }
-    for (int i=0; i<MAX_FD; i++){
-        if (r->pfds[i]==NULL){ //found available cell
-            r->count++;
-            r->pfds[i]->fd = fd;
-            r->pfds[i]->events=POLLIN;
-            r->funcs[i] = f;
-            pthread_t t;
-            r->threads[i] = t;
-            pthread_create(&t, NULL, *f, NULL);
+    r->reactors[r->avail].pfd->fd=fd;
+    r->reactors[r->avail].f=f;
+    r->reactors[r->avail].thread= pthread_create(&r->reactors[r->avail].thread, NULL, *f, NULL);
+    r->avail++;
+}
+
+void RemoveHandler(reactor* r, int fd) {
+    for (int i = 0; i < r->avail; i++) {
+        if (r->reactors[i].pfd->fd == fd) {
+            r->avail--;
+            r->reactors[i].pfd = NULL;
+            r->reactors[i].f = NULL;
+            pthread_cancel(r->reactors[i].thread);
             break;
         }
     }
 }
-
-void RemoveHandler(reactor* r, int fd){
-    for (int i=0; i<MAX_FD; i++){
-        if (r->pfds[i]->fd==fd){
-            r->count--;
-            r->pfds[i]=NULL;
-            r->funcs[i] = NULL;
-            pthread_cancel(r->threads[i]);
-            break;
-        }
-    }

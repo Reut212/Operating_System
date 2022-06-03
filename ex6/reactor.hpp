@@ -2,15 +2,20 @@
 # include "pthread.h"
 #include <cstdlib>
 #include <cstdio>
-#define MAX_FD 1000
+#define INIT 10; //first init value of capacity variable
 
 typedef void*(*func)(void *);
 
+typedef struct reactor_unit{
+    pollfd *pfd;
+    func* f;
+    pthread_t thread;
+}reactor_unit;
+
 typedef struct reactor{
-    struct pollfd *pfds[MAX_FD];
-    func* funcs[MAX_FD];
-    pthread_t threads[MAX_FD];
-    int count;
+    reactor_unit* reactors;
+    int avail; //taken reactor_units
+    int capacity; //capacity of reactor_units
 } reactor;
 
 void* newReactor();

@@ -64,7 +64,7 @@ int main() {
     while (1) {
         printf("Please enter STRING OR 'EXIT' to exit\n");
         char data[1024];
-        memset(data, 0, 6);
+        memset(data, 0, 1024);
         scanf("%s", data);
         if (strcmp(data, "EXIT") == 0) {
             if (send(sockfd, "EXIT", 5, 0) == -1)

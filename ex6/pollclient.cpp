@@ -20,6 +20,7 @@ void *get_in_addr(struct sockaddr *sa) {
 }
 
 int main() {
+    // TODO: add 2 fd ?!
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
@@ -62,26 +63,20 @@ int main() {
     freeaddrinfo(servinfo); // all done with this structure
 
     while (1) {
-        printf("Please enter STRING OR 'EXIT' to exit\n");
+        printf("Please enter a string to send to everyone 'EXIT' to exit\n");
         char data[1024];
-        memset(data, 0, 6);
+        memset(data, 0, 1024);
         scanf("%s", data);
         if (strcmp(data, "EXIT") == 0) {
             if (send(sockfd, "EXIT", 5, 0) == -1)
                 perror("send");
             break;
         } else {
-            if (send(sockfd, "STRING", 6, 0) == -1)
-                perror("send");
             if (send(sockfd, data, 1024, 0) == -1)
                 perror("send");
             memset(data, 0, 6);
-            if ((recv(sockfd, data, 1024, 0)) == -1)
-                perror("recv");
-            printf("You're new string is: %s\n",data);
         }
     }
     close(sockfd);
-
     return 0;
 }

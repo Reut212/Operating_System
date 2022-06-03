@@ -8,8 +8,10 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <poll.h>
+#include "reactor.hpp"
 
 #define PORT "9034"   // Port we're listening on
+reactor* r = (reactor*) newReactor();
 
 // Get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -72,34 +74,83 @@ int get_listener_socket(void)
     return listener;
 }
 
-// Add a new file descriptor to the set
-void add_to_pfds(struct pollfd *pfds[], int newfd, int *fd_count, int *fd_size)
-{
-    // If we don't have room, add more space in the pfds array
-    if (*fd_count == *fd_size) {
-        *fd_size *= 2; // Double it
+void* listen_func(void* args){
+    for(;;) {
+        int poll_count = poll((pollfd*)(r->reactors), r->capacity, -1);
 
-        *pfds = realloc(*pfds, sizeof(**pfds) * (*fd_size));
-    }
+        if (poll_count == -1) {
+            perror("poll");
+            exit(1);
+        }
 
-    (*pfds)[*fd_count].fd = newfd;
-    (*pfds)[*fd_count].events = POLLIN; // Check ready-to-read
-
-    (*fd_count)++;
-}
-
-// Remove an index from the set
-void del_from_pfds(struct pollfd pfds[], int i, int *fd_count)
-{
-    // Copy the one from the end over this one
-    pfds[i] = pfds[*fd_count-1];
-
-    (*fd_count)--;
+//        // Run through the existing connections looking for data to read
+//        for(int i = 0; i < fd_count; i++) {
+//
+//            // Check if someone's ready to read
+//            if (pfds[i].revents & POLLIN) { // We got one!!
+//
+//                if (pfds[i].fd == listener) {
+//                    // If listener is ready to read, handle new connection
+//
+//                    addrlen = sizeof remoteaddr;
+//                    newfd = accept(listener,
+//                                   (struct sockaddr *)&remoteaddr,
+//                                   &addrlen);
+//
+//                    if (newfd == -1) {
+//                        perror("accept");
+//                    } else {
+//                        add_to_pfds(&pfds, newfd, &fd_count, &fd_size);
+//
+//                        printf("pollserver: new connection from %s on "
+//                               "socket %d\n",
+//                               inet_ntop(remoteaddr.ss_family,
+//                                         get_in_addr((struct sockaddr*)&remoteaddr),
+//                                         remoteIP, INET6_ADDRSTRLEN),
+//                               newfd);
+//                    }
+//                } else {
+//                    // If not the listener, we're just a regular client
+//                    int nbytes = recv(pfds[i].fd, buf, sizeof buf, 0);
+//
+//                    int sender_fd = pfds[i].fd;
+//
+//                    if (nbytes <= 0) {
+//                        // Got error or connection closed by client
+//                        if (nbytes == 0) {
+//                            // Connection closed
+//                            printf("pollserver: socket %d hung up\n", sender_fd);
+//                        } else {
+//                            perror("recv");
+//                        }
+//
+//                        close(pfds[i].fd); // Bye!
+//
+//                        del_from_pfds(pfds, i, &fd_count);
+//
+//                    } else {
+//                        // We got some good data from a client
+//
+//                        for(int j = 0; j < fd_count; j++) {
+//                            // Send to everyone!
+//                            int dest_fd = pfds[j].fd;
+//
+//                            // Except the listener and ourselves
+//                            if (dest_fd != listener && dest_fd != sender_fd) {
+//                                if (send(dest_fd, buf, nbytes, 0) == -1) {
+//                                    perror("send");
+//                                }
+//                            }
+//                        }
+//                    }
+//                } // END handle data from client
+//            } // END got ready-to-read from poll()
+//        } // END looping through file descriptors
+    } // END for(;;)--and you thought it would never end!
 }
 
 // Main
-int main(void)
-{
+int main(void){
     int listener;     // Listening socket descriptor
 
     int newfd;        // Newly accept()ed socket descriptor
@@ -110,12 +161,6 @@ int main(void)
 
     char remoteIP[INET6_ADDRSTRLEN];
 
-    // Start off with room for 5 connections
-    // (We'll realloc as necessary)
-    int fd_count = 0;
-    int fd_size = 5;
-    struct pollfd *pfds = malloc(sizeof *pfds * fd_size);
-
     // Set up and get a listening socket
     listener = get_listener_socket();
 
@@ -124,85 +169,7 @@ int main(void)
         exit(1);
     }
 
-    // Add the listener to set
-    pfds[0].fd = listener;
-    pfds[0].events = POLLIN; // Report ready to read on incoming connection
-
-    fd_count = 1; // For the listener
-
-    // Main loop
-    for(;;) {
-        int poll_count = poll(pfds, fd_count, -1);
-
-        if (poll_count == -1) {
-            perror("poll");
-            exit(1);
-        }
-
-        // Run through the existing connections looking for data to read
-        for(int i = 0; i < fd_count; i++) {
-
-            // Check if someone's ready to read
-            if (pfds[i].revents & POLLIN) { // We got one!!
-
-                if (pfds[i].fd == listener) {
-                    // If listener is ready to read, handle new connection
-
-                    addrlen = sizeof remoteaddr;
-                    newfd = accept(listener,
-                                   (struct sockaddr *)&remoteaddr,
-                                   &addrlen);
-
-                    if (newfd == -1) {
-                        perror("accept");
-                    } else {
-                        add_to_pfds(&pfds, newfd, &fd_count, &fd_size);
-
-                        printf("pollserver: new connection from %s on "
-                               "socket %d\n",
-                               inet_ntop(remoteaddr.ss_family,
-                                         get_in_addr((struct sockaddr*)&remoteaddr),
-                                         remoteIP, INET6_ADDRSTRLEN),
-                               newfd);
-                    }
-                } else {
-                    // If not the listener, we're just a regular client
-                    int nbytes = recv(pfds[i].fd, buf, sizeof buf, 0);
-
-                    int sender_fd = pfds[i].fd;
-
-                    if (nbytes <= 0) {
-                        // Got error or connection closed by client
-                        if (nbytes == 0) {
-                            // Connection closed
-                            printf("pollserver: socket %d hung up\n", sender_fd);
-                        } else {
-                            perror("recv");
-                        }
-
-                        close(pfds[i].fd); // Bye!
-
-                        del_from_pfds(pfds, i, &fd_count);
-
-                    } else {
-                        // We got some good data from a client
-
-                        for(int j = 0; j < fd_count; j++) {
-                            // Send to everyone!
-                            int dest_fd = pfds[j].fd;
-
-                            // Except the listener and ourselves
-                            if (dest_fd != listener && dest_fd != sender_fd) {
-                                if (send(dest_fd, buf, nbytes, 0) == -1) {
-                                    perror("send");
-                                }
-                            }
-                        }
-                    }
-                } // END handle data from client
-            } // END got ready-to-read from poll()
-        } // END looping through file descriptors
-    } // END for(;;)--and you thought it would never end!
+    InstallHandler(r, listen_func, listener);
 
     return 0;
 }

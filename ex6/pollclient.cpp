@@ -4,10 +4,11 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
+#include "reactor.hpp"
 #include <arpa/inet.h>
 
 #define PORT "3490" // the port client will be connecting to
+reactor* r = (reactor*) newReactor();
 
 
 // get sockaddr, IPv4 or IPv6:
@@ -19,8 +20,39 @@ void *get_in_addr(struct sockaddr *sa) {
     return &(((struct sockaddr_in6 *) sa)->sin6_addr);
 }
 
+void* write_to_all(void* args) {
+    int index = *((int *) args);
+    while (1) {
+        printf("Please enter a string to send to everyone 'EXIT' to exit\n");
+        char data[1024];
+        memset(data, 0, 1024);
+        scanf("%s", data);
+        if (strcmp(data, "EXIT") == 0) {
+            if (send(r->reactors[index].pfd.fd, "EXIT", 5, 0) == -1)
+                perror("send");
+            close(r->reactors[index].pfd.fd);
+//        pthread_exit(NULL);
+        } else {
+            if (send(r->reactors[index].pfd.fd, data, 1024, 0) == -1)
+                perror("send");
+            memset(data, 0, 6);
+        }
+    }
+}
+
+void* read_from_all(void* args){
+    int index = *((int *) args);
+    while (1) {
+        char buf[1024];
+        memset(buf, 0, 1024);
+        if ((recv(r->reactors[index].pfd.fd, buf, 1024, 0)) == -1)
+            perror("recv");
+        printf("new message: %s",buf);
+    }
+}
+
+
 int main() {
-    // TODO: add 2 fd ?!
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
@@ -62,21 +94,9 @@ int main() {
 
     freeaddrinfo(servinfo); // all done with this structure
 
-    while (1) {
-        printf("Please enter a string to send to everyone 'EXIT' to exit\n");
-        char data[1024];
-        memset(data, 0, 1024);
-        scanf("%s", data);
-        if (strcmp(data, "EXIT") == 0) {
-            if (send(sockfd, "EXIT", 5, 0) == -1)
-                perror("send");
-            break;
-        } else {
-            if (send(sockfd, data, 1024, 0) == -1)
-                perror("send");
-            memset(data, 0, 6);
-        }
-    }
-    close(sockfd);
+    InstallHandler(r, write_to_all, sockfd);
+    InstallHandler(r, read_from_all, sockfd);
+    RemoveHandler(r, sockfd); // when client wants to disconnect
+    // program will end because there is no join!
     return 0;
 }

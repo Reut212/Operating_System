@@ -1,9 +1,9 @@
 # include "poll.h"
 # include "pthread.h"
-#include <cstdlib>
-#include <cstdio>
-#include <fcntl.h>
-
+# include <cstdlib>
+# include <cstdio>
+# include <fcntl.h>
+#pragma once
 typedef void*(func)(void *);
 
 typedef struct reactor_unit{

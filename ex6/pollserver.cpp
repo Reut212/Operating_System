@@ -10,7 +10,7 @@
 #include <poll.h>
 #include "reactor.hpp"
 
-#define PORT "9034"   // Port we're listening on
+#define PORT "3490"   // Port we're listening on
 reactor* r = (reactor*) newReactor();
 
 // Get sockaddr, IPv4 or IPv6:
@@ -170,6 +170,5 @@ int main(void){
     }
 
     InstallHandler(r, listen_func, listener);
-
     return 0;
 }

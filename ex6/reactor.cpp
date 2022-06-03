@@ -18,7 +18,7 @@ void InstallHandler(reactor* r, func* f, int fd){
             r->reactors[i].pfd.fd=fd;
             r->reactors[i].pfd.events=POLLIN;
             r->reactors[i].f=f;
-            pthread_create(&r->reactors[i].thread, NULL, f, NULL);
+            pthread_create(&r->reactors[i].thread, NULL, f, (void*)i);
             return;
         }
     }
@@ -36,14 +36,14 @@ void RemoveHandler(reactor* r, int fd) {
     }
 }
 
-// simple example
-void* f(void*){}
-int main(){
-    reactor* reac = (reactor*)newReactor();
-    int fd = open("example.txt", O_RDWR);
-    InstallHandler(reac,f,fd); //place it in 0'th cell
-    InstallHandler(reac,f,fd); //place it in 1'th cell
-    RemoveHandler(reac,fd); //remove it from 0'th cell
-    InstallHandler(reac,f,fd); //place it in 0'th cell
-    printf("");
-}
+//// simple example
+//void* f(void*){}
+//int main(){
+//    reactor* reac = (reactor*)newReactor();
+//    int fd = open("example.txt", O_RDWR);
+//    InstallHandler(reac,f,fd); //place it in 0'th cell
+//    InstallHandler(reac,f,fd); //place it in 1'th cell
+//    RemoveHandler(reac,fd); //remove it from 0'th cell
+//    InstallHandler(reac,f,fd); //place it in 0'th cell
+//    printf("");
+//}

@@ -8,8 +8,8 @@
 #include <arpa/inet.h>
 
 #define PORT "3490" // the port client will be connecting to
-reactor* r = (reactor*) newReactor();
-
+reactor *r = (reactor *) newReactor();
+bool bye = false;
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa) {
@@ -20,7 +20,7 @@ void *get_in_addr(struct sockaddr *sa) {
     return &(((struct sockaddr_in6 *) sa)->sin6_addr);
 }
 
-void* write_to_all(void* args) {
+void *write_to_all(void *args) {
     int index = *((int *) args);
     free(args);
     while (1) {
@@ -32,7 +32,7 @@ void* write_to_all(void* args) {
             if (send(r->reactors[index].pfd.fd, "EXIT", 5, 0) == -1)
                 perror("send");
             close(r->reactors[index].pfd.fd);
-//        pthread_exit(NULL);
+            bye = true;
         } else {
             if (send(r->reactors[index].pfd.fd, data, 1024, 0) == -1)
                 perror("send");
@@ -41,7 +41,7 @@ void* write_to_all(void* args) {
     }
 }
 
-void* read_from_all(void* args){
+void *read_from_all(void *args) {
     int index = *((int *) args);
     free(args);
     while (1) {
@@ -49,7 +49,7 @@ void* read_from_all(void* args){
         memset(buf, 0, 1024);
         if ((recv(r->reactors[index].pfd.fd, buf, 1024, 0)) == -1)
             perror("recv");
-        printf("new message: %s",buf);
+        printf("new message: %s", buf);
     }
 }
 
@@ -100,7 +100,9 @@ int main() {
     InstallHandler(r, read_from_all, sockfd);
     pthread_join(r->reactors[0].thread, NULL);
     pthread_join(r->reactors[1].thread, NULL);
-    RemoveHandler(r, sockfd); // when client wants to disconnect
-
-    return 0;
+    while (!bye) {  // when client wants to disconnect
+        RemoveHandler(r, sockfd);
+        RemoveHandler(r, sockfd);
+        return 0;
+    }
 }

@@ -13,7 +13,7 @@ typedef struct reactor_unit{
 }reactor_unit;
 
 typedef struct reactor{
-    reactor_unit reactors[1000];
+    reactor_unit reactors[3];
     int avail; //taken reactor_units
     int capacity; //capacity of reactor_units
 } reactor;

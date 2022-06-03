@@ -3,7 +3,7 @@
 void* newReactor(){
     reactor *rec = (reactor *) malloc(sizeof(reactor));
     rec->avail=0;
-    rec->capacity=1000;
+    rec->capacity=3;
     return (void*)rec;
 }
 

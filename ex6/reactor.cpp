@@ -15,7 +15,7 @@ void InstallHandler(reactor* r, func* f, int fd){
         perror("no available space!");
         return;
     }
-    for (int i=0; i<r->capacity; i++){
+    for (int i=r->avail; i<r->capacity; i++){
         if (r->reactors[i].f==NULL){ //found space
             r->avail++;
             r->reactors[i].pfd.fd=fd;
@@ -32,7 +32,7 @@ void InstallHandler(reactor* r, func* f, int fd){
 void RemoveHandler(reactor* r, int fd) {
     for(int i=0; i<r->capacity; i++){
         if (r->reactors[i].pfd.fd==fd){
-            r->reactors[i].pfd.fd=NULL;
+            r->reactors[i].pfd.fd=0;
             r->reactors[i].f=NULL;
             pthread_cancel(r->reactors[i].thread);
             r->avail--;

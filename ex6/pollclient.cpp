@@ -52,7 +52,7 @@ void *read_from_all(void *args) {
             exit(1);
         }
         else if (num_of_bytes>0){
-            printf("new message: %s", buf);
+            printf("new message: %s\n", buf);
         }
     }
 }

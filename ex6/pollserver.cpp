@@ -82,42 +82,26 @@ int listener = get_listener_socket();    // Listening socket descriptor
 void *client_func(void *args) {
     int index = *((int *) args);
     for (;;) {
-        for (int i=0; i<r->capacity;i++){
-            r->reactors[0].pfd.revents = 0;
-        }
-        int poll_count = poll((pollfd *) (r->reactors), r->avail, -1);
-        if (poll_count == -1) {
-            perror("poll");
-            exit(1);
-        }
-        // Run through the existing connections looking for data to read
-        for (int i = 1; i < r->avail; i++) {
-            // Check if someone's ready to read
-            if (r->reactors[i].pfd.revents & POLLOUT) { // We got one!!
-                if (r->reactors[i].pfd.fd == r->reactors[index].pfd.fd) {
-                    int nbytes = recv(r->reactors[i].pfd.fd, buf, sizeof buf, 0);
-                    int sender_fd = r->reactors[i].pfd.fd;
-                    if (nbytes <= 0) {
-                        if (nbytes == 0) {
-                            // Connection closed
-                            printf("pollserver: socket %d hung up\n", sender_fd);
-                        } else {
-                            perror("recv");
-                        }
-                        close(r->reactors[i].pfd.fd); // Bye!
-                        RemoveHandler(r, r->reactors[i].pfd.fd);
-                    } else {
-                        // We got some good data from a client
-                        for (int j = 0; j < r->capacity; j++) {
-                            // Send to everyone!
-                            int dest_fd = r->reactors[i].pfd.fd;
-                            // Except the listener and ourselves
-                            if (dest_fd != listener && dest_fd != sender_fd) {
-                                if (send(dest_fd, buf, nbytes, 0) == -1) {
-                                    perror("send");
-                                }
-                            }
-                        }
+        int nbytes = recv(r->reactors[index].pfd.fd, buf, sizeof buf, 0);
+        int sender_fd = r->reactors[index].pfd.fd;
+        if (nbytes <= 0) {
+            if (nbytes == 0) {
+                // Connection closed
+                printf("Connection closed\n");
+            } else {
+                perror("recv");
+            }
+            close(r->reactors[index].pfd.fd); // Bye!
+            RemoveHandler(r, r->reactors[index].pfd.fd);
+        } else {
+            // We got some good data from a client
+            for (int j = 0; j < r->avail; j++) {
+                // Send to everyone!
+                int dest_fd = r->reactors[j].pfd.fd;
+                // Except the listener and ourselves
+                if (dest_fd != listener && dest_fd != sender_fd) {
+                    if (send(dest_fd, buf, nbytes, 0) == -1) {
+                        perror("send");
                     }
                 }
             }
@@ -125,10 +109,9 @@ void *client_func(void *args) {
     }
 }
 
-
 void *listen_func(void *args) {
     for (;;) {
-        for (int i=0; i<r->capacity;i++){
+        for (int i = 0; i < r->capacity; i++) {
             r->reactors[0].pfd.revents = 0;
         }
         int poll_count = poll((pollfd *) (r->reactors), r->avail, -1);

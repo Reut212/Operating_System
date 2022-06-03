@@ -6,7 +6,7 @@ Assumptions:
 1. string's max size as an argument to the queue is 1024 bytes.
 2. the string "EXIT" is invalid and used to disconnect from the server.
 3. ! will be returned from function when invalid (not alphabetic) char is being inserted.
-4. reactor struct can contain maximum 1000 file descriptors.
+4. reactor struct can contains maximum 100 file descriptors (closed or open).
 5. if the same file descriptor is placed again it will be placed in a different cell
 and when removing it will be removed from the first cell it appeared on.
 
@@ -16,3 +16,8 @@ Notes:
 - second run "./main"
 - for new string run "./client"
     - then enter the string you would like ir 'EXIT' to exit
+
+Important note:
+Did not use the poll function to monitor incoming recv data from socket
+https://stackoverflow.com/questions/26517373/use-poll-timeout-only-for-new-data-on-socket
+according to this it is not possible to monitor such events on poll!

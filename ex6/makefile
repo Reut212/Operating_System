@@ -3,7 +3,7 @@ CC = g++
 CFLAGS  = -g -Wall
 
 
-all: main client singleton reactor client2 server2
+all: main client singleton pollserver pollclient
 
 main: main1.cpp
 	$(CC) -pthread $(CFLAGS) main1.cpp -o main
@@ -26,4 +26,4 @@ pollclient: pollclient.cpp
 	$(CC) -pthread $(CFLAGS) pollclient.cpp reactor.cpp -o pollclient
 
 clean:
-	rm main client singleton reactor server2 client2
+	rm main client singleton reactor pollserver pollclient

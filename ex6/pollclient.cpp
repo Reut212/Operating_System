@@ -8,8 +8,7 @@
 #include <arpa/inet.h>
 
 #define PORT "3490" // the port client will be connecting to
-reactor* r = (reactor*) newReactor();
-
+bool bye = false;
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa) {
@@ -20,36 +19,41 @@ void *get_in_addr(struct sockaddr *sa) {
     return &(((struct sockaddr_in6 *) sa)->sin6_addr);
 }
 
-void* write_to_all(void* args) {
-    int index = *((int *) args);
-    free(args);
+void *write_to_all(void *args) {
+    int sock = *((int *) args);
     while (1) {
         printf("Please enter a string to send to everyone 'EXIT' to exit\n");
         char data[1024];
         memset(data, 0, 1024);
         scanf("%s", data);
         if (strcmp(data, "EXIT") == 0) {
-            if (send(r->reactors[index].pfd.fd, "EXIT", 5, 0) == -1)
+            if (send(sock, "EXIT", 5, 0) == -1)
                 perror("send");
-            close(r->reactors[index].pfd.fd);
-//        pthread_exit(NULL);
+            close(sock);
+            bye = true;
+            pthread_exit(NULL);
         } else {
-            if (send(r->reactors[index].pfd.fd, data, 1024, 0) == -1)
+            if (send(sock, data, 1024, 0) == -1)
                 perror("send");
             memset(data, 0, 6);
         }
     }
 }
 
-void* read_from_all(void* args){
-    int index = *((int *) args);
-    free(args);
+void *read_from_all(void *args) {
+    int sock = *((int *) args);
     while (1) {
         char buf[1024];
         memset(buf, 0, 1024);
-        if ((recv(r->reactors[index].pfd.fd, buf, 1024, 0)) == -1)
+        int num_of_bytes = recv(sock, buf, 1024, 0);
+        if (num_of_bytes==-1){
             perror("recv");
-        printf("new message: %s",buf);
+            pthread_exit(NULL);
+            exit(1);
+        }
+        else if (num_of_bytes>0){
+            printf("new message: %s\n", buf);
+        }
     }
 }
 
@@ -96,11 +100,12 @@ int main() {
 
     freeaddrinfo(servinfo); // all done with this structure
 
-    InstallHandler(r, write_to_all, sockfd);
-    InstallHandler(r, read_from_all, sockfd);
-    pthread_join(r->reactors[0].thread, NULL);
-    pthread_join(r->reactors[1].thread, NULL);
-    RemoveHandler(r, sockfd); // when client wants to disconnect
-
-    return 0;
+    pthread_t read, write;
+    pthread_create(&read, NULL, read_from_all,&sockfd);
+    pthread_create(&write, NULL, write_to_all,&sockfd);
+    pthread_join(write, NULL);
+    pthread_join(read, NULL);
+    while (!bye) {  // when client wants to disconnect
+        return 0;
+    }
 }

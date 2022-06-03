@@ -46,6 +46,7 @@ int main(int argc, char const *argv[])
     iret1 = pthread_create(&thread1, NULL, print_message_function, (void *)message1);
     iret2 = pthread_create(&thread2, NULL, print_message_function, (void *)message2);
 
+    printf("%d\n", iret1);
     printf("%d\n", iret2);
     /* Wait till threads are complete before main continues. Unless we  */
     /* wait we run the risk of executing an exit which will terminate   */
@@ -54,7 +55,7 @@ int main(int argc, char const *argv[])
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
 
-    printf("Thread 1 returns: %d\n", thread1);
-    printf("Thread 2 returns: %d\n", thread2);
+    printf("Thread 1 returns: %lu\n", thread1);
+    printf("Thread 2 returns: %lu\n", thread2);
     exit(0);
 }

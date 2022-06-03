@@ -49,6 +49,7 @@ void *read_from_all(void *args) {
         if (num_of_bytes==-1){
             perror("recv");
             pthread_exit(NULL);
+            exit(1);
         }
         else if (num_of_bytes>0){
             printf("new message: %s", buf);

@@ -6,7 +6,7 @@ CFLAGS  = -g -Wall
 all: main1 client singleton pollserver pollclient guard test
 
 main1: main1.cpp
-	$(CC) -pthread $(CFLAGS) main1.cpp -o main
+	$(CC) -pthread $(CFLAGS) main1.cpp -o main1
 
 client: client.cpp
 	$(CC) -pthread $(CFLAGS) client.cpp -o client

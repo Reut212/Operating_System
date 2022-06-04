@@ -1,7 +1,15 @@
 #include <cstdio>
 #include <cstdlib>
 #include <pthread.h>
-// #include <Guard.cpp>
+
+//Answer for 4th question:
+//according to this:
+//https://stackoverflow.com/questions/20820937/strtok-function-and-multithreading
+//'strtok' modifies and potentially uses global (or static, whatever) variables,
+//and does so in a probably-not-thread-safe way, so even if we don't rely on
+//repeating calls to 'strtok' to get successive "tokens" from the same string,
+//it may not be safe to use it in a multi-threaded environment without guards, etc.
+
 
 pthread_mutex_t lock2 = PTHREAD_MUTEX_INITIALIZER;
 

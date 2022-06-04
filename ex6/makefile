@@ -20,11 +20,6 @@ guard: guard.cpp
 test: test.cpp
 	$(CC) -pthread $(CFLAGS) test.cpp -o test
 
-prog: pollserver pollclient
-
-reactor: reactor.cpp
-	$(CC) -pthread $(CFLAGS) reactor.cpp -o reactor
-
 pollserver: pollserver.cpp
 	$(CC) -pthread $(CFLAGS) pollserver.cpp reactor.cpp -o pollserver
 
@@ -32,4 +27,4 @@ pollclient: pollclient.cpp
 	$(CC) -pthread $(CFLAGS) pollclient.cpp reactor.cpp -o pollclient
 
 clean:
-	rm main client singleton reactor pollserver pollclient guard test
+	rm main client singleton pollserver pollclient guard test

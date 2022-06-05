@@ -1,30 +1,58 @@
-CC = g++
+CC=g++
+FLAGS=-pthread -fPIC
+OBJECTS= guard.o reactor.o
+HEADERS=$(wildcard *.hpp)
 
-CFLAGS  = -g -Wall
+all: main1 client test singleton pollclient pollserver lib.so guard
 
+lib.so: $(OBJECTS)
+	$(CC) --shared -fPIC -pthread $(OBJECTS) -o lib.so
 
-all: main1 client singleton pollserver pollclient guard test
+main1: main1.o
+	$(CC) $(FLAGS) main1.o -o main1
 
-main1: main1.cpp
-	$(CC) -pthread $(CFLAGS) main1.cpp -o main1
+main1.o: $(HEADERS) main1.cpp
+	$(CC) $(FLAGS) -c main1.cpp
 
-client: client.cpp
-	$(CC) -pthread $(CFLAGS) client.cpp -o client
+client: client.o
+	$(CC) $(FLAGS) client.o -o client
 
-singleton: singleton.cpp
-	$(CC) -pthread $(CFLAGS) singleton.cpp -o singleton
+client.o: $(HEADERS) client.cpp
+	$(CC) $(FLAGS) -c client.cpp
 
-guard: guard.cpp
-	$(CC) -pthread $(CFLAGS) guard.cpp -o guard
+test: test.o
+	$(CC) $(FLAGS) test.o -o test
 
-test: test.cpp
-	$(CC) -pthread $(CFLAGS) test.cpp -o test
+test.o: $(HEADERS) test.cpp
+	$(CC) $(FLAGS) -c test.cpp
 
-pollserver: pollserver.cpp
-	$(CC) -pthread $(CFLAGS) pollserver.cpp reactor.cpp -o pollserver
+guard: guard.o
+	$(CC) $(FLAGS) guard.o -o guard
 
-pollclient: pollclient.cpp
-	$(CC) -pthread $(CFLAGS) pollclient.cpp reactor.cpp -o pollclient
+guard.o: $(HEADERS)  guard.cpp
+	$(CC) $(FLAGS) -c guard.cpp
+
+singleton.o: $(HEADERS) singleton.cpp
+	$(CC) $(FLAGS) -c singleton.cpp
+
+singleton: singleton.o
+	$(CC) $(FLAGS) singleton.o -o singleton
+
+reactor.o: $(HEADERS) reactor.cpp
+	$(CC) $(FLAGS) -c reactor.cpp
+
+pollserver.o: pollserver.cpp
+	$(CC) $(FLAGS) -c pollserver.cpp
+
+pollserver: pollserver.o reactor.o
+	$(CC) $(FLAGS) pollserver.o reactor.o -o pollserver
+
+pollclient.o: pollclient.cpp
+	$(CC) $(FLAGS) -c pollclient.cpp
+
+pollclient: pollclient.o
+	$(CC) $(FLAGS) pollclient.o  -o pollclient
 
 clean:
-	rm main1 client singleton pollserver pollclient guard test
+	rm -f *.o main1 test client pollclient pollserver a.out *.so singleton guard
+

@@ -8,7 +8,6 @@
 #include <pthread.h>
 #include <sys/types.h>
 #define PORT "3490"
-#include <stdlib.h>
 pthread_mutex_t lock;
 
 void *get_in_addr(struct sockaddr *sa)

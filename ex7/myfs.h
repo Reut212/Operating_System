@@ -31,7 +31,7 @@ typedef struct myopenfile{
 
 }myopenfile;
 
-void mymkfs(char fs_size);
+void mymkfs(int fs_size);
 int mymount(const char *source, const char *target,
             const char *filesystemtype, unsigned long
             mountflags, const void *data);
@@ -43,3 +43,6 @@ off_t mylseek(int myfd, off_t offset, int whence);
 myDIR *myopendir(const char *name);
 struct mydirent *myreaddir(myDIR *dirp);
 int myclosedir(myDIR *dirp);
+
+int get_block_num(int file, int offeset);
+void set_filesize(int filenum, int size);

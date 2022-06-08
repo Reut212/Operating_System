@@ -46,3 +46,5 @@ int myclosedir(myDIR *dirp);
 
 int get_block_num(int file, int offeset);
 void set_filesize(int filenum, int size);
+void shorten_file(int bn);
+int find_empty_block();

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define BLOCKSIZE 512
 
 void mymkfs(int fs_size) {
 
@@ -48,6 +49,15 @@ int mymount(const char *source, const char *target,
     return 0;
 }
 
+void shorten_file(int bn)
+{
+    int nn = dinfo[bn].next_block_num;
+    if(dinfo[bn].next_block_num >= 0)
+    {
+        shorten_file(nn);
+    }
+    dinfo[bn].next_block_num = -1;
+}
 
 void set_filesize(int filenum, int size)
 {
@@ -58,18 +68,18 @@ void set_filesize(int filenum, int size)
     for (num-- ; num > 0; num--)
     {
         //check next block number
-        int next_num = dbs[bn].next_block_num;
+        int next_num = dinfo[bn].next_block_num;
         if (next_num == -2)
         {
             int empty = find_empty_block();
-            dbs[bn].next_block_num = empty;
-            dbs[empty].next_block_num = -2;
+            dinfo[bn].next_block_num = empty;
+            dinfo[empty].next_block_num = -2;
         }
-        bn = dbs[bn].next_block_num;
+        bn = dinfo[bn].next_block_num;
     }
     //short the file if necessary
     shorten_file(bn);
-    dbs[bn].next_block_num = -2;
+    dinfo[bn].next_block_num = -2;
 }
 
 int get_block_num(int file, int offeset)
@@ -77,7 +87,19 @@ int get_block_num(int file, int offeset)
     int bn = inodes[file].first_block;
     for(int togo = offeset; togo > 0; togo--)
     {
-        bn = dbs[bn].next_block_num;
+        bn = dinfo[bn].next_block_num;
     }
     return bn;
+}
+
+int find_empty_block()
+{
+    for (int i = 0; i < ginfo.num_blocks; i++)
+    {
+        if (dinfo[i].next_block_num == -1)
+        {
+            return i;
+        }
+    }
+    return -1;
 }

@@ -30,7 +30,7 @@ void mymkfs(int fs_size) {
     }
 
     FILE *file;
-    file = fopen("filesystem", "w+");
+    file = fopen("filesystem.txt", "w");
 
     fwrite(&sb, sizeof(struct superblock), 1, file);
     fwrite(inodes, sizeof(inode), sb.num_inodes, file);
@@ -66,6 +66,7 @@ int mymount(const char *source, const char *target,
     trg_sb->num_blocks= src_num_block;
     trg_sb->size_blocks=src_size_blocks;
     trg_sb->num_inodes=src_num_inodes;
+    fwrite(&trg_sb, sizeof(superblock), 1, trg);
 
     //update of inodes
     inode *trg_inodes = malloc(sizeof(inode)*src_num_inodes);
@@ -75,7 +76,7 @@ int mymount(const char *source, const char *target,
         trg_inodes[i].first_block=src_inodes[i].first_block;
         strcpy(trg_inodes[i].name, src_inodes[i].name);
     }
-    fwrite(trg_inodes, sizeof(superblock), 1, trg);
+    fwrite(&trg_inodes, sizeof(inode), 1, trg);
 
     //update of disk blocks
     disk_block *trg_dblock = malloc(sizeof(disk_block)*src_num_block);
@@ -83,7 +84,7 @@ int mymount(const char *source, const char *target,
         trg_dblock[i].next_block_num=src_dblock[i].next_block_num;
         strcpy(trg_dblock[i].data, src_dblock[i].data);
     }
-    fwrite(trg_dblock, sizeof(struct disk_block), 1, trg);
+    fwrite(&trg_dblock, sizeof(struct disk_block), 1, trg);
 
     fclose(trg);
     return 0;
@@ -177,5 +178,5 @@ int myclose(int myfd) {
 
 int main() {
     mymkfs(10000);
-    mymount(NULL, "fs_data", NULL, 0, NULL);
+//    mymount(NULL, "fs_data", NULL, 0, NULL);
 }

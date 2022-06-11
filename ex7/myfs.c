@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 
-#define BLOCKSIZE 512
-
 void mymkfs(int fs_size) {
     int size = fs_size - (int) sizeof(sb);
     sb.num_inodes = (int) ((size * 0.1) / sizeof(inode));
@@ -87,53 +85,10 @@ int mymount(const char *source, const char *target,
     fwrite(&trg_dblock, sizeof(struct disk_block), 1, trg);
 
     fclose(trg);
+    fclose(src);
     return 0;
 }
 
-void shorten_file(int bn) {
-    int nn = d_block[bn].next_block_num;
-    if (d_block[bn].next_block_num >= 0) {
-        shorten_file(nn);
-    }
-    d_block[bn].next_block_num = -1;
-}
-
-int find_empty_block() {
-    for (int i = 0; i < sb.num_blocks; i++) {
-        if (d_block[i].next_block_num == -1) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-void set_filesize(int filenum, int size) {
-    int temp = size + BLOCKSIZE - 1;
-    int num = temp / BLOCKSIZE;
-    int bn = inodes[filenum].first_block;
-    //grow the file if necessary
-    for (num--; num > 0; num--) {
-        //check next block number
-        int next_num = d_block[bn].next_block_num;
-        if (next_num == -2) {
-            int empty = find_empty_block();
-            d_block[bn].next_block_num = empty;
-            d_block[empty].next_block_num = -2;
-        }
-        bn = d_block[bn].next_block_num;
-    }
-    //short the file if necessary
-    shorten_file(bn);
-    d_block[bn].next_block_num = -2;
-}
-
-int get_block_num(int file, int offeset) {
-    int bn = inodes[file].first_block;
-    for (int togo = offeset; togo > 0; togo--) {
-        bn = d_block[bn].next_block_num;
-    }
-    return bn;
-}
 
 int find_empty_openfile() {
     for (int i = 0; i < FILES_MAX; i++) {
@@ -176,7 +131,155 @@ int myclose(int myfd) {
     return 0;
 }
 
-int main() {
-    mymkfs(10000);
-//    mymount(NULL, "fs_data", NULL, 0, NULL);
+void shorten_file(int bn) {
+    int nn = d_block[bn].next_block_num;
+    if (d_block[bn].next_block_num >= 0) {
+        shorten_file(nn);
+    }
+    d_block[bn].next_block_num = -1;
+}
+
+int find_empty_block() {
+    for (int i = 0; i < sb.num_blocks; i++) {
+        if (d_block[i].next_block_num == -1) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void set_filesize(int filenum, int size) {
+    int temp = size + BLOCKSIZE - 1;
+    int num = temp / BLOCKSIZE;
+    int bn = inodes[filenum].first_block;
+    //grow the file if necessary
+    for (num--; num > 0; num--) {
+        //check next block number
+        int next_num = d_block[bn].next_block_num;
+        if (next_num == -2) {
+            int empty = find_empty_block();
+            d_block[bn].next_block_num = empty;
+            d_block[empty].next_block_num = -2;
+        }
+        bn = d_block[bn].next_block_num;
+    }
+    //short the file if necessary
+    shorten_file(bn);
+    d_block[bn].next_block_num = -2;
+}
+
+//int get_block_num(int file, int offeset) {
+//    int bn = inodes[file].first_block;
+//    for (int togo = offeset; togo > 0; togo--) {
+//        bn = d_block[bn].next_block_num;
+//    }
+//    return bn;
+//}
+
+int get_block_num(int file, int offeset) {
+    int togo = offeset;
+    int bn = inodes[file].first_block;
+    while (togo>0){
+        bn = d_block[bn].next_block_num;
+        togo--;
+    }
+    return bn;
+}
+
+//void write_byte(int filename, int pos, char data){
+//    int relative_block = pos / BLOCKSIZE; //calculate which block
+//    int bn = get_block_num(filename, relative_block); // find the block number
+//    int offset = pos % BLOCKSIZE;
+//    d_block[bn].data[offset] = data;
+//}
+
+int alloc_new_block(disk_block last_block){
+    int block_index = find_empty_block();
+    if (block_index == -1){
+        perror("not enough space!");
+        return -1;
+    }
+    last_block.next_block_num=block_index;
+    d_block[block_index].next_block_num=-1;
+    return block_index;
+}
+
+ssize_t mywrite(int myfd, const void *buf, size_t count){
+    int index = open_index(myfd);
+    if (index == -1) {
+        perror("You are trying to write to a file that is not open!");
+        return -1;
+    }
+    int relative_block = open_f[index].pos / BLOCKSIZE; //calculate which block
+    int curr_block = get_block_num(myfd, relative_block); // find the block number
+    int offset = open_f[index].pos % BLOCKSIZE;
+    char* data = (char*)buf;
+    for (int i=0; i<count; i++){
+        if (offset >= BLOCKSIZE){
+            int block_index = alloc_new_block(d_block[curr_block]);
+            if (block_index == -1){
+                perror("not enough space!");
+                return -1;
+            }
+            curr_block = get_block_num(myfd, block_index);
+        }
+        d_block[curr_block].data[offset] = data[i];
+        offset++;
+    }
+    return 0;
+}
+
+
+void print_fs()
+{
+    printf("superblock info\n");
+    printf("num_inodes %d\n", sb.num_inodes);
+    printf("num_blocks %d\n", sb.num_blocks);
+    printf("size_blocks %d\n\n", sb.size_blocks);
+
+    printf("folders: \n\n");
+    for (int i = 0; i < sb.num_inodes; i++)
+    {
+        if(!(strcmp(inodes[i].name,"folder")))
+        {
+            printf(" | name %s ", inodes[i].name);
+            printf("size %d  ", inodes[i].size);
+            printf("first_block: %d\t", inodes[i].first_block);
+        }
+
+    }
+    printf("\n\n");
+    printf("inodes:\n");
+    for (int i = 0; i < sb.num_inodes; i++)
+    {
+        if(strcmp(inodes[i].name,"folder"))
+        {
+            printf("\tname %s ", inodes[i].name);
+            printf("size %d  ", inodes[i].size);
+            printf("first_block %d", inodes[i].first_block);
+            if(i % 4 == 0)
+            {
+                printf("\n\n");
+            }
+            else
+            {
+                printf("   |   ");
+            }
+        }
+    }
+    // dbs
+    printf("\n");
+    printf("block:\n");
+    for (int i = 0; i < sb.num_blocks; i++)
+    {
+        printf("[");
+        printf(" block num: %d next block %d ", i, d_block[i].next_block_num);
+        if(d_block[i].next_block_num != -1)
+        {
+            printf("USED BLOCK");
+        }
+        printf("] ");
+        if(i % 4 == 0 && i!=0)
+            printf("\n\n");
+    }
 }

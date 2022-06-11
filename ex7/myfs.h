@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define PATH_MAX 128
-#define BLOCKSIZE 512
+#define BLOCKSIZE 2
 #define NAME_SIZE 9
 #define MAX_DIR 10
 #define BUFF_SIZE 80
@@ -61,6 +61,7 @@ struct mydirent *myreaddir(myDIR *dirp);
 
 
 // other functions
+void mymkfs(int fs_size);
 int myclosedir(myDIR *dirp);
 void mount_fs(const char *source);  // load adile system
 void sync_fs(const char *target);   // write the file system

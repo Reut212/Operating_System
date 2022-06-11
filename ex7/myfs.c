@@ -146,7 +146,7 @@ int myopen(const char *pathname, int flags) {
     d_block[curr_block].next_block_num = -2;
 
 
-    open_f[index].file_inode = inodes[inode];
+    open_f[index].file_inode = inode;
     open_f[index].current_block_index = curr_block;
     open_f[index].current_offset = 0;
     return file;
@@ -167,8 +167,27 @@ int myclose(int myfd) {
         perror("You are trying to close a file that is not open!");
         return -1;
     }
+    //freeing block
+    inode f_inode = inodes[open_f[index].file_inode];
+    int curr_block_index = f_inode.first_block;
+    for (int i=0; i<f_inode.size; i++){
+        memset(d_block[curr_block_index].data, 0, BLOCKSIZE);
+        int temp = d_block[curr_block_index].next_block_num;
+        d_block[curr_block_index].next_block_num = -1;
+        curr_block_index = temp;
+    }
+
+    // freeing inode
+    inodes[open_f[index].file_inode].size=-1;
+    inodes[open_f[index].file_inode].first_block=-1;
+    memset(inodes[open_f[index].file_inode].name, 0, NAME_SIZE+1);
+    inodes[open_f[index].file_inode].dir="";
+
+    //freeing open_f space
     open_f[index].fd = -1;
     open_f[index].current_offset = 0;
+    open_f[index].file_inode=-1;
+    open_f[index].current_block_index=-1;
     return 0;
 }
 
@@ -200,21 +219,6 @@ void set_filesize(int filenum, int size) {
     d_block[bn].next_block_num = -2;
 }
 
-//int get_block_num(int file, int offeset) {
-//    int bn = inodes[file].first_block;
-//    for (int togo = offeset; togo > 0; togo--) {
-//        bn = d_block[bn].next_block_num;
-//    }
-//    return bn;
-//}
-
-//void write_byte(int filename, int pos, char data){
-//    int relative_block = pos / BLOCKSIZE; //calculate which block
-//    int bn = get_block_num(filename, relative_block); // find the block number
-//    int offset = pos % BLOCKSIZE;
-//    d_block[bn].data[offset] = data;
-//}
-
 int alloc_new_block(int last_block_index) {
     int block_index = find_empty_block();
     if (block_index == -1) {
@@ -232,7 +236,7 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
         perror("You are trying to write to a file that is not open!");
         return -1;
     }
-    inode f_inode = open_f[index].file_inode;
+    inode f_inode = inodes[open_f[index].file_inode];
     int curr_block = open_f[index].current_block_index; // find the block number
     int offset = open_f[index].current_offset;
     char *data = (char *) buf;
@@ -264,7 +268,7 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     }
     open_f[index].current_block_index = curr_block;
     open_f[index].current_offset = offset;  // moving offset to new position
-    f_inode.size += new_blocks_allocated;
+    inodes[open_f[index].file_inode].size += new_blocks_allocated;
     return 0;
 }
 

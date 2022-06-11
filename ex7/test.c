@@ -9,6 +9,7 @@ int main(){
     mywrite(y, "bla", 3);
     mywrite(y, "bla", 3);
     printf("");
+    myclose(y);
 //    mylseek(y, 0, 0);
 //    char buf [100];
 //    myread(y, buf, 50);

@@ -30,7 +30,7 @@ typedef struct disk_block{
 
 typedef struct myopenfile{
     int fd;
-    inode file_inode;
+    int file_inode;
     int current_block_index;
     int current_offset;
 } myopenfile;

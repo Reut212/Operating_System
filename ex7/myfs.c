@@ -202,6 +202,71 @@ int alloc_new_block(int last_block_index) {
     return block_index;
 }
 
+int pos(int index, int stop) { //find number of bytes until current block and current offset
+    int counter = 0;
+    int curr = inodes[open_f[index].file_inode].first_block;
+    while (curr != stop) {
+        curr = d_block[curr].next_block_num;
+        counter++;
+    }
+    return BLOCKSIZE * counter + open_f[index].current_offset;
+}
+
+void myseek(int index, int num){
+    open_f[index].current_offset = num% BLOCKSIZE;
+    open_f[index].current_block_index = num / BLOCKSIZE;
+}
+
+off_t mylseek(int myfd, off_t offset, int whence) {
+    int index = open_index(myfd);
+    if (index == -1) {
+        perror("You are trying to seek from a file that is not open!");
+        return -1;
+    }
+    if (whence == SEEK_SET) { // setting offset to given offset
+        myseek(index,(int)offset);
+    } else if (whence == SEEK_CUR) {
+        int where_we_are = pos(index, open_f[index].current_block_index);
+        myseek(index,(int) (where_we_are + offset));
+
+    } else if (whence == SEEK_END) {
+        int where_we_are = pos(index, inodes[open_f[index].file_inode].size-1);
+        myseek(index,(int) (where_we_are + offset));
+    }
+    if (open_f[myfd].current_offset < 0) {
+        open_f[myfd].current_offset = 0;
+    }
+    return open_f[myfd].current_offset;
+}
+
+ssize_t myread(int myfd, void *buf, size_t count){
+    int index = open_index(myfd);
+    if (index == -1) {
+        perror("You are trying to read from a file that is not open!");
+        return -1;
+    }
+    buf = (char*)buf;
+    int bytes_read = 0;
+    int curr_block = open_f[index].current_block_index; // find the block number
+    int offset = open_f[index].current_offset;
+    for (int i = 0; i < count; i++) {
+        if (offset >= BLOCKSIZE) {
+            int block_index = d_block[curr_block].next_block_num;
+            if (block_index == -1) {
+                perror("Core dump");
+                return -1;
+            }
+            offset = 0;
+            curr_block = block_index;
+        }
+        ((char*)buf)[i] = d_block[curr_block].data[offset];
+        offset++;
+        bytes_read++;
+    }
+    mylseek(open_f[index].fd, count, SEEK_CUR);
+    return bytes_read;
+}
+
 ssize_t mywrite(int myfd, const void *buf, size_t count) {
     int index = open_index(myfd);
     if (index == -1) {
@@ -242,54 +307,6 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     inodes[open_f[index].file_inode].size += new_blocks_allocated;
     return 0;
 }
-
-int pos(int index, int stop) { //find number of bytes until current block and current offset
-    int counter = 0;
-    int curr = inodes[open_f[index].file_inode].first_block;
-    while (curr != stop) {
-        curr = d_block[curr].next_block_num;
-        counter++;
-    }
-    return BLOCKSIZE * counter + open_f[index].current_offset;
-}
-
-void myseek(int index, int num){
-    open_f[index].current_offset = num% BLOCKSIZE;
-    open_f[index].current_block_index = num / BLOCKSIZE;
-}
-
-off_t mylseek(int myfd, off_t offset, int whence) {
-    int index = open_index(myfd);
-    if (index == -1) {
-        perror("You are trying to seek from a file that is not open!");
-        return -1;
-    }
-    if (whence == SEEK_SET) { // setting offset to given offset
-        myseek(index,(int)offset);
-    } else if (whence == SEEK_CUR) {
-        int where_we_are = pos(index, open_f[index].current_block_index);
-        myseek(index,(int) (where_we_are + offset));
-
-    } else if (whence == SEEK_END) {
-        int where_we_are = pos(index, inodes[open_f[index].file_inode].size-1);
-        myseek(index,(int) (where_we_are + offset));
-    }
-    if (open_f[myfd].current_offset < 0) {
-        open_f[myfd].current_offset = 0;
-    }
-    return open_f[myfd].current_offset;
-}
-
-//ssize_t myread(int myfd, void *buf, size_t count){
-//    int index = open_index(myfd);
-//    if (index == -1) {
-//        perror("You are trying to read from a file that is not open!");
-//        return -1;
-//    }
-//    int curr_block = open_f[index].current_block_index; // find the block number
-//    int offset = open_f[index].current_offset;
-//
-//}
 
 
 void print_fs() {

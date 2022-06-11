@@ -25,10 +25,14 @@ int main(){
     printf("block: %d, offset:%d\n", open_f[0].current_block_index, open_f[0].current_offset);
     mylseek(fd, 0, SEEK_END);
     printf("block: %d, offset:%d\n", open_f[0].current_block_index, open_f[0].current_offset);
+    mylseek(fd, 0, SEEK_SET);
+    printf("block: %d, offset:%d\n", open_f[0].current_block_index, open_f[0].current_offset);
+    char buf [100];
+    myread(fd, buf, 50);
+    printf("%s\n",buf);
+    mylseek(fd,3,SEEK_SET);
+    memset(buf,0,0);
+    myread(fd, buf, 50);
+    printf("%s\n",buf);
     myclose(fd);
-//    mylseek(y, 0, 0);
-//    char buf [100];
-//    myread(y, buf, 50);
-//    printf("%s\n",buf);
-//    myclose(y);
 }

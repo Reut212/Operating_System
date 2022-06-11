@@ -243,36 +243,38 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     return 0;
 }
 
-off_t mylseek(int myfd, off_t offset, int whence){
+int pos(int index, int stop) { //find number of bytes until current block and current offset
+    int counter = 0;
+    int curr = inodes[open_f[index].file_inode].first_block;
+    while (curr != stop) {
+        curr = d_block[curr].next_block_num;
+        counter++;
+    }
+    return BLOCKSIZE * counter + open_f[index].current_offset;
+}
+
+void myseek(int index, int num){
+    open_f[index].current_offset = num% BLOCKSIZE;
+    open_f[index].current_block_index = num / BLOCKSIZE;
+}
+
+off_t mylseek(int myfd, off_t offset, int whence) {
     int index = open_index(myfd);
     if (index == -1) {
         perror("You are trying to seek from a file that is not open!");
         return -1;
     }
-    int counter =0;
-    int curr=inodes[open_f[index].file_inode].first_block;
-    while(curr!=open_f[index].current_block_index){
-        curr=d_block[curr].next_block_num;
-        counter++;
-    }
     if (whence == SEEK_SET) { // setting offset to given offset
-        int where_are_we = BLOCKSIZE* counter+ open_f[index].current_offset;
-        open_f[index].current_offset = (int)offset%BLOCKSIZE;
-        if (where_are_we>offset){ // moving to the left
-            open_f[index].current_block_index= (where_are_we-(int)offset)/BLOCKSIZE;
-        } else{ // moving to the right
-            open_f[index].current_block_index= (where_are_we+((int)offset-where_are_we))/BLOCKSIZE;
-        }
+        myseek(index,(int)offset);
+    } else if (whence == SEEK_CUR) {
+        int where_we_are = pos(index, open_f[index].current_block_index);
+        myseek(index,(int) (where_we_are + offset));
+
+    } else if (whence == SEEK_END) {
+        int where_we_are = pos(index, inodes[open_f[index].file_inode].size-1);
+        myseek(index,(int) (where_we_are + offset));
     }
-    else if (whence==SEEK_CUR) {
-        open_f[index].current_offset += offset;
-        // move curr_block + calc new offset - % BLOCKSIZE
-    }
-    else if (whence==SEEK_END) {
-        open_f[index].current_offset = inodes[open_f[index].file_inode].size+offset;
-        // move curr_block + calc new offset
-    }
-    if (open_f[myfd].current_offset<0) {
+    if (open_f[myfd].current_offset < 0) {
         open_f[myfd].current_offset = 0;
     }
     return open_f[myfd].current_offset;

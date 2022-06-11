@@ -51,6 +51,7 @@ inode *inodes;
 disk_block *d_block;
 
 // exercise's functions
+void mymkfs(int fs_size);
 int mymount(const char *source, const char *target,
             const char *filesystemtype, unsigned long
             mountflags, const void *data);
@@ -64,9 +65,10 @@ struct mydirent *myreaddir(myDIR *dirp);
 
 
 // other functions
-void mymkfs(int fs_size);
 void print_fs(); // print out info about file system
 struct mydirent *myread_dir(int fd);
 int find_empty_block();
 int open_index(int myfd);
 int find_empty_openfile();
+int pos(int index, int stop);
+void myseek(int index, int num);

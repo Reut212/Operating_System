@@ -5,7 +5,9 @@ int main(){
     mymkfs(10000);
 //    mymount(NULL,"fs_data",NULL,0,NULL);
     int y = myopen("filesystem.txt", O_CREAT);
-    mywrite(y,"blabla\n",6);
+    mywrite(y,"blabla",6);
+    mywrite(y, "bla\n", 4);
+    printf("");
 //    mylseek(y, 0, 0);
 //    char buf [100];
 //    myread(y, buf, 50);

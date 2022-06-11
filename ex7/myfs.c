@@ -99,7 +99,28 @@ int find_empty_openfile() {
     return -1;
 }
 
+
+int find_empty_block() {
+    for (int i = 0; i < sb.num_blocks; i++) {
+        if (d_block[i].next_block_num == -1) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int find_empty_inode(){
+    for (int i = 0; i < sb.num_inodes; i++){
+        if (inodes[i].first_block == -1){
+            return i;
+        }
+    }
+    return -1;
+}
+
+
 int myopen(const char *pathname, int flags) {
+    // entering to open_f
     int index = find_empty_openfile();
     if (index == -1) {
         perror("Too many files are open");
@@ -108,6 +129,28 @@ int myopen(const char *pathname, int flags) {
     int file = open(pathname, flags, "r");
     open_f[index].fd = file;
     open_f[index].pos = 0;
+
+    // finding inode and blocks
+    int inode = find_empty_inode();
+    if (inode == -1)
+    {
+        perror ("file cant be used");
+        return -1;
+    }
+
+    int curr_block = find_empty_block();
+    if (curr_block == -1)
+    {
+        perror ("curr_block == -1");
+        return -1;
+    }
+    inodes[inode].size = 1;
+    inodes[inode].first_block = curr_block;
+    d_block[curr_block].next_block_num = -2;
+
+
+    open_f[index].file_inode=inodes[inode];
+    open_f[index].current_block_index=curr_block;
     return file;
 }
 
@@ -139,15 +182,6 @@ void shorten_file(int bn) {
     d_block[bn].next_block_num = -1;
 }
 
-int find_empty_block() {
-    for (int i = 0; i < sb.num_blocks; i++) {
-        if (d_block[i].next_block_num == -1) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 void set_filesize(int filenum, int size) {
     int temp = size + BLOCKSIZE - 1;
     int num = temp / BLOCKSIZE;
@@ -176,16 +210,6 @@ void set_filesize(int filenum, int size) {
 //    return bn;
 //}
 
-int get_block_num(int file, int offeset) {
-    int togo = offeset;
-    int bn = inodes[file].first_block;
-    while (togo>0){
-        bn = d_block[bn].next_block_num;
-        togo--;
-    }
-    return bn;
-}
-
 //void write_byte(int filename, int pos, char data){
 //    int relative_block = pos / BLOCKSIZE; //calculate which block
 //    int bn = get_block_num(filename, relative_block); // find the block number
@@ -193,14 +217,14 @@ int get_block_num(int file, int offeset) {
 //    d_block[bn].data[offset] = data;
 //}
 
-int alloc_new_block(disk_block last_block){
+int alloc_new_block(int last_block_index){
     int block_index = find_empty_block();
     if (block_index == -1){
         perror("not enough space!");
         return -1;
     }
-    last_block.next_block_num=block_index;
-    d_block[block_index].next_block_num=-1;
+    d_block[last_block_index].next_block_num=block_index;
+    d_block[block_index].next_block_num=-2;
     return block_index;
 }
 
@@ -210,22 +234,41 @@ ssize_t mywrite(int myfd, const void *buf, size_t count){
         perror("You are trying to write to a file that is not open!");
         return -1;
     }
-    int relative_block = open_f[index].pos / BLOCKSIZE; //calculate which block
-    int curr_block = get_block_num(myfd, relative_block); // find the block number
+    inode f_inode = open_f[index].file_inode;
+    int curr_block = open_f[index].current_block_index; // find the block number
     int offset = open_f[index].pos % BLOCKSIZE;
     char* data = (char*)buf;
+    int new_blocks_allocated = 0;
     for (int i=0; i<count; i++){
         if (offset >= BLOCKSIZE){
-            int block_index = alloc_new_block(d_block[curr_block]);
+            int block_index = alloc_new_block(curr_block);
             if (block_index == -1){
                 perror("not enough space!");
                 return -1;
             }
-            curr_block = get_block_num(myfd, block_index);
+            offset=0;
+            new_blocks_allocated++;
+            curr_block = block_index;
         }
         d_block[curr_block].data[offset] = data[i];
         offset++;
     }
+
+    if (offset >= BLOCKSIZE) { // if block is now full allocate new block and moving offset
+        int block_index = alloc_new_block(curr_block);
+        if (block_index == -1) {
+            perror("not enough space!");
+            return -1;
+        }
+        offset = 0;
+        new_blocks_allocated++;
+    }
+    else{
+        offset++;
+    }
+    open_f[index].current_block_index = curr_block;
+    open_f[index].pos=offset; // moving offset to new position
+    f_inode.size+=new_blocks_allocated;
     return 0;
 }
 

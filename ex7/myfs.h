@@ -17,7 +17,7 @@ typedef struct superblock{
 }superblock;
 
 typedef struct inode{
-    int size;
+    int size; //number of blocks
     int first_block;
     char name[NAME_SIZE+1];
     int dir; //0 file 1 dir
@@ -65,17 +65,8 @@ struct mydirent *myreaddir(myDIR *dirp);
 
 // other functions
 void mymkfs(int fs_size);
-int myclosedir(myDIR *dirp);
-void mount_fs(const char *source);  // load adile system
-void sync_fs(const char *target);   // write the file system
 void print_fs(); // print out info about file system
-void set_filesize(int filenum, int size);
-void write_data(int filenum, int _pos, char data);
-char read_data(int filenum, int pos);
-int create_file(); // retrun file discriptor
 struct mydirent *myread_dir(int fd);
-char* read_data_test(int filenum, int pos);
-int Myopen_dir(const char *pathname);
 int find_empty_block();
 int open_index(int myfd);
 int find_empty_openfile();

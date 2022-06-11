@@ -170,7 +170,7 @@ int myclose(int myfd) {
     //freeing block
     inode f_inode = inodes[open_f[index].file_inode];
     int curr_block_index = f_inode.first_block;
-    for (int i=0; i<f_inode.size; i++){
+    for (int i = 0; i < f_inode.size; i++) {
         memset(d_block[curr_block_index].data, 0, BLOCKSIZE);
         int temp = d_block[curr_block_index].next_block_num;
         d_block[curr_block_index].next_block_num = -1;
@@ -178,45 +178,17 @@ int myclose(int myfd) {
     }
 
     // freeing inode
-    inodes[open_f[index].file_inode].size=-1;
-    inodes[open_f[index].file_inode].first_block=-1;
-    memset(inodes[open_f[index].file_inode].name, 0, NAME_SIZE+1);
-    inodes[open_f[index].file_inode].dir="";
+    inodes[open_f[index].file_inode].size = -1;
+    inodes[open_f[index].file_inode].first_block = -1;
+    memset(inodes[open_f[index].file_inode].name, 0, NAME_SIZE + 1);
+    inodes[open_f[index].file_inode].dir = "";
 
     //freeing open_f space
     open_f[index].fd = -1;
     open_f[index].current_offset = 0;
-    open_f[index].file_inode=-1;
-    open_f[index].current_block_index=-1;
+    open_f[index].file_inode = -1;
+    open_f[index].current_block_index = -1;
     return 0;
-}
-
-void shorten_file(int bn) {
-    int nn = d_block[bn].next_block_num;
-    if (d_block[bn].next_block_num >= 0) {
-        shorten_file(nn);
-    }
-    d_block[bn].next_block_num = -1;
-}
-
-void set_filesize(int filenum, int size) {
-    int temp = size + BLOCKSIZE - 1;
-    int num = temp / BLOCKSIZE;
-    int bn = inodes[filenum].first_block;
-    //grow the file if necessary
-    for (num--; num > 0; num--) {
-        //check next block number
-        int next_num = d_block[bn].next_block_num;
-        if (next_num == -2) {
-            int empty = find_empty_block();
-            d_block[bn].next_block_num = empty;
-            d_block[empty].next_block_num = -2;
-        }
-        bn = d_block[bn].next_block_num;
-    }
-    //short the file if necessary
-    shorten_file(bn);
-    d_block[bn].next_block_num = -2;
 }
 
 int alloc_new_block(int last_block_index) {
@@ -236,7 +208,6 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
         perror("You are trying to write to a file that is not open!");
         return -1;
     }
-    inode f_inode = inodes[open_f[index].file_inode];
     int curr_block = open_f[index].current_block_index; // find the block number
     int offset = open_f[index].current_offset;
     char *data = (char *) buf;
@@ -271,6 +242,52 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     inodes[open_f[index].file_inode].size += new_blocks_allocated;
     return 0;
 }
+
+off_t mylseek(int myfd, off_t offset, int whence){
+    int index = open_index(myfd);
+    if (index == -1) {
+        perror("You are trying to seek from a file that is not open!");
+        return -1;
+    }
+    int counter =0;
+    int curr=inodes[open_f[index].file_inode].first_block;
+    while(curr!=open_f[index].current_block_index){
+        curr=d_block[curr].next_block_num;
+        counter++;
+    }
+    if (whence == SEEK_SET) { // setting offset to given offset
+        int where_are_we = BLOCKSIZE* counter+ open_f[index].current_offset;
+        open_f[index].current_offset = (int)offset%BLOCKSIZE;
+        if (where_are_we>offset){ // moving to the left
+            open_f[index].current_block_index= (where_are_we-(int)offset)/BLOCKSIZE;
+        } else{ // moving to the right
+            open_f[index].current_block_index= (where_are_we+((int)offset-where_are_we))/BLOCKSIZE;
+        }
+    }
+    else if (whence==SEEK_CUR) {
+        open_f[index].current_offset += offset;
+        // move curr_block + calc new offset - % BLOCKSIZE
+    }
+    else if (whence==SEEK_END) {
+        open_f[index].current_offset = inodes[open_f[index].file_inode].size+offset;
+        // move curr_block + calc new offset
+    }
+    if (open_f[myfd].current_offset<0) {
+        open_f[myfd].current_offset = 0;
+    }
+    return open_f[myfd].current_offset;
+}
+
+//ssize_t myread(int myfd, void *buf, size_t count){
+//    int index = open_index(myfd);
+//    if (index == -1) {
+//        perror("You are trying to read from a file that is not open!");
+//        return -1;
+//    }
+//    int curr_block = open_f[index].current_block_index; // find the block number
+//    int offset = open_f[index].current_offset;
+//
+//}
 
 
 void print_fs() {

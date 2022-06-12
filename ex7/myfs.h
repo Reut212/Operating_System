@@ -21,6 +21,7 @@ typedef struct inode{
     int size; //number of blocks
     int first_block;
     char name[NAME_SIZE+1];
+    char path[PATH_MAX+1];
     bool file; // true - file, false - dir
 }inode;
 

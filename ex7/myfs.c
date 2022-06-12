@@ -117,7 +117,7 @@ int find_empty_inode() {
     return -1;
 }
 
-int create_file(char *pathname, int flags, bool isfile) {
+int create_file(char *pathname, int flags, bool isfile, char *path) {
     int index = find_empty_openfile();
     if (index == -1) {
         perror("Too many files are open");
@@ -141,8 +141,9 @@ int create_file(char *pathname, int flags, bool isfile) {
     }
     inodes[inode].size = 1;
     inodes[inode].first_block = curr_block;
-    inodes[inode].file=isfile;
+    inodes[inode].file = isfile;
     strcpy(inodes[inode].name,pathname);
+    strcpy(inodes[inode].path,path);
     d_block[curr_block].next_block_num = -2;
 
 
@@ -152,15 +153,25 @@ int create_file(char *pathname, int flags, bool isfile) {
     return file;
 }
 
+bool eq_name(char* first, char* sec){
+    if (strlen(first)!=strlen(sec)) return false;
+    for (int i=0; i<strlen(first);i++){
+        if (first[i]!=sec[i]) return false;
+    }
+    return true;
+}
+
 // for each check if file exist if not create
 // check if open if not insert to open_f
-int check_if_file_exist(char *filename, int flags, bool isfile) {
+int check_if_file_exist(char *filename, int flags, bool isfile, char *path) {
     int inode_index = -1;
     // check if exists
     for (int i = 0; i < sb.num_inodes; i++) {
         if (!strcmp(inodes[i].name, filename)) {
-            inode_index = i;
-            break;
+            if (!strcmp(inodes[i].path, path)) {
+                inode_index = i;
+                break;
+            }
         }
     }
     // exist - need to check if open
@@ -181,7 +192,7 @@ int check_if_file_exist(char *filename, int flags, bool isfile) {
     }
         // doesn't exist - create and insert to open_f
     else {
-        return create_file(filename, flags, isfile);
+        return create_file(filename, flags, isfile, path);
     }
 }
 
@@ -191,17 +202,26 @@ int myopen(const char *pathname, int flags) {
     strcpy(str, pathname);
     int len = strlen(pathname);
     char *curr_tok = strtok(str, "/");
-    char* arr[len];
-    int i=0;
-    while(curr_tok) {
-        arr[i]=curr_tok;
+    char *arr[len];
+    int i = 0;
+    while (curr_tok) {
+        arr[i] = curr_tok;
         curr_tok = strtok(NULL, "/");
         i++;
     }
-    for (int j=0; j<i-1; j++){
-        check_if_file_exist(arr[j],flags,false);
+    char *path[i + 1];
+    path[0] = "";
+    for (int j = 0; j < i - 1; j++) {
+        check_if_file_exist(arr[j], flags, false, path[j]);
+        int newSize = strlen(path[j]) + strlen(arr[j]) + 1;
+        char *newBuffer = (char *) malloc(newSize);
+        strcpy(newBuffer, path[j]);
+        strcat(newBuffer, "/");
+        strcat(newBuffer, arr[j]);
+        strcpy(path[j + 1], newBuffer);
+        free(newBuffer);
     }
-    return check_if_file_exist(arr[i-1],flags,true);
+    return check_if_file_exist(arr[i - 1], flags, true, path[i - 1]);
 }
 
 int open_index(int myfd) {

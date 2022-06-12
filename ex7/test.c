@@ -4,7 +4,8 @@
 int main(){
     mymkfs(10000);
 //    mymount(NULL,"fs_data",NULL,0,NULL);
-    int fd = myopen("home/reut/file", O_CREAT);
+    int fd = myopen("home/reut/file",O_CREAT);
+    myclose(fd);
     int fd2 = myopen("home/neta/file", O_CREAT);
     mywrite(fd,"blabla",6);
     mywrite(fd, "bla", 3);

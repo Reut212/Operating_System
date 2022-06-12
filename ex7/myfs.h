@@ -8,8 +8,8 @@
 #define NAME_SIZE 9
 #define MAX_DIR 10
 #define BUFF_SIZE 80
-#define FILES_MAX 10000
-
+//#define FILES_MAX 10000
+#define FILES_MAX 10
 
 typedef struct superblock{
     int num_inodes;
@@ -31,7 +31,6 @@ typedef struct disk_block{
 }disk_block;
 
 typedef struct myopenfile{
-    int fd;
     int file_inode;
     int current_block_index;
     int current_offset;

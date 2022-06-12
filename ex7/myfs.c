@@ -213,15 +213,24 @@ int myopen(const char *pathname, int flags) {
     return check_if_file_exist(arr[i - 1], flags, true, path[i - 1]);
 }
 
+int open_index(int myfd) {
+    for (int i = 0; i < FILES_MAX; i++) {
+        if (open_f[i].file_inode == myfd) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 // destroying file (removing it from disk memory)
 int mydestroyfile(int myfd) {
-    if (myfd < 0 || myfd > FILES_MAX || open_f[myfd].file_inode==-1) {
+    int index = open_index(myfd);
+    if (index == -1) {
         perror("You are trying to close a file that is not open!");
         return -1;
     }
     //freeing block
-    inode f_inode = inodes[open_f[myfd].file_inode];
+    inode f_inode = inodes[open_f[index].file_inode];
     int curr_block_index = f_inode.first_block;
     for (int i = 0; i < f_inode.size; i++) {
         memset(d_block[curr_block_index].data, 0, BLOCKSIZE);
@@ -231,31 +240,32 @@ int mydestroyfile(int myfd) {
     }
 
     // freeing inode
-    inodes[open_f[myfd].file_inode].size = -1;
-    inodes[open_f[myfd].file_inode].first_block = -1;
-    memset(inodes[open_f[myfd].file_inode].name, 0, NAME_SIZE + 1);
-    memset(inodes[open_f[myfd].file_inode].path, 0, PATH_MAX + 1);
-    inodes[open_f[myfd].file_inode].file = false;
+    inodes[open_f[index].file_inode].size = -1;
+    inodes[open_f[index].file_inode].first_block = -1;
+    memset(inodes[open_f[index].file_inode].name, 0, NAME_SIZE + 1);
+    memset(inodes[open_f[index].file_inode].path, 0, PATH_MAX + 1);
+    inodes[open_f[index].file_inode].file = false;
 
     //freeing open_f space
-    open_f[myfd].file_inode = -1;
-    open_f[myfd].current_offset = 0;
-    open_f[myfd].file_inode = -1;
-    open_f[myfd].current_block_index = -1;
+    open_f[index].file_inode = -1;
+    open_f[index].current_offset = 0;
+    open_f[index].file_inode = -1;
+    open_f[index].current_block_index = -1;
     return 0;
 }
 
 //closing a file (removing it from open_f array)
 int myclose(int myfd) {
-    if (myfd < 0 || myfd > FILES_MAX || open_f[myfd].file_inode==-1) {
+    int index = open_index(myfd);
+    if (index == -1) {
         perror("You are trying to close a file that is not open!");
         return -1;
     }
     //freeing open_f space
-    open_f[myfd].file_inode = -1;
-    open_f[myfd].current_offset = 0;
-    open_f[myfd].file_inode = -1;
-    open_f[myfd].current_block_index = -1;
+    open_f[index].file_inode = -1;
+    open_f[index].current_offset = 0;
+    open_f[index].file_inode = -1;
+    open_f[index].current_block_index = -1;
     return 0;
 }
 
@@ -286,35 +296,37 @@ void myseek(int index, int num) {
 }
 
 off_t mylseek(int myfd, off_t offset, int whence) {
-    if (myfd < 0 || myfd > FILES_MAX || open_f[myfd].file_inode==-1) {
+    int index = open_index(myfd);
+    if (index == -1) {
         perror("You are trying to seek from a file that is not open!");
         return -1;
     }
     if (whence == SEEK_SET) { // setting offset to given offset
-        myseek(myfd, (int) offset);
+        myseek(index, (int) offset);
     } else if (whence == SEEK_CUR) {
-        int where_we_are = pos(myfd, open_f[myfd].current_block_index);
-        myseek(myfd, (int) (where_we_are + offset));
+        int where_we_are = pos(index, open_f[index].current_block_index);
+        myseek(index, (int) (where_we_are + offset));
 
     } else if (whence == SEEK_END) {
-        int where_we_are = pos(myfd, inodes[open_f[myfd].file_inode].size - 1);
-        myseek(myfd, (int) (where_we_are + offset));
+        int where_we_are = pos(index, inodes[open_f[index].file_inode].size - 1);
+        myseek(index, (int) (where_we_are + offset));
     }
-    if (open_f[myfd].current_offset < 0) {
-        open_f[myfd].current_offset = 0;
+    if (open_f[index].current_offset < 0) {
+        open_f[index].current_offset = 0;
     }
     return open_f[myfd].current_offset;
 }
 
 ssize_t myread(int myfd, void *buf, size_t count) {
-    if (myfd < 0 || myfd > FILES_MAX || open_f[myfd].file_inode==-1) {
+    int index = open_index(myfd);
+    if (index == -1) {
         perror("You are trying to read from a file that is not open!");
         return -1;
     }
     buf = (char *) buf;
     int bytes_read = 0;
-    int curr_block = open_f[myfd].current_block_index; // find the block number
-    int offset = open_f[myfd].current_offset;
+    int curr_block = open_f[index].current_block_index; // find the block number
+    int offset = open_f[index].current_offset;
     for (int i = 0; i < count; i++) {
         if (offset >= BLOCKSIZE) {
             int block_index = d_block[curr_block].next_block_num;
@@ -329,17 +341,18 @@ ssize_t myread(int myfd, void *buf, size_t count) {
         offset++;
         bytes_read++;
     }
-    mylseek(open_f[myfd].file_inode, count, SEEK_CUR);
+    mylseek(open_f[index].file_inode, count, SEEK_CUR);
     return bytes_read;
 }
 
 ssize_t mywrite(int myfd, const void *buf, size_t count) {
-    if (myfd < 0 || myfd > FILES_MAX || open_f[myfd].file_inode==-1) {
+    int index = open_index(myfd);
+    if (index == -1) {
         perror("You are trying to write to a file that is not open!");
         return -1;
     }
-    int curr_block = open_f[myfd].current_block_index; // find the block number
-    int offset = open_f[myfd].current_offset;
+    int curr_block = open_f[index].current_block_index; // find the block number
+    int offset = open_f[index].current_offset;
     char *data = (char *) buf;
     int new_blocks_allocated = 0;
     for (int i = 0; i < count; i++) {
@@ -367,9 +380,9 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
         new_blocks_allocated++;
         curr_block = block_index;
     }
-    open_f[myfd].current_block_index = curr_block;
-    open_f[myfd].current_offset = offset;  // moving offset to new position
-    inodes[open_f[myfd].file_inode].size += new_blocks_allocated;
+    open_f[index].current_block_index = curr_block;
+    open_f[index].current_offset = offset;  // moving offset to new position
+    inodes[open_f[index].file_inode].size += new_blocks_allocated;
     return 0;
 }
 

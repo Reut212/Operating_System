@@ -23,7 +23,6 @@ typedef struct inode{
     char name[NAME_SIZE+1];
     char path[PATH_MAX+1];
     bool file; // true - file, false - dir
-    bool closed;
 }inode;
 
 typedef struct disk_block{
@@ -70,6 +69,7 @@ struct mydirent *myreaddir(myDIR *dirp);
 void print_fs(); // print out info about file system
 struct mydirent *myread_dir(int fd);
 int find_empty_block();
+int open_index(int myfd);
 int find_empty_openfile();
 int pos(int index, int stop);
 void myseek(int index, int num);

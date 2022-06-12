@@ -69,7 +69,7 @@ int mymount(const char *source, const char *target,
     inode *trg_inodes = malloc(sizeof(inode) * src_num_inodes);
     for (int i = 0; i < src_num_inodes; i++) {
         trg_inodes[i].size = src_inodes[i].size;
-        trg_inodes[i].dir = src_inodes[i].dir;
+        trg_inodes[i].file = src_inodes[i].file;
         trg_inodes[i].first_block = src_inodes[i].first_block;
         strcpy(trg_inodes[i].name, src_inodes[i].name);
     }
@@ -117,9 +117,7 @@ int find_empty_inode() {
     return -1;
 }
 
-
-int myopen(const char *pathname, int flags) {
-    // entering to open_f
+int create_file(char *pathname, int flags, bool isfile) {
     int index = find_empty_openfile();
     if (index == -1) {
         perror("Too many files are open");
@@ -143,6 +141,8 @@ int myopen(const char *pathname, int flags) {
     }
     inodes[inode].size = 1;
     inodes[inode].first_block = curr_block;
+    inodes[inode].file=isfile;
+    strcpy(inodes[inode].name,pathname);
     d_block[curr_block].next_block_num = -2;
 
 
@@ -150,6 +150,58 @@ int myopen(const char *pathname, int flags) {
     open_f[index].current_block_index = curr_block;
     open_f[index].current_offset = 0;
     return file;
+}
+
+// for each check if file exist if not create
+// check if open if not insert to open_f
+int check_if_file_exist(char *filename, int flags, bool isfile) {
+    int inode_index = -1;
+    // check if exists
+    for (int i = 0; i < sb.num_inodes; i++) {
+        if (!strcmp(inodes[i].name, filename)) {
+            inode_index = i;
+            break;
+        }
+    }
+    // exist - need to check if open
+    if (inode_index != -1) {
+        for (int i = 0; i < FILES_MAX; i++) {
+            if (open_f[i].file_inode == inode_index) { // open
+                return open_f[i].fd;
+            }
+        }
+        // exist and closed
+        int open_index = find_empty_openfile();
+        open_f[open_index].file_inode = inode_index;
+        int file = open(filename, flags, "r");
+        open_f[open_index].fd = file;
+        open_f[open_index].current_offset = 0;
+        open_f[open_index].current_block_index = inodes[inode_index].first_block;
+        return file;
+    }
+        // doesn't exist - create and insert to open_f
+    else {
+        return create_file(filename, flags, isfile);
+    }
+}
+
+// pathname example: /home/reut/CS.txt
+int myopen(const char *pathname, int flags) {
+    char str[BUFF_SIZE];
+    strcpy(str, pathname);
+    int len = strlen(pathname);
+    char *curr_tok = strtok(str, "/");
+    char* arr[len];
+    int i=0;
+    while(curr_tok) {
+        arr[i]=curr_tok;
+        curr_tok = strtok(NULL, "/");
+        i++;
+    }
+    for (int j=0; j<i-1; j++){
+        check_if_file_exist(arr[j],flags,false);
+    }
+    return check_if_file_exist(arr[i-1],flags,true);
 }
 
 int open_index(int myfd) {
@@ -181,7 +233,7 @@ int myclose(int myfd) {
     inodes[open_f[index].file_inode].size = -1;
     inodes[open_f[index].file_inode].first_block = -1;
     memset(inodes[open_f[index].file_inode].name, 0, NAME_SIZE + 1);
-    inodes[open_f[index].file_inode].dir = "";
+    inodes[open_f[index].file_inode].file = false;
 
     //freeing open_f space
     open_f[index].fd = -1;
@@ -212,8 +264,8 @@ int pos(int index, int stop) { //find number of bytes until current block and cu
     return BLOCKSIZE * counter + open_f[index].current_offset;
 }
 
-void myseek(int index, int num){
-    open_f[index].current_offset = num% BLOCKSIZE;
+void myseek(int index, int num) {
+    open_f[index].current_offset = num % BLOCKSIZE;
     open_f[index].current_block_index = num / BLOCKSIZE;
 }
 
@@ -224,14 +276,14 @@ off_t mylseek(int myfd, off_t offset, int whence) {
         return -1;
     }
     if (whence == SEEK_SET) { // setting offset to given offset
-        myseek(index,(int)offset);
+        myseek(index, (int) offset);
     } else if (whence == SEEK_CUR) {
         int where_we_are = pos(index, open_f[index].current_block_index);
-        myseek(index,(int) (where_we_are + offset));
+        myseek(index, (int) (where_we_are + offset));
 
     } else if (whence == SEEK_END) {
-        int where_we_are = pos(index, inodes[open_f[index].file_inode].size-1);
-        myseek(index,(int) (where_we_are + offset));
+        int where_we_are = pos(index, inodes[open_f[index].file_inode].size - 1);
+        myseek(index, (int) (where_we_are + offset));
     }
     if (open_f[myfd].current_offset < 0) {
         open_f[myfd].current_offset = 0;
@@ -239,13 +291,13 @@ off_t mylseek(int myfd, off_t offset, int whence) {
     return open_f[myfd].current_offset;
 }
 
-ssize_t myread(int myfd, void *buf, size_t count){
+ssize_t myread(int myfd, void *buf, size_t count) {
     int index = open_index(myfd);
     if (index == -1) {
         perror("You are trying to read from a file that is not open!");
         return -1;
     }
-    buf = (char*)buf;
+    buf = (char *) buf;
     int bytes_read = 0;
     int curr_block = open_f[index].current_block_index; // find the block number
     int offset = open_f[index].current_offset;
@@ -259,7 +311,7 @@ ssize_t myread(int myfd, void *buf, size_t count){
             offset = 0;
             curr_block = block_index;
         }
-        ((char*)buf)[i] = d_block[curr_block].data[offset];
+        ((char *) buf)[i] = d_block[curr_block].data[offset];
         offset++;
         bytes_read++;
     }
@@ -308,47 +360,40 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     return 0;
 }
 
-
-void print_fs() {
-    printf("superblock info\n");
-    printf("num_inodes %d\n", sb.num_inodes);
-    printf("num_blocks %d\n", sb.num_blocks);
-    printf("size_blocks %d\n\n", sb.size_blocks);
-
-    printf("folders: \n\n");
-    for (int i = 0; i < sb.num_inodes; i++) {
-        if (!(strcmp(inodes[i].name, "folder"))) {
-            printf(" | name %s ", inodes[i].name);
-            printf("size %d  ", inodes[i].size);
-            printf("first_block: %d\t", inodes[i].first_block);
-        }
-
-    }
-    printf("\n\n");
-    printf("inodes:\n");
-    for (int i = 0; i < sb.num_inodes; i++) {
-        if (strcmp(inodes[i].name, "folder")) {
-            printf("\tname %s ", inodes[i].name);
-            printf("size %d  ", inodes[i].size);
-            printf("first_block %d", inodes[i].first_block);
-            if (i % 4 == 0) {
-                printf("\n\n");
-            } else {
-                printf("   |   ");
-            }
-        }
-    }
-    // dbs
-    printf("\n");
-    printf("block:\n");
-    for (int i = 0; i < sb.num_blocks; i++) {
-        printf("[");
-        printf(" block num: %d next block %d ", i, d_block[i].next_block_num);
-        if (d_block[i].next_block_num != -1) {
-            printf("USED BLOCK");
-        }
-        printf("] ");
-        if (i % 4 == 0 && i != 0)
-            printf("\n\n");
-    }
-}
+//// returns index if a directory is open in open_f
+//int exists_in_open_f(const char *name){
+//    for (int i=0; i<FILES_MAX; i++){
+//        if (!strcmp(inodes[i].name,name)){
+//            return i;
+//        }
+//    }
+//    return -1;
+//}
+//
+//// returns an index to open_f of a dir and create it if doesn't exist
+//int dir_index_in_open_f(const char *name){
+//    int index = exists_in_open_f(name);
+//    if (index!=-1){ // exists
+//        return index;
+//    }
+//    // doesn't exist
+//    index = find_empty_openfile();
+//    if (index == -1){ // not enough space in open_f array
+//        perror("not enough space in open_f array");
+//    }
+//    // insert data in chosen index
+//
+//}
+//
+//
+//
+//myDIR *myopendir(const char *name) {
+//    int index = dir_index_in_open_f(name);
+//    myDIR *dir = (myDIR*)malloc(sizeof(myDIR));
+//    if(dir == NULL)
+//    {
+//        perror("Can't open directory");
+//    }
+//    dir->dir_index = index;
+//    return dir;
+//}

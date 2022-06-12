@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define PATH_MAX 128
 #define BLOCKSIZE 2
@@ -20,7 +21,7 @@ typedef struct inode{
     int size; //number of blocks
     int first_block;
     char name[NAME_SIZE+1];
-    int dir; //0 file 1 dir
+    bool file; // true - file, false - dir
 }inode;
 
 typedef struct disk_block{
@@ -37,12 +38,12 @@ typedef struct myopenfile{
 
 typedef struct mydirent {
     int size;
-    int fds[MAX_DIR];
-    char d_name[NAME_SIZE];
+    int files_indexes[MAX_DIR];
+    char d_name[NAME_SIZE+1];
 }mydirent;
 
 typedef struct myDIR {
-    int path;
+    int dir_index;
 }myDIR;
 
 myopenfile open_f [FILES_MAX];

@@ -23,7 +23,7 @@ void mymkfs(int fs_size) {
 
     for (int i = 0; i < FILES_MAX; i++) {
         myopenfile *openfile = malloc(sizeof(myopenfile));
-        openfile->file_inode = -1;
+        openfile->fd = -1;
         open_f[i] = *openfile;
     }
 
@@ -72,7 +72,6 @@ int mymount(const char *source, const char *target,
         trg_inodes[i].file = src_inodes[i].file;
         trg_inodes[i].first_block = src_inodes[i].first_block;
         strcpy(trg_inodes[i].name, src_inodes[i].name);
-        strcpy(trg_inodes[i].path, src_inodes[i].path);
     }
     fwrite(&trg_inodes, sizeof(inode), 1, trg);
 
@@ -92,7 +91,7 @@ int mymount(const char *source, const char *target,
 
 int find_empty_openfile() {
     for (int i = 0; i < FILES_MAX; i++) {
-        if (open_f[i].file_inode == -1) {
+        if (open_f[i].fd == -1) {
             return i;
         }
     }
@@ -124,15 +123,16 @@ int create_file(char *pathname, int flags, bool isfile, char *path) {
         perror("Too many files are open");
         return -1;
     }
+    int file = open(pathname, flags, "r");
+    open_f[index].fd = file;
+    open_f[index].current_offset = 0;
+
     // finding inode and blocks
     int inode = find_empty_inode();
-
     if (inode == -1) {
         perror("file cant be used");
         return -1;
     }
-    open_f[index].file_inode = inode;
-    open_f[index].current_offset = 0;
 
     int curr_block = find_empty_block();
     if (curr_block == -1) {
@@ -146,10 +146,11 @@ int create_file(char *pathname, int flags, bool isfile, char *path) {
     strcpy(inodes[inode].path,path);
     d_block[curr_block].next_block_num = -2;
 
+
     open_f[index].file_inode = inode;
     open_f[index].current_block_index = curr_block;
     open_f[index].current_offset = 0;
-    return inode;
+    return file;
 }
 
 // for each check if file exist if not create
@@ -168,16 +169,18 @@ int check_if_file_exist(char *filename, int flags, bool isfile, char *path) {
     // exist - need to check if open
     if (inode_index != -1) {
         for (int i = 0; i < FILES_MAX; i++) {
-            if (open_f[inode_index].file_inode==inode_index) { // open
-                return open_f[i].file_inode;
+            if (open_f[i].file_inode == inode_index) { // open
+                return open_f[i].fd;
             }
         }
         // exist and closed
         int open_index = find_empty_openfile();
         open_f[open_index].file_inode = inode_index;
+        int file = open(filename, flags, "r");
+        open_f[open_index].fd = file;
         open_f[open_index].current_offset = 0;
         open_f[open_index].current_block_index = inodes[inode_index].first_block;
-        return inode_index;
+        return file;
     }
         // doesn't exist - create and insert to open_f
     else {
@@ -214,16 +217,15 @@ int myopen(const char *pathname, int flags) {
 }
 
 int open_index(int myfd) {
-    for (int i = 0; i < FILES_MAX; i++) {
-        if (open_f[i].file_inode == myfd) {
+    for (int i = 0; i < FILENAME_MAX; i++) {
+        if (open_f[i].fd == myfd) {
             return i;
         }
     }
     return -1;
 }
 
-// destroying file (removing it from disk memory)
-int mydestroyfile(int myfd) {
+int myclose(int myfd) { //TODO: not destroying everything just space on open_f
     int index = open_index(myfd);
     if (index == -1) {
         perror("You are trying to close a file that is not open!");
@@ -243,26 +245,10 @@ int mydestroyfile(int myfd) {
     inodes[open_f[index].file_inode].size = -1;
     inodes[open_f[index].file_inode].first_block = -1;
     memset(inodes[open_f[index].file_inode].name, 0, NAME_SIZE + 1);
-    memset(inodes[open_f[index].file_inode].path, 0, PATH_MAX + 1);
     inodes[open_f[index].file_inode].file = false;
 
     //freeing open_f space
-    open_f[index].file_inode = -1;
-    open_f[index].current_offset = 0;
-    open_f[index].file_inode = -1;
-    open_f[index].current_block_index = -1;
-    return 0;
-}
-
-//closing a file (removing it from open_f array)
-int myclose(int myfd) {
-    int index = open_index(myfd);
-    if (index == -1) {
-        perror("You are trying to close a file that is not open!");
-        return -1;
-    }
-    //freeing open_f space
-    open_f[index].file_inode = -1;
+    open_f[index].fd = -1;
     open_f[index].current_offset = 0;
     open_f[index].file_inode = -1;
     open_f[index].current_block_index = -1;
@@ -311,8 +297,8 @@ off_t mylseek(int myfd, off_t offset, int whence) {
         int where_we_are = pos(index, inodes[open_f[index].file_inode].size - 1);
         myseek(index, (int) (where_we_are + offset));
     }
-    if (open_f[index].current_offset < 0) {
-        open_f[index].current_offset = 0;
+    if (open_f[myfd].current_offset < 0) {
+        open_f[myfd].current_offset = 0;
     }
     return open_f[myfd].current_offset;
 }
@@ -341,7 +327,7 @@ ssize_t myread(int myfd, void *buf, size_t count) {
         offset++;
         bytes_read++;
     }
-    mylseek(open_f[index].file_inode, count, SEEK_CUR);
+    mylseek(open_f[index].fd, count, SEEK_CUR);
     return bytes_read;
 }
 

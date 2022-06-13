@@ -64,3 +64,14 @@ size_t myfwrite(void * ptr, size_t size, size_t nmemb, myFILE * stream){
     size_t last_index = mywrite(stream->file_ptr, ptr, nmemb * size);
     return last_index - start_index;
 }
+
+int myfseek(myFILE *stream, long offset, int whence){
+    if(whence == SEEK_SET){
+        stream->pos = mylseek(stream->file_ptr, offset, SEEK_SET);
+    }else if(whence == SEEK_CUR){
+        stream->pos = mylseek(stream->file_ptr, offset, SEEK_CUR);
+    }else if (whence == SEEK_END){
+        stream->pos = mylseek(stream->file_ptr, offset, SEEK_END);
+    }
+    return stream->pos;
+}

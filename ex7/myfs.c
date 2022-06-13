@@ -233,6 +233,10 @@ int open_index(int myfd) {
 
 int myclose(int myfd) {
     int index = open_index(myfd);
+    if (index == -1){
+        perror("You are trying to close from a file that is not open!");
+        return -1;
+    }
     open_f[index].fd = -1;
     open_f[index].current_offset = 0;
     open_f[index].file_inode = -1;

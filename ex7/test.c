@@ -10,8 +10,8 @@ void mount_test() {
     }
 }
 
-// checking that you are not able to read , write , seek a file that is not opened
-void close_test() {
+// checking that you are not able to read , write , seek on a closed file
+void closed_file_test() {
     mymkfs(10000);
     mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
     int fd = myopen("home/reut/file", O_CREAT);
@@ -21,7 +21,22 @@ void close_test() {
     int r = myread(fd, buf, 50);
     int s = mylseek(fd, 0, SEEK_SET);
     if (w == -1 && r == -1 && s == -1) {
-        printf("Close test passed!\n");
+        printf("Closed file test passed!\n");
+    }
+}
+
+// checking that you are not able to read , write , seek , close on a file that has never been opened
+void unopen_file_test() {
+    mymkfs(10000);
+    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
+    int fd = 2;
+    int w = mywrite(fd, "blabla", 6);
+    char buf[100];
+    int r = myread(fd, buf, 50);
+    int s = mylseek(fd, 0, SEEK_SET);
+    int c = myclose(fd);
+    if (w == -1 && r == -1 && s == -1 && c == -1) {
+        printf("Unopen file test passed!\n");
     }
 }
 
@@ -39,56 +54,125 @@ void dir_test() {
     }
 }
 
+void read_write_test(){
+    mymkfs(10000);
+    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
+    int fd = myopen("home/reut/file", O_CREAT);
+    bool t1, t2, t3= false;
+    char buf[100];
+    mywrite(fd, "abc", 3);
+    myread(fd, buf, 50);
+    if (strcmp(buf,"abc")){
+        t1 = true;
+    }
+    memset(buf, 0, 100);
+    mywrite(fd, "defgh", 5);
+    if (strcmp(buf,"abcdefgh")){
+        t2 = true;
+    }
+    mywrite(fd, "i", 6);
+    memset(buf, 0, 100);
+    if (strcmp(buf,"abcdefghi")){
+        t3 = true;
+    }
+    if (t1 == true && t2 == true && t3 == true){
+        printf("Simple read write test passed!\n");
+    }
+}
+
+void read_write_test_non_continuous_memory_test(){
+    mymkfs(10000);
+    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
+    int fd = myopen("home/reut/file", O_CREAT);
+    int fd2 = myopen("home/neta/file", O_CREAT);
+    bool t1, t2, t3= false;
+    char buf[100];
+    mywrite(fd, "abc", 3);
+    mywrite(fd2, "abc", 3);
+    myread(fd, buf, 50);
+    if (strcmp(buf,"abc")){
+        t1 = true;
+    }
+    memset(buf, 0, 100);
+    mywrite(fd, "defgh", 5);
+    mywrite(fd2, "abc", 3);
+    if (strcmp(buf,"abcdefgh")){
+        t2 = true;
+    }
+    mywrite(fd, "i", 6);
+    mywrite(fd2, "abc", 3);
+    memset(buf, 0, 100);
+    if (strcmp(buf,"abcdefghi")){
+        t3 = true;
+    }
+    if (t1 == true && t2 == true && t3 == true){
+        printf("Hard read write test passed!\n");
+    }
+}
+
+void seek_non_continuous_memory_test(){
+    mymkfs(10000);
+    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
+    int fd = myopen("home/reut/file", O_CREAT);
+    // opening another file make the memory be non continuous
+    int fd2 = myopen("home/neta/file", O_CREAT);
+    mywrite(fd, "blabla", 6);
+    mywrite(fd2, "Unrelated string", 16);
+    mywrite(fd, "bla", 3);
+    myclose(fd2);
+    int index = open_index(fd);
+    bool t1, t2, t3, t4, t5, t6, t7, t8, t9, t10 = false;
+    if (open_f[index].current_block_index == 5 && open_f[index].current_offset == 4){
+        t1 = true;
+    }
+    mylseek(fd, 4, SEEK_SET);
+    if (open_f[index].current_block_index == 2 && open_f[index].current_offset == 4){
+        t2 = true;
+    }
+    mylseek(fd, 7, SEEK_SET);
+    if (open_f[index].current_block_index == 5 && open_f[index].current_offset == 2){
+        t3 = true;
+    }
+    mylseek(fd, -3, SEEK_CUR);
+    if (open_f[index].current_block_index == 2 && open_f[index].current_offset == 4){
+        t4 = true;
+    }
+    mylseek(fd, 0, SEEK_CUR);
+    if (open_f[index].current_block_index == 2 && open_f[index].current_offset == 4){
+        t5 = true;
+    }
+    mylseek(fd, 3, SEEK_CUR);
+    if (open_f[index].current_block_index == 5 && open_f[index].current_offset == 2){
+        t6 = true;
+    }
+    mylseek(fd, -2, SEEK_END);
+    if (open_f[index].current_block_index == 5 && open_f[index].current_offset == 2){
+        t7 = true;
+    }
+    mylseek(fd, 2, SEEK_CUR);
+    if (open_f[index].current_block_index == 5 && open_f[index].current_offset == 4){
+        t8 = true;
+    }
+    mylseek(fd, 0, SEEK_END);
+    if (open_f[index].current_block_index == 5 && open_f[index].current_offset == 4){
+        t9 = true;
+    }
+    mylseek(fd, 0, SEEK_SET);
+    if (open_f[index].current_block_index == 2 && open_f[index].current_offset == 0){
+        t10 = true;
+    }
+    if (t1 == true && t2 == true && t3 == true && t4 == true && t5 == true
+    && t6 == true && t7 == true && t8 == true && t9 == true && t10 == true){
+        printf("Seek test passed!\n");
+    }
+}
 
 int main() {
     mount_test();
-    close_test();
+    closed_file_test();
+    unopen_file_test();
     dir_test();
-//    mymkfs(10000);
-//    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
-//    int fd = myopen("home/reut/file", O_CREAT);
-//    int fd2 = myopen("home/neta/file", O_CREAT);
-//    myclose(fd2);
-//
-//    mywrite(fd, "blabla", 6);
-//
-//    mywrite(fd, "blabla", 6);
-//    mywrite(fd, "bla", 3);
-//    int index = open_index(fd);
-//    printf("1: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    mylseek(fd, 4, SEEK_SET);
-//    printf("2: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    mylseek(fd, 7, SEEK_SET);
-//    printf("3: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    mylseek(fd, -2, SEEK_CUR);
-//    printf("4: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    mylseek(fd, 0, SEEK_CUR);
-//    printf("5: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    mylseek(fd, 3, SEEK_CUR);
-//    printf("6: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    mylseek(fd, -2, SEEK_END);
-//    printf("7: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    mylseek(fd, 2, SEEK_CUR);
-//    printf("8: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    mylseek(fd, 0, SEEK_END);
-//    printf("9: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    mylseek(fd, 0, SEEK_SET);
-//    printf("10: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    char buf[100];
-//    myread(fd, buf, 50);
-//    printf("%s\n", buf);
-//    mylseek(fd, 3, SEEK_SET);
-//    printf("11: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-//    memset(buf, 0, 50);
-//    myread(fd, buf, 100);
-//    printf("%s\n", buf);
-//
-//    myDIR *dir1 = myopendir("home/reut");
-//    myDIR *dir2 = myopendir("home/Amit"); // should print "No such directory"
-//    myDIR *dir3 = myopendir("home/reut/file"); // should print "This is a file not a directory!"
-//    myDIR *dir4 = myopendir("home");
-//    mydirent *dirent1 = myreaddir(dir1);
-//    mydirent *dirent2 = myreaddir(dir2);
-//    mydirent *dirent3 = myreaddir(dir4);
-//    myclose(fd);
+    read_write_test();
+    read_write_test_non_continuous_memory_test();
+    seek_non_continuous_memory_test();
 }

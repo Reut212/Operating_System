@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define PATH_MAX 128
-#define BLOCKSIZE 2
+#define BLOCKSIZE 5
 #define NAME_SIZE 9
 #define MAX_DIR 10
 #define BUFF_SIZE 80

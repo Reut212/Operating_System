@@ -11,3 +11,6 @@ But when you close 'home/reut/file.txt' it is only closes:
     - file.txt (path- "home/reut")
 just like in a normal file system
 5. all of the filesystem is being written to 'filesystem.txt'.
+
+Notes:
+1. Ignore all errors in the tests - They're supposed to be there

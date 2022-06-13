@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <error.h>
 
 void mymkfs(int fs_size) {
     sb.is_mounted = false;
@@ -14,7 +15,7 @@ void mymkfs(int fs_size) {
     for (int i = 0; i < sb.num_inodes; i++) {
         inodes[i].size = -1;
         inodes[i].first_block = -1;
-        strcpy(inodes[i].name, "");
+        memset(inodes[i].name, 0, NAME_SIZE+1);
     }
 
     d_block = malloc(sizeof(disk_block) * sb.size_blocks);
@@ -190,8 +191,9 @@ int check_if_file_exist(char *filename, int flags, bool isfile, char *path) {
 
 // pathname example: /home/reut/CS.txt
 int myopen(const char *pathname, int flags) {
-    if (!sb.is_mounted){
+    if (!sb.is_mounted) {
         perror("You can't open a file you didn't mount!");
+        return -1;
     }
     char str[BUFF_SIZE];
     strcpy(str, pathname);
@@ -210,6 +212,7 @@ int myopen(const char *pathname, int flags) {
         check_if_file_exist(arr[j], flags, false, path[j]);
         int newSize = strlen(path[j]) + strlen(arr[j]) + 1;
         char *newBuffer = (char *) malloc(newSize);
+        memset(newBuffer, 0, 0);
         strcpy(newBuffer, path[j]);
         strcat(newBuffer, "/");
         strcat(newBuffer, arr[j]);
@@ -393,15 +396,17 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
 }
 
 int find_dir_inode(const char *name, const char *path) {
-    for (int i = 0; i < FILES_MAX; i++) {
-        if (!strcmp(inodes[open_f[i].file_inode].name, name)) {
-            if (!strcmp(inodes[open_f[i].file_inode].path, path)) {
-                if (inodes[i].file) {
-                    perror("This is a file not a directory!");
-                    return -1;
+    for (int i = 0; i < sb.num_inodes; i++) {
+        if (inodes[i].first_block!=-1) {
+            if (!strcmp(inodes[open_f[i].file_inode].name, name)) {
+                if (!strcmp(inodes[open_f[i].file_inode].path, path)) {
+                    if (inodes[i].file) {
+                        perror("This is a file not a directory!");
+                        return -1;
+                    }
                 }
+                return i;
             }
-            return i;
         }
     }
 
@@ -426,6 +431,7 @@ myDIR *myopendir(const char *name) {
     }
     newSize -= (strlen(last_tok) + 1);
     char *path = (char *) malloc(newSize);
+    memset(path, 0, 0);
     for (int j = 0; j < i - 1; j++) {
         strcat(path, "/");
         strcat(path, arr[j]);
@@ -434,7 +440,7 @@ myDIR *myopendir(const char *name) {
     int index = find_dir_inode(last_tok, path);
     if (index == -1) {
         perror("No such directory");
-        return  NULL;
+        return NULL;
     }
     myDIR *dir = (myDIR *) malloc(sizeof(myDIR));
     if (dir == NULL) {
@@ -445,30 +451,31 @@ myDIR *myopendir(const char *name) {
     return dir;
 }
 
-void find_subfiles(mydirent *dirent, char* path){
-    for (int i=0; i<sb.num_inodes; i++){
-        if (strstr(inodes[i].path, path)){
+void find_subfiles(mydirent *dirent, char *path) {
+    for (int i = 0; i < sb.num_inodes; i++) {
+        if (strstr(inodes[i].path, path)) {
             dirent->files_inode_indexes[dirent->size] = i;
             dirent->size++;
-            if (dirent->size == MAX_DIR){
+            if (dirent->size == MAX_DIR) {
                 break;
             }
         }
     }
 }
 
-struct mydirent *myreaddir(myDIR *dirp){
-    if (dirp==NULL){
+struct mydirent *myreaddir(myDIR *dirp) {
+    if (dirp == NULL) {
         perror("Null pointer exepction");
         return NULL;
     }
-    mydirent *dirent = (mydirent*)malloc(sizeof(mydirent));
-    for (int i=0; i<MAX_DIR; i++){
+    mydirent *dirent = (mydirent *) malloc(sizeof(mydirent));
+    for (int i = 0; i < MAX_DIR; i++) {
         dirent->files_inode_indexes[i] = -1;
     }
     strcpy(dirent->d_name, inodes[dirp->dir_inode_index].name);
     int newSize = strlen(inodes[dirp->dir_inode_index].path) + strlen(dirent->d_name) + 1;
     char *path = (char *) malloc(newSize);
+    memset(path, 0, 0);
     strcpy(path, inodes[dirp->dir_inode_index].path);
     strcat(path, "/");
     strcat(path, dirent->d_name);

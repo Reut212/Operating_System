@@ -288,14 +288,21 @@ off_t mylseek(int myfd, off_t offset, int whence) {
         return -1;
     }
     if (whence == SEEK_SET) { // setting offset to given offset
-        myseek(index, (int) offset);
+        int start = inodes[open_f[index].file_inode].first_block * BLOCKSIZE;
+        myseek(index, (int) offset + start);
     } else if (whence == SEEK_CUR) {
-        int where_we_are = pos(index, open_f[index].current_block_index);
+        int where_we_are = open_f[index].current_block_index * BLOCKSIZE + open_f[index].current_offset;
         myseek(index, (int) (where_we_are + offset));
 
     } else if (whence == SEEK_END) {
-        int where_we_are = pos(index, inodes[open_f[index].file_inode].size - 1);
-        myseek(index, (int) (where_we_are + offset));
+        int curr = inodes[open_f[index].file_inode].first_block;
+        int counter = 0;
+        while(d_block[curr].next_block_num!=-2){
+            curr = d_block[curr].next_block_num;
+            counter++;
+        }
+        int end = (inodes[open_f[index].file_inode].first_block + counter +1) * BLOCKSIZE -1;
+        myseek(index, (int) (end + offset));
     }
     if (open_f[myfd].current_offset < 0) {
         open_f[myfd].current_offset = 0;

@@ -16,7 +16,7 @@ int main(){
     printf("2: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
     mylseek(fd, 7, SEEK_SET);
     printf("3: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-    mylseek(fd, -2, SEEK_CUR); // stuck in an endless loop !!!!
+    mylseek(fd, -2, SEEK_CUR);
     printf("4: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
     mylseek(fd, 0, SEEK_CUR);
     printf("5: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
@@ -24,7 +24,7 @@ int main(){
     printf("6: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
     mylseek(fd, -2, SEEK_END);
     printf("7: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-    mylseek(fd,2,SEEK_CUR); //TODO: debug- stuck in an endless loop
+    mylseek(fd,2,SEEK_CUR);
     printf("8: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
     mylseek(fd, 0, SEEK_END);
     printf("9: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);

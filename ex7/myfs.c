@@ -123,8 +123,7 @@ int create_file(char *pathname, int flags, bool isfile, char *path) {
         perror("Too many files are open");
         return -1;
     }
-    int file = open(pathname, flags, "r");
-    open_f[index].fd = file;
+//    int file = open(pathname, flags, "r");
     open_f[index].current_offset = 0;
 
     // finding inode and blocks
@@ -139,6 +138,7 @@ int create_file(char *pathname, int flags, bool isfile, char *path) {
         perror("curr_block == -1");
         return -1;
     }
+    open_f[index].fd = inode;
     inodes[inode].size = 1;
     inodes[inode].first_block = curr_block;
     inodes[inode].file = isfile;
@@ -150,7 +150,7 @@ int create_file(char *pathname, int flags, bool isfile, char *path) {
     open_f[index].file_inode = inode;
     open_f[index].current_block_index = curr_block;
     open_f[index].current_offset = 0;
-    return file;
+    return inode;
 }
 
 // for each check if file exist if not create
@@ -225,29 +225,8 @@ int open_index(int myfd) {
     return -1;
 }
 
-int myclose(int myfd) { //TODO: not destroying everything just space on open_f
+int myclose(int myfd) {
     int index = open_index(myfd);
-    if (index == -1) {
-        perror("You are trying to close a file that is not open!");
-        return -1;
-    }
-    //freeing block
-    inode f_inode = inodes[open_f[index].file_inode];
-    int curr_block_index = f_inode.first_block;
-    for (int i = 0; i < f_inode.size; i++) {
-        memset(d_block[curr_block_index].data, 0, BLOCKSIZE);
-        int temp = d_block[curr_block_index].next_block_num;
-        d_block[curr_block_index].next_block_num = -1;
-        curr_block_index = temp;
-    }
-
-    // freeing inode
-    inodes[open_f[index].file_inode].size = -1;
-    inodes[open_f[index].file_inode].first_block = -1;
-    memset(inodes[open_f[index].file_inode].name, 0, NAME_SIZE + 1);
-    inodes[open_f[index].file_inode].file = false;
-
-    //freeing open_f space
     open_f[index].fd = -1;
     open_f[index].current_offset = 0;
     open_f[index].file_inode = -1;

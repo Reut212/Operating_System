@@ -38,5 +38,13 @@ int main() {
     memset(buf, 0, 50);
     myread(fd, buf, 100);
     printf("%s\n", buf);
+
+    myDIR * dir1 =  myopendir("home/reut");
+    myDIR * dir2 =  myopendir("home/Amit"); // should print "No such directory"
+    myDIR * dir3 =  myopendir("home/reut/file"); // should print "This is a file not a directory!"
+    myDIR * dir4 =  myopendir("home");
+    mydirent* dirent1 = myreaddir(dir1);
+    mydirent* dirent2 = myreaddir(dir2);
+    mydirent* dirent3 = myreaddir(dir4);
     myclose(fd);
 }

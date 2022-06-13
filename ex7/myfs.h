@@ -39,12 +39,12 @@ typedef struct myopenfile{
 
 typedef struct mydirent {
     int size;
-    int files_indexes[MAX_DIR];
+    int files_inode_indexes[MAX_DIR];
     char d_name[NAME_SIZE+1];
 }mydirent;
 
 typedef struct myDIR {
-    int dir_index;
+    int dir_inode_index;
 }myDIR;
 
 myopenfile open_f [FILES_MAX];

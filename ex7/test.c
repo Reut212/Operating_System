@@ -5,10 +5,10 @@ int main() {
     mymkfs(10000);
 //    mymount(NULL,"fs_data",NULL,0,NULL);
     int fd = myopen("home/reut/file", O_CREAT);
-    myclose(fd);
+//    myclose(fd);
     int fd2 = myopen("home/neta/file", O_CREAT);
-    mywrite(fd2, "blabla", 6);
-    mywrite(fd2, "bla", 3);
+    mywrite(fd, "blabla", 6);
+    mywrite(fd, "bla", 3);
 //    mywrite(fd, "bla", 3);
     int index = open_index(fd);
     printf("1: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
@@ -47,6 +47,7 @@ int main() {
     myread(fd, buf, 50);
     printf("%s\n", buf);
     mylseek(fd, 3, SEEK_SET);
+    printf("11: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
     memset(buf, 0, 0);
     myread(fd, buf, 50);
     printf("%s\n", buf);

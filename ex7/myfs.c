@@ -142,8 +142,8 @@ int create_file(char *pathname, int flags, bool isfile, char *path) {
     inodes[inode].size = 1;
     inodes[inode].first_block = curr_block;
     inodes[inode].file = isfile;
-    strcpy(inodes[inode].name,pathname);
-    strcpy(inodes[inode].path,path);
+    strcpy(inodes[inode].name, pathname);
+    strcpy(inodes[inode].path, path);
     d_block[curr_block].next_block_num = -2;
 
 
@@ -255,9 +255,54 @@ int pos(int index, int stop) { //find number of bytes until current block and cu
     return BLOCKSIZE * counter + open_f[index].current_offset;
 }
 
-void myseek(int index, int num) {
-    open_f[index].current_offset = num % BLOCKSIZE;
-    open_f[index].current_block_index = num / BLOCKSIZE;
+void myseek(int index, int offset, int how_much_bytes_to_move) {
+    int curr = inodes[open_f[index].file_inode].first_block;
+    for (int i = 0; i < how_much_bytes_to_move/BLOCKSIZE; i++) {
+        if (curr == -2) {
+            perror("Not you're memory");
+        }
+        curr = d_block[curr].next_block_num;
+    }
+    open_f[index].current_offset = how_much_bytes_to_move % BLOCKSIZE;
+    open_f[index].current_block_index = curr;
+}
+
+int where_we_are_now(int index) {
+    int curr_block = inodes[open_f[index].file_inode].first_block;
+    int curr_offset = 0;
+    int stop_block = open_f[index].current_block_index;
+    int stop_offset = open_f[index].current_offset;
+    int bytes = 0;
+    while (1){
+        if (curr_block==stop_block&&curr_offset==stop_offset){
+            break;
+        }
+        curr_offset++;
+        if (curr_offset==BLOCKSIZE) {
+            curr_offset=0;
+            curr_block = d_block[curr_block].next_block_num;
+        }
+        bytes++;
+    }
+    return bytes;
+}
+
+int calc_end(int index) {
+    int curr_block = inodes[open_f[index].file_inode].first_block;
+    int curr_offset = 0;
+    int bytes = 0;
+    while (1){
+        if (d_block[curr_block].data[curr_offset]==0){
+            break;
+        }
+        curr_offset++;
+        if (curr_offset==BLOCKSIZE) {
+            curr_offset=0;
+            curr_block = d_block[curr_block].next_block_num;
+        }
+        bytes++;
+    }
+    return bytes+BLOCKSIZE;
 }
 
 off_t mylseek(int myfd, off_t offset, int whence) {
@@ -267,21 +312,14 @@ off_t mylseek(int myfd, off_t offset, int whence) {
         return -1;
     }
     if (whence == SEEK_SET) { // setting offset to given offset
-        int start = inodes[open_f[index].file_inode].first_block * BLOCKSIZE;
-        myseek(index, (int) offset + start);
+        int how_much_bytes_to_move = (int)offset;
+        myseek(index, offset, how_much_bytes_to_move);
     } else if (whence == SEEK_CUR) {
-        int where_we_are = open_f[index].current_block_index * BLOCKSIZE + open_f[index].current_offset;
-        myseek(index, (int) (where_we_are + offset));
-
+        int where_we_are = where_we_are_now(index);
+        myseek(index, offset, where_we_are+(int)offset);
     } else if (whence == SEEK_END) {
-        int curr = inodes[open_f[index].file_inode].first_block;
-        int counter = 0;
-        while(d_block[curr].next_block_num!=-2){
-            curr = d_block[curr].next_block_num;
-            counter++;
-        }
-        int end = (inodes[open_f[index].file_inode].first_block + counter +1) * BLOCKSIZE -1;
-        myseek(index, (int) (end + offset));
+        int end = calc_end(index);
+        myseek(index, offset, end+(int)offset);
     }
     if (open_f[myfd].current_offset < 0) {
         open_f[myfd].current_offset = 0;

@@ -73,4 +73,4 @@ int find_empty_block();
 int open_index(int myfd);
 int find_empty_openfile();
 int pos(int index, int stop);
-void myseek(int index, int num);
+//void myseek(int index, int num);

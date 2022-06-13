@@ -44,3 +44,23 @@ int myfclose(myFILE *stream){
     return -1;
 }
 
+size_t myfread(void * ptr, size_t size, size_t nmemb, myFILE * stream){
+    if(stream->modes[0] != 'r' || (stream->modes[0] != 'r' && stream->modes[1] != '+')){
+        perror("Not the right mode for reading!");
+        return -1;
+    }
+    size_t start_index = open_index(stream->file_ptr);
+    size_t last_index = myread(stream->file_ptr, ptr, nmemb * size);
+    return start_index - last_index;
+}
+
+size_t myfwrite(void * ptr, size_t size, size_t nmemb, myFILE * stream){
+    if(stream->modes[0] != 'w' && stream->modes[0] != 'a'
+        && (stream->modes[0] != 'r' && stream->modes[1] != '+')){
+        perror("Not the right mode for writing!");
+        return -1;
+    }
+    size_t start_index = open_index(stream->file_ptr);
+    size_t last_index = mywrite(stream->file_ptr, ptr, nmemb * size);
+    return last_index - start_index;
+}

@@ -347,11 +347,14 @@ ssize_t myread(int myfd, void *buf, size_t count) {
             offset = 0;
             curr_block = block_index;
         }
+        if (d_block[curr_block].data[offset] == 0){ // end of file content
+            break;
+        }
         ((char *) buf)[i] = d_block[curr_block].data[offset];
         offset++;
         bytes_read++;
     }
-    mylseek(open_f[index].fd, count, SEEK_CUR);
+    mylseek(open_f[index].fd, bytes_read, SEEK_CUR);
     return bytes_read;
 }
 

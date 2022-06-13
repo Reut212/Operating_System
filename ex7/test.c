@@ -30,26 +30,13 @@ int main() {
     printf("9: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
     mylseek(fd, 0, SEEK_SET);
     printf("10: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-    /* Desired print:
-    1: block: 6, offset:1
-    2: block: 4, offset:0
-    3: block: 5, offset:1
-    4: block: 4, offset:1
-    5: block: 4, offset:1
-    6: block: 6, offset:0
-    7: block: 5, offset:1
-    8: block: 6, offset:1
-    9: block: 6, offset:1
-    10: block: 2, offset:0
-    */
-    // TODO: change when increase block size at the end
     char buf[100];
     myread(fd, buf, 50);
     printf("%s\n", buf);
     mylseek(fd, 3, SEEK_SET);
     printf("11: block: %d, offset:%d\n", open_f[index].current_block_index, open_f[index].current_offset);
-    memset(buf, 0, 0);
-    myread(fd, buf, 50);
+    memset(buf, 0, 50);
+    myread(fd, buf, 100);
     printf("%s\n", buf);
     myclose(fd);
 }

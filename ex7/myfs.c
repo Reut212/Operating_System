@@ -389,7 +389,7 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     return 0;
 }
 
-int find_dir_index_in_open_f(const char *name, const char *path) {
+int find_dir_inode(const char *name, const char *path) {
     for (int i = 0; i < FILES_MAX; i++) {
         if (!strcmp(inodes[open_f[i].file_inode].name, name)) {
             if (!strcmp(inodes[open_f[i].file_inode].path, path)) {
@@ -428,7 +428,7 @@ myDIR *myopendir(const char *name) {
         strcat(path, arr[j]);
     }
 
-    int index = find_dir_index_in_open_f(last_tok, path);
+    int index = find_dir_inode(last_tok, path);
     if (index == -1) {
         perror("No such directory");
         return  NULL;
@@ -437,7 +437,39 @@ myDIR *myopendir(const char *name) {
     if (dir == NULL) {
         perror("Not enough space");
     }
-    dir->dir_index = index;
+    dir->dir_inode_index = index;
     free(path);
     return dir;
+}
+
+void find_subfiles(mydirent *dirent, char* path){
+    for (int i=0; i<sb.num_inodes; i++){
+        if (strstr(inodes[i].path, path)){
+            dirent->files_inode_indexes[dirent->size] = i;
+            dirent->size++;
+            if (dirent->size == MAX_DIR){
+                break;
+            }
+        }
+    }
+}
+
+struct mydirent *myreaddir(myDIR *dirp){
+    if (dirp==NULL){
+        perror("Null pointer exepction");
+        return NULL;
+    }
+    mydirent *dirent = (mydirent*)malloc(sizeof(mydirent));
+    for (int i=0; i<MAX_DIR; i++){
+        dirent->files_inode_indexes[i] = -1;
+    }
+    strcpy(dirent->d_name, inodes[dirp->dir_inode_index].name);
+    int newSize = strlen(inodes[dirp->dir_inode_index].path) + strlen(dirent->d_name) + 1;
+    char *path = (char *) malloc(newSize);
+    strcpy(path, inodes[dirp->dir_inode_index].path);
+    strcat(path, "/");
+    strcat(path, dirent->d_name);
+    find_subfiles(dirent, path);
+    free(path);
+    return dirent;
 }

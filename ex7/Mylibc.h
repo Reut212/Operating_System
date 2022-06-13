@@ -1,7 +1,6 @@
-//
-// Created by reut on 6/13/22.
-//
+
 #include <stdio.h>
+
 #ifndef EX7_MYLIBC_H
 #define EX7_MYLIBC_H
 
@@ -9,10 +8,10 @@
 
 typedef struct myFILE
 {
-    int id;
+    int file_ptr;
     char* data;
     int size;
-    char type[3];
+    char modes[2]; // 0 -> for letter, 1 -> for sign.
     int pos;
 }myFILE;
 

@@ -36,5 +36,11 @@ myFILE *myfopen(const char *pathname, const char *mode){
 }
 
 int myfclose(myFILE *stream){
-
+    if(myclose(stream->file_ptr) == 0){
+        free(stream);
+        return 0;
+    }
+    free(stream);
+    return -1;
 }
+

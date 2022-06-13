@@ -9,7 +9,6 @@
 typedef struct myFILE
 {
     int file_ptr;
-    char* data;
     int size;
     char modes[2]; // 0 -> for letter, 1 -> for sign.
     int pos;

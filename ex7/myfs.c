@@ -5,6 +5,7 @@
 #include <fcntl.h>
 
 void mymkfs(int fs_size) {
+    sb.is_mounted = false;
     int size = fs_size - (int) sizeof(sb);
     sb.num_inodes = (int) ((size * 0.1) / sizeof(inode));
     sb.num_blocks = (int) ((size * 0.9) / sizeof(disk_block));
@@ -41,7 +42,6 @@ int mymount(const char *source, const char *target,
             const char *filesystemtype, unsigned long
             mountflags, const void *data) {
     FILE *src = fopen(source, "r");
-
     //reading source data
     superblock *src_sb = malloc(sizeof(superblock));
     fread(src_sb, sizeof(superblock), 1, src);
@@ -82,7 +82,7 @@ int mymount(const char *source, const char *target,
         strcpy(trg_dblock[i].data, src_dblock[i].data);
     }
     fwrite(&trg_dblock, sizeof(struct disk_block), 1, trg);
-
+    sb.is_mounted = true;
     fclose(trg);
     fclose(src);
     return 0;
@@ -190,6 +190,9 @@ int check_if_file_exist(char *filename, int flags, bool isfile, char *path) {
 
 // pathname example: /home/reut/CS.txt
 int myopen(const char *pathname, int flags) {
+    if (!sb.is_mounted){
+        perror("You can't open a file you didn't mount!");
+    }
     char str[BUFF_SIZE];
     strcpy(str, pathname);
     int len = strlen(pathname);

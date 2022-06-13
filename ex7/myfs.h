@@ -15,6 +15,7 @@ typedef struct superblock{
     int num_inodes;
     int num_blocks;
     int size_blocks;
+    bool is_mounted;
 }superblock;
 
 typedef struct inode{

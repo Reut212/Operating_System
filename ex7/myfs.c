@@ -245,19 +245,9 @@ int alloc_new_block(int last_block_index) {
     return block_index;
 }
 
-int pos(int index, int stop) { //find number of bytes until current block and current offset
-    int counter = 0;
-    int curr = inodes[open_f[index].file_inode].first_block;
-    while (curr != stop) {
-        curr = d_block[curr].next_block_num;
-        counter++;
-    }
-    return BLOCKSIZE * counter + open_f[index].current_offset;
-}
-
 void myseek(int index, int offset, int how_much_bytes_to_move) {
     int curr = inodes[open_f[index].file_inode].first_block;
-    for (int i = 0; i < how_much_bytes_to_move/BLOCKSIZE; i++) {
+    for (int i = 0; i < how_much_bytes_to_move / BLOCKSIZE; i++) {
         if (curr == -2) {
             perror("Not you're memory");
         }
@@ -273,13 +263,13 @@ int where_we_are_now(int index) {
     int stop_block = open_f[index].current_block_index;
     int stop_offset = open_f[index].current_offset;
     int bytes = 0;
-    while (1){
-        if (curr_block==stop_block&&curr_offset==stop_offset){
+    while (1) {
+        if (curr_block == stop_block && curr_offset == stop_offset) {
             break;
         }
         curr_offset++;
-        if (curr_offset==BLOCKSIZE) {
-            curr_offset=0;
+        if (curr_offset == BLOCKSIZE) {
+            curr_offset = 0;
             curr_block = d_block[curr_block].next_block_num;
         }
         bytes++;
@@ -291,13 +281,13 @@ int calc_end(int index) {
     int curr_block = inodes[open_f[index].file_inode].first_block;
     int curr_offset = 0;
     int bytes = 0;
-    while (1){
-        if (d_block[curr_block].data[curr_offset]==0){
+    while (1) {
+        if (d_block[curr_block].data[curr_offset] == 0) {
             break;
         }
         curr_offset++;
-        if (curr_offset==BLOCKSIZE) {
-            curr_offset=0;
+        if (curr_offset == BLOCKSIZE) {
+            curr_offset = 0;
             curr_block = d_block[curr_block].next_block_num;
         }
         bytes++;
@@ -312,14 +302,14 @@ off_t mylseek(int myfd, off_t offset, int whence) {
         return -1;
     }
     if (whence == SEEK_SET) { // setting offset to given offset
-        int how_much_bytes_to_move = (int)offset;
+        int how_much_bytes_to_move = (int) offset;
         myseek(index, offset, how_much_bytes_to_move);
     } else if (whence == SEEK_CUR) {
         int where_we_are = where_we_are_now(index);
-        myseek(index, offset, where_we_are+(int)offset);
+        myseek(index, offset, where_we_are + (int) offset);
     } else if (whence == SEEK_END) {
         int end = calc_end(index);
-        myseek(index, offset, end+(int)offset);
+        myseek(index, offset, end + (int) offset);
     }
     if (open_f[myfd].current_offset < 0) {
         open_f[myfd].current_offset = 0;
@@ -347,7 +337,7 @@ ssize_t myread(int myfd, void *buf, size_t count) {
             offset = 0;
             curr_block = block_index;
         }
-        if (d_block[curr_block].data[offset] == 0){ // end of file content
+        if (d_block[curr_block].data[offset] == 0) { // end of file content
             break;
         }
         ((char *) buf)[i] = d_block[curr_block].data[offset];
@@ -399,40 +389,55 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     return 0;
 }
 
-//// returns index if a directory is open in open_f
-//int exists_in_open_f(const char *name){
-//    for (int i=0; i<FILES_MAX; i++){
-//        if (!strcmp(inodes[i].name,name)){
-//            return i;
-//        }
-//    }
-//    return -1;
-//}
-//
-//// returns an index to open_f of a dir and create it if doesn't exist
-//int dir_index_in_open_f(const char *name){
-//    int index = exists_in_open_f(name);
-//    if (index!=-1){ // exists
-//        return index;
-//    }
-//    // doesn't exist
-//    index = find_empty_openfile();
-//    if (index == -1){ // not enough space in open_f array
-//        perror("not enough space in open_f array");
-//    }
-//    // insert data in chosen index
-//
-//}
-//
-//
-//
-//myDIR *myopendir(const char *name) {
-//    int index = dir_index_in_open_f(name);
-//    myDIR *dir = (myDIR*)malloc(sizeof(myDIR));
-//    if(dir == NULL)
-//    {
-//        perror("Can't open directory");
-//    }
-//    dir->dir_index = index;
-//    return dir;
-//}
+int find_dir_index_in_open_f(const char *name, const char *path) {
+    for (int i = 0; i < FILES_MAX; i++) {
+        if (!strcmp(inodes[open_f[i].file_inode].name, name)) {
+            if (!strcmp(inodes[open_f[i].file_inode].path, path)) {
+                if (inodes[i].file) {
+                    perror("This is a file not a directory!");
+                    return -1;
+                }
+            }
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+myDIR *myopendir(const char *name) {
+    char str[BUFF_SIZE];
+    strcpy(str, name);
+    int len = strlen(name);
+    char *curr_tok = strtok(str, "/");
+    char *last_tok = curr_tok;
+    char *arr[len];
+    int i = 0;
+    int newSize = 0;
+    while (curr_tok) {
+        last_tok = curr_tok;
+        newSize += strlen(curr_tok) + 1;
+        arr[i] = curr_tok;
+        curr_tok = strtok(NULL, "/");
+        i++;
+    }
+    newSize -= (strlen(last_tok) + 1);
+    char *path = (char *) malloc(newSize);
+    for (int j = 0; j < i - 1; j++) {
+        strcat(path, "/");
+        strcat(path, arr[j]);
+    }
+
+    int index = find_dir_index_in_open_f(last_tok, path);
+    if (index == -1) {
+        perror("No such directory");
+        return  NULL;
+    }
+    myDIR *dir = (myDIR *) malloc(sizeof(myDIR));
+    if (dir == NULL) {
+        perror("Not enough space");
+    }
+    dir->dir_index = index;
+    free(path);
+    return dir;
+}

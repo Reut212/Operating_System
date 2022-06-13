@@ -302,7 +302,7 @@ int calc_end(int index) {
         }
         bytes++;
     }
-    return bytes+BLOCKSIZE;
+    return bytes;
 }
 
 off_t mylseek(int myfd, off_t offset, int whence) {

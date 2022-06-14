@@ -121,7 +121,8 @@ void seek_non_continuous_memory_test(){
     mywrite(fd, "bla", 3);
     myclose(fd2);
     int index = open_index(fd);
-    bool t1, t2, t3, t4, t5, t6, t7, t8, t9, t10 = false;
+    bool t1 = false, t2 = false, t3 = false, t4 = false, t5 = false, t6 = false,
+    t7 = false, t8 = false, t9 = false, t10 = false, t11 = false , t12 = false;
     if (open_f[index].current_block_index == 5 && open_f[index].current_offset == 4){
         t1 = true;
     }
@@ -157,12 +158,23 @@ void seek_non_continuous_memory_test(){
     if (open_f[index].current_block_index == 5 && open_f[index].current_offset == 4){
         t9 = true;
     }
-    mylseek(fd, 0, SEEK_SET);
-    if (open_f[index].current_block_index == 2 && open_f[index].current_offset == 0){
+    // needs to allocate new blocks and not throw error! also not change the size of the file
+    // according to the c man
+    mylseek(fd, 2, SEEK_END);
+    if (open_f[index].current_block_index == 9 && open_f[index].current_offset == 1){
         t10 = true;
     }
-    if (t1 == true && t2 == true && t3 == true && t4 == true && t5 == true
-    && t6 == true && t7 == true && t8 == true && t9 == true && t10 == true){
+    mylseek(fd, 9, SEEK_SET);
+    if (open_f[index].current_block_index == 5 && open_f[index].current_offset == 4){
+        t11 = true;
+    }
+    // the end is still 9 and no new block should be allocated
+    mylseek(fd, 2, SEEK_END);
+    if (open_f[index].current_block_index == 9 && open_f[index].current_offset == 1){
+        t12 = true;
+    }
+    if (t1 == true && t2 == true && t3 == true && t4 == true && t5 == true && t6 == true
+     && t7 == true && t8 == true && t9 == true && t10 == true && t11 == true && t12 == true){
         printf("Seek test passed!\n");
     }
 }

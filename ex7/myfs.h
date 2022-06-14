@@ -68,10 +68,15 @@ struct mydirent *myreaddir(myDIR *dirp);
 
 
 // other functions
-void print_fs(); // print out info about file system
-struct mydirent *myread_dir(int fd);
+int find_empty_inode();
+int create_file(char *pathname, int flags, bool isfile, char *path);
+int check_if_file_exist(char *filename, int flags, bool isfile, char *path);
+int alloc_new_block(int last_block_index);
+void myseek(int index, int offset, int how_much_bytes_to_move);
+int where_we_are_now(int index);
+int calc_end(int index);
+int find_dir_inode(const char *name, const char *path);
+void find_subfiles(mydirent *dirent, char *path);
 int find_empty_block();
 int open_index(int myfd);
 int find_empty_openfile();
-int pos(int index, int stop);
-//void myseek(int index, int num);

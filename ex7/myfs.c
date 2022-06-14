@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <error.h>
 
 void mymkfs(int fs_size) {
     sb.is_mounted = false;
@@ -258,8 +257,8 @@ int alloc_new_block(int last_block_index) {
 void myseek(int index, int offset, int how_much_bytes_to_move) {
     int curr = inodes[open_f[index].file_inode].first_block;
     for (int i = 0; i < how_much_bytes_to_move / BLOCKSIZE; i++) {
-        if (curr == -2) {
-            perror("Not you're memory");
+        if (d_block[curr].next_block_num == -2) {
+            alloc_new_block(curr);
         }
         curr = d_block[curr].next_block_num;
     }

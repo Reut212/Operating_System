@@ -173,11 +173,10 @@ int check_if_file_exist(char *filename, int flags, bool isfile, char *path) {
         // exist and closed
         int open_index = find_empty_openfile();
         open_f[open_index].file_inode = inode_index;
-        int file = open(filename, flags, "r");
-        open_f[open_index].fd = file;
+        open_f[open_index].fd = inode_index;
         open_f[open_index].current_offset = 0;
         open_f[open_index].current_block_index = inodes[inode_index].first_block;
-        return file;
+        return inode_index;
     }
         // doesn't exist - create and insert to open_f
     else {
@@ -329,6 +328,9 @@ ssize_t myread(int myfd, void *buf, size_t count) {
         perror("You are trying to read from a file that is not open!");
         return -1;
     }
+    if (buf == NULL){
+        return -1;
+    }
     buf = (char *) buf;
     int bytes_read = 0;
     int curr_block = open_f[index].current_block_index; // find the block number
@@ -358,6 +360,9 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     int index = open_index(myfd);
     if (index == -1) {
         perror("You are trying to write to a file that is not open!");
+        return -1;
+    }
+    if (buf == NULL){
         return -1;
     }
     int curr_block = open_f[index].current_block_index; // find the block number

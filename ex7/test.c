@@ -322,8 +322,25 @@ void a_mode_test() {
     if (!strcmp(output2, "this is a test! ,THIS IS A TEST! ,another test..!") && a2 != -1 && r2 != -1 && s != -1) {
         t2 = true;
     }
-    if (t1 == true && t2 == true){
+    if (t1 == true && t2 == true) {
         printf("a mode test passed!\n");
+    }
+}
+
+void scanf_printf_test() {
+    mymkfs(10000);
+    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
+    myFILE *myfd = myfopen("home/neta/meow", "w");
+    int print =myfprintf(myfd, "%c%d", 'a', 5);
+    myfseek(myfd, 0, SEEK_SET);
+    char c = '0';
+    int n = 0;
+    myfclose(myfd);
+    myfd = myfopen("home/neta/meow", "r");
+    int scan = myfscanf(myfd, "%c%d", &c, &n);
+    myfclose(myfd);
+    if (print > 0 && scan > 0){
+        printf("fprintf and fscanf test passed!\n");
     }
 }
 
@@ -344,4 +361,5 @@ int main() {
     rplus_mode_test();
     r_and_w_modes_test();
     a_mode_test();
+    scanf_printf_test();
 }

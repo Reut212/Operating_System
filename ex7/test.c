@@ -181,32 +181,30 @@ void seek_non_continuous_memory_test() {
     }
 }
 
-void fopen_test() {
+void fopen_modes_test() {
     myFILE *f1 = myfopen("/home/neta/meow", "ac");
     myFILE *f2 = myfopen("/home/neta/meow", "c");
     myFILE *f3 = myfopen("/home/neta/meow", "c+");
     myFILE *f4 = myfopen("/home/neta/meow", "abc");
     if (f1 == NULL && f2 == NULL && f3 == NULL && f4 == NULL) {
-        printf("Fopen test passed!\n");
+        printf("Fopen modes test passed!\n");
     }
 }
 
 void incorrect_modes_test() {
-    myFILE *f1 = myfopen("/home/neta/meow", "r+");
-    myFILE *f2 = myfopen("/home/neta/meow", "r");
+    myFILE *f2 = myfopen("/home/neta/meow", "r"); // can't write
     char buf[100];
-    int w1 = myfwrite(buf, 1, 100, f1);
     int w2 = myfwrite(buf, 1, 100, f2);
-    myFILE *f3 = myfopen("/home/neta/meow", "w");
-    myFILE *f4 = myfopen("/home/neta/meow", "a");
+    myFILE *f3 = myfopen("/home/neta/meow", "w"); // can't read
+    myFILE *f4 = myfopen("/home/neta/meow", "a"); // can't read
     int r1 = myfread(buf, 1, 100, f3);
     int r2 = myfread(buf, 1, 100, f4);
-    if (w1 == -1 && w2 == -1 && r1 == -1 && r2 == -1) {
+    if (w2 == -1 && r1 == -1 && r2 == -1) {
         printf("Incorrect modes test passed!\n");
     }
 }
 
-void null_test(){
+void null_test() {
     myFILE *f = myfopen("/home/neta/meow", "ac");
     char buf[100];
     int w = myfwrite(buf, 1, 100, f);
@@ -215,23 +213,90 @@ void null_test(){
     int c = myfclose(f);
     int sf = myfscanf(f, "%d");
     int pf = myfprintf(f, "%d");
-    if (w == -1 && r == -1 && s == -1 && c == -1 && sf ==-1 && pf == -1){
+    if (w == -1 && r == -1 && s == -1 && c == -1 && sf == -1 && pf == -1) {
         printf("Null test passed!\n");
     }
 }
 
-int main() {
-    // PART A TESTS
-    mount_test();
-    closed_file_test();
-    unopen_file_test();
-    dir_test();
-    read_write_test();
-    read_write_test_non_continuous_memory_test();
-    seek_non_continuous_memory_test();
+void rplus_mode_test() {
+    mymkfs(10000);
+    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
+    myFILE *f = myfopen("/home/neta/meow", "r+");
+    char *str = "this is a test!";
+    int w = myfwrite(str, 1, strlen(str), f);
+    char output[strlen(str)];
+    int s = myfseek(f, 0, SEEK_SET);
+    int r = myfread(output, 1, strlen(str), f);
+    bool t1 = false, t2 = false, t3 = false, t4 = false;
+    if (!strcmp(output, str) && w != -1 && r != -1 && s != -1) {
+        t1 = true;
+    }
+    memset(output, 0, strlen(str));
+    int s2 = myfseek(f, -5, SEEK_END);
+    int r2 = myfread(output, 1, strlen(str), f);
+    if (!strcmp(output, "test!") && r2 != -1 && s2 != -1) {
+        t2 = true;
+    }
+    memset(output, 0, strlen(str));
+    int s3 = myfseek(f, 0, SEEK_SET);
+    int s4 = myfseek(f, 5, SEEK_CUR);
+    int r3 = myfread(output, 1, strlen(str), f);
+    if (!strcmp(output, "is a test!") && r3 != -1 && s3 != -1 && s4 != -1) {
+        t3 = true;
+    }
+    memset(output, 0, strlen(str));
+    int s5 = myfseek(f, 0, SEEK_SET);
+    int r4 = myfread(output, 1, strlen(str), f);
+    if (!strcmp(output, "this is a test!") && r4 != -1 && s5 != -1) {
+        t4 = true;
+    }
+    if (t1 == true && t2 == true && t3 == true && t4 == true) {
+        printf("r+ test passed!\n");
+    }
+}
 
-    // PART B TESTS
-    fopen_test();
-    incorrect_modes_test();
-    null_test();
+
+void r_and_w_modes_test() {
+    mymkfs(10000);
+    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
+    myFILE *write = myfopen("/home/neta/meow", "w");
+    myFILE *read = myfopen("/home/neta/meow", "read");
+    char *str = "this is a test!";
+    int w = myfwrite(str, 1, strlen(str), write);
+    char output[strlen(str)*2];
+    int r = myfread(output, 1, strlen(str), read);
+    bool t1 = false, t2 = false, t3 = false, t4 = false;
+    if (!strcmp(output, str) && w != -1 && r != -1) {
+        t1 = true;
+    }
+    memset(output, 0, strlen(str));
+    char *str2 = " ,THIS IS A TEST!";
+    int w2 = myfwrite(str, 1, strlen(str), write);
+    int s1 = myfseek(read, 0, SEEK_SET);
+    int r2 = myfread(output, 1, strlen(str), read);
+    if (!strcmp(output, "this is a test! ,THIS IS A TEST!") && w2 != -1 && r2 != -1 && s1 != -1) {
+        t1 = true;
+    }
+    if (t1 == true && t2 == true) {
+        printf("r and w test passed!\n");
+    }
+}
+
+
+int main() {
+//    // PART A TESTS
+//    mount_test();
+//    closed_file_test();
+//    unopen_file_test();
+//    dir_test();
+//    read_write_test();
+//    read_write_test_non_continuous_memory_test();
+//    seek_non_continuous_memory_test();
+//
+//    // PART B TESTS
+//    fopen_modes_test();
+//    incorrect_modes_test();
+//    null_test();
+//    rplus_mode_test();
+    r_and_w_modes_test();
 }

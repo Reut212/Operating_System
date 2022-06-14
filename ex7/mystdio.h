@@ -1,12 +1,10 @@
-#include <cstdio>
-#include <cstdarg>
+#include <glob.h>
 
 typedef struct myFILE
 {
-    int file_ptr;
-//    int size;
+    int file_fd;
     char modes[2]; // 0 -> for letter, 1 -> for sign.
-    int pos;
+    int offset;
 }myFILE;
 
 myFILE *myfopen(const char *pathname, const char *mode);

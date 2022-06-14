@@ -1,8 +1,5 @@
-#include <string.h>
 #include "myfs.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
+
 
 void mymkfs(int fs_size) {
     sb.is_mounted = false;
@@ -367,6 +364,7 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     int offset = open_f[index].current_offset;
     char *data = (char *) buf;
     int new_blocks_allocated = 0;
+    int bytes_written =0;
     for (int i = 0; i < count; i++) {
         if (offset >= BLOCKSIZE) {
             int block_index = alloc_new_block(curr_block);
@@ -380,6 +378,7 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
         }
         d_block[curr_block].data[offset] = data[i];
         offset++;
+        bytes_written++;
     }
 
     if (offset >= BLOCKSIZE) { // if block is now full allocate new block and moving offset
@@ -395,7 +394,7 @@ ssize_t mywrite(int myfd, const void *buf, size_t count) {
     open_f[index].current_block_index = curr_block;
     open_f[index].current_offset = offset;  // moving offset to new position
     inodes[open_f[index].file_inode].size += new_blocks_allocated;
-    return 0;
+    return bytes_written;
 }
 
 int find_dir_inode(const char *name, const char *path) {

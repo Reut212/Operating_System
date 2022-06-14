@@ -1,4 +1,5 @@
-#include "Mylibc.h"
+#include <stdarg.h>
+#include "mystdio.h"
 #include "myfs.h"
 
 myFILE *myfopen(const char *pathname, const char *mode){
@@ -13,17 +14,16 @@ myFILE *myfopen(const char *pathname, const char *mode){
     }
     else{
         perror("Not a valid mode!");
-        return nullptr;
+        return NULL;
     }
     if((strcmp(mode, "a") != 0 && strcmp(mode, "w") != 0 &&
         strcmp(mode, "r") != 0 && strcmp(mode, "r+") != 0)){ //if not a valid mode accepted
         perror("Not a valid mode!");
         file->modes[0] = ' '; //clean modes
         file->modes[1] = ' ';
-        return nullptr;
+        return NULL;
     }
-    file->file_ptr = id; //update id of file
-//    file->size = inodes[id].size; //update file size
+    file->file_fd = id; //update id of file
 
     if(!strcmp(mode, "a")){ //if mode is "append"
         mylseek(id, 0, SEEK_END);
@@ -35,8 +35,8 @@ myFILE *myfopen(const char *pathname, const char *mode){
 }
 
 int myfclose(myFILE *stream){
-    if(myclose(stream->file_ptr) == 0){
-    free(stream);
+    if(myclose(stream->file_fd) == 0){
+        free(stream);
         return 0;
     }
     free(stream);
@@ -48,9 +48,8 @@ size_t myfread(void * ptr, size_t size, size_t nmemb, myFILE * stream){
         perror("Not the right mode for reading!");
         return -1;
     }
-    size_t start_index = open_index(stream->file_ptr);
-    size_t last_index = myread(stream->file_ptr, ptr, nmemb * size);
-    return start_index - last_index;
+    size_t bytes_read = myread(stream->file_fd, ptr, nmemb * size);
+    return bytes_read;
 }
 
 size_t myfwrite(const void *ptr, size_t size, size_t nmemb, myFILE *stream){
@@ -59,20 +58,19 @@ size_t myfwrite(const void *ptr, size_t size, size_t nmemb, myFILE *stream){
         perror("Not the right mode for writing!");
         return -1;
     }
-    size_t start_index = open_index(stream->file_ptr);
-    size_t last_index = mywrite(stream->file_ptr, ptr, nmemb * size);
-    return last_index - start_index;
+    size_t bytes_written = mywrite(stream->file_fd, ptr, nmemb * size);
+    return bytes_written;
 }
 
 int myfseek(myFILE *stream, long offset, int whence){
     if(whence == SEEK_SET){
-        stream->pos = mylseek(stream->file_ptr, offset, SEEK_SET);
+        stream->offset = mylseek(stream->file_fd, offset, SEEK_SET);
     }else if(whence == SEEK_CUR){
-        stream->pos = mylseek(stream->file_ptr, offset, SEEK_CUR);
+        stream->offset = mylseek(stream->file_fd, offset, SEEK_CUR);
     }else if (whence == SEEK_END){
-        stream->pos = mylseek(stream->file_ptr, offset, SEEK_END);
+        stream->offset = mylseek(stream->file_fd, offset, SEEK_END);
     }
-    return stream->pos;
+    return stream->offset;
 }
 
 int myfscanf(myFILE  *stream, const char *format, ...){

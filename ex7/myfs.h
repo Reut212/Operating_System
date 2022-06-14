@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
 
 #define PATH_MAX 128
 #define BLOCKSIZE 5

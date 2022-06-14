@@ -61,10 +61,9 @@ size_t myfread(void * ptr, size_t size, size_t nmemb, myFILE * stream){
         perror("Not the right mode for reading!");
         return -1;
     }
-    int curr_offset = mylseek(stream->file_fd,0,SEEK_CUR);
     mylseek(stream->file_fd,stream->offset,SEEK_SET);
     size_t bytes_read = myread(stream->file_fd, ptr, nmemb * size);
-    stream->offset = curr_offset + bytes_read;
+    stream->offset = stream->offset + bytes_read;
     return bytes_read;
 }
 
@@ -77,11 +76,20 @@ size_t myfwrite(const void *ptr, size_t size, size_t nmemb, myFILE *stream){
         perror("Not the right mode for writing!");
         return -1;
     }
-    int curr_offset = mylseek(stream->file_fd,0,SEEK_CUR);
-    mylseek(stream->file_fd,stream->offset,SEEK_SET);
+    if (stream->modes[0] == 'w' || (stream->modes[0] == 'r' && stream->modes[1]=='+')){
+        int curr_offset = mylseek(stream->file_fd,0,SEEK_CUR);
+        mylseek(stream->file_fd,stream->offset,SEEK_SET);
+        size_t bytes_written = mywrite(stream->file_fd, ptr, nmemb * size);
+        stream->offset = curr_offset + bytes_written;
+        return bytes_written;
+    }
+    // append
+    int curr_offset = mylseek(stream->file_fd,0,SEEK_END);
+    mylseek(stream->file_fd,curr_offset,SEEK_SET);
     size_t bytes_written = mywrite(stream->file_fd, ptr, nmemb * size);
     stream->offset = curr_offset + bytes_written;
     return bytes_written;
+
 }
 
 int myfseek(myFILE *stream, long offset, int whence){

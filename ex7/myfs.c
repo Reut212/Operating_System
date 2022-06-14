@@ -310,17 +310,17 @@ off_t mylseek(int myfd, off_t offset, int whence) {
     if (whence == SEEK_SET) { // setting offset to given offset
         int how_much_bytes_to_move = (int) offset;
         myseek(index, offset, how_much_bytes_to_move);
+        return how_much_bytes_to_move;
     } else if (whence == SEEK_CUR) {
         int where_we_are = where_we_are_now(index);
         myseek(index, offset, where_we_are + (int) offset);
+        return where_we_are + (int) offset;
     } else if (whence == SEEK_END) {
         int end = calc_end(index);
         myseek(index, offset, end + (int) offset);
+        return end + (int) offset;
     }
-    if (open_f[myfd].current_offset < 0) {
-        open_f[myfd].current_offset = 0;
-    }
-    return open_f[myfd].current_offset;
+    return -1;
 }
 
 ssize_t myread(int myfd, void *buf, size_t count) {

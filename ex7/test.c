@@ -182,6 +182,8 @@ void seek_non_continuous_memory_test() {
 }
 
 void fopen_modes_test() {
+    mymkfs(10000);
+    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
     myFILE *f1 = myfopen("/home/neta/meow", "ac");
     myFILE *f2 = myfopen("/home/neta/meow", "c");
     myFILE *f3 = myfopen("/home/neta/meow", "c+");
@@ -192,6 +194,8 @@ void fopen_modes_test() {
 }
 
 void incorrect_modes_test() {
+    mymkfs(10000);
+    mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
     myFILE *f2 = myfopen("/home/neta/meow", "r"); // can't write
     char buf[100];
     int w2 = myfwrite(buf, 1, 100, f2);
@@ -269,34 +273,34 @@ void r_and_w_modes_test() {
     if (!strcmp(output, str) && w != -1 && r != -1) {
         t1 = true;
     }
-    memset(output, 0, strlen(str));
-    char *str2 = " ,THIS IS A TEST!";
-    int w2 = myfwrite(str, 1, strlen(str), write);
-    int s1 = myfseek(read, 0, SEEK_SET);
-    int r2 = myfread(output, 1, strlen(str), read);
-    if (!strcmp(output, "this is a test! ,THIS IS A TEST!") && w2 != -1 && r2 != -1 && s1 != -1) {
-        t1 = true;
-    }
-    if (t1 == true && t2 == true) {
-        printf("r and w test passed!\n");
-    }
+//    memset(output, 0, strlen(str));
+//    char *str2 = " ,THIS IS A TEST!";
+//    int w2 = myfwrite(str, 1, strlen(str), write);
+//    int s1 = myfseek(read, 0, SEEK_SET);
+//    int r2 = myfread(output, 1, strlen(str), read);
+//    if (!strcmp(output, "this is a test! ,THIS IS A TEST!") && w2 != -1 && r2 != -1 && s1 != -1) {
+//        t1 = true;
+//    }
+//    if (t1 == true && t2 == true) {
+//        printf("r and w test passed!\n");
+//    }
 }
 
 
 int main() {
-//    // PART A TESTS
-//    mount_test();
-//    closed_file_test();
-//    unopen_file_test();
-//    dir_test();
-//    read_write_test();
-//    read_write_test_non_continuous_memory_test();
-//    seek_non_continuous_memory_test();
-//
-//    // PART B TESTS
-//    fopen_modes_test();
-//    incorrect_modes_test();
-//    null_test();
-//    rplus_mode_test();
+    // PART A TESTS
+    mount_test();
+    closed_file_test();
+    unopen_file_test();
+    dir_test();
+    read_write_test();
+    read_write_test_non_continuous_memory_test();
+    seek_non_continuous_memory_test();
+
+    // PART B TESTS
+    fopen_modes_test();
+    incorrect_modes_test();
+    null_test();
+    rplus_mode_test();
     r_and_w_modes_test();
 }

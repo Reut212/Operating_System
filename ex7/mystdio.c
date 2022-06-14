@@ -5,6 +5,10 @@
 myFILE *myfopen(const char *pathname, const char *mode){
     myFILE *file = (myFILE *)malloc(sizeof(myFILE));
     int id = myopen(pathname, 0);
+    if (id == -1) {
+        perror("Problem opening file!");
+        return  NULL;
+    }
     if(strlen(mode) == 1){ //if one char accepted
         file->modes[0] = mode[0];
     }
@@ -57,8 +61,10 @@ size_t myfread(void * ptr, size_t size, size_t nmemb, myFILE * stream){
         perror("Not the right mode for reading!");
         return -1;
     }
+    int curr_offset = mylseek(stream->file_fd,0,SEEK_CUR);
     mylseek(stream->file_fd,stream->offset,SEEK_SET);
     size_t bytes_read = myread(stream->file_fd, ptr, nmemb * size);
+    stream->offset = curr_offset + bytes_read;
     return bytes_read;
 }
 
@@ -71,8 +77,10 @@ size_t myfwrite(const void *ptr, size_t size, size_t nmemb, myFILE *stream){
         perror("Not the right mode for writing!");
         return -1;
     }
+    int curr_offset = mylseek(stream->file_fd,0,SEEK_CUR);
     mylseek(stream->file_fd,stream->offset,SEEK_SET);
     size_t bytes_written = mywrite(stream->file_fd, ptr, nmemb * size);
+    stream->offset = curr_offset + bytes_written;
     return bytes_written;
 }
 

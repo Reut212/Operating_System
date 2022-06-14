@@ -260,7 +260,7 @@ void r_and_w_modes_test() {
     mymkfs(10000);
     mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
     myFILE *write = myfopen("/home/neta/meow", "w");
-    myFILE *read = myfopen("/home/neta/meow", "read");
+    myFILE *read = myfopen("/home/neta/meow", "r");
     char *str = "this is a test!";
     int w = myfwrite(str, 1, strlen(str), write);
     char output[strlen(str)*2];

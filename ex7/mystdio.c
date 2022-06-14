@@ -31,6 +31,7 @@ myFILE *myfopen(const char *pathname, const char *mode){
     else if(!strcmp(mode, "w")){ //if mode is "write"
         inodes[id].size = 0;
     }
+    file->offset=0;
     return file;
 }
 
@@ -56,6 +57,7 @@ size_t myfread(void * ptr, size_t size, size_t nmemb, myFILE * stream){
         perror("Not the right mode for reading!");
         return -1;
     }
+    mylseek(stream->file_fd,stream->offset,SEEK_SET);
     size_t bytes_read = myread(stream->file_fd, ptr, nmemb * size);
     return bytes_read;
 }
@@ -69,6 +71,7 @@ size_t myfwrite(const void *ptr, size_t size, size_t nmemb, myFILE *stream){
         perror("Not the right mode for writing!");
         return -1;
     }
+    mylseek(stream->file_fd,stream->offset,SEEK_SET);
     size_t bytes_written = mywrite(stream->file_fd, ptr, nmemb * size);
     return bytes_written;
 }

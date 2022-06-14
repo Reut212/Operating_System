@@ -35,6 +35,10 @@ myFILE *myfopen(const char *pathname, const char *mode){
 }
 
 int myfclose(myFILE *stream){
+    if (stream == NULL){
+        perror("Null pointer exception");
+        return -1;
+    }
     if(myclose(stream->file_fd) == 0){
         free(stream);
         return 0;
@@ -44,6 +48,10 @@ int myfclose(myFILE *stream){
 }
 
 size_t myfread(void * ptr, size_t size, size_t nmemb, myFILE * stream){
+    if (stream == NULL){
+        perror("Null pointer exception");
+        return -1;
+    }
     if(stream->modes[0] != 'r' || (stream->modes[0] != 'r' && stream->modes[1] != '+')){
         perror("Not the right mode for reading!");
         return -1;
@@ -53,8 +61,11 @@ size_t myfread(void * ptr, size_t size, size_t nmemb, myFILE * stream){
 }
 
 size_t myfwrite(const void *ptr, size_t size, size_t nmemb, myFILE *stream){
-    if(stream->modes[0] != 'w' && stream->modes[0] != 'a'
-        && (stream->modes[0] != 'r' && stream->modes[1] != '+')){
+    if (stream == NULL){
+        perror("Null pointer exception");
+        return -1;
+    }
+    if(stream->modes[0] != 'w' && stream->modes[0] != 'a'){
         perror("Not the right mode for writing!");
         return -1;
     }
@@ -63,6 +74,10 @@ size_t myfwrite(const void *ptr, size_t size, size_t nmemb, myFILE *stream){
 }
 
 int myfseek(myFILE *stream, long offset, int whence){
+    if (stream == NULL){
+        perror("Null pointer exception");
+        return -1;
+    }
     if(whence == SEEK_SET){
         stream->offset = mylseek(stream->file_fd, offset, SEEK_SET);
     }else if(whence == SEEK_CUR){
@@ -74,6 +89,10 @@ int myfseek(myFILE *stream, long offset, int whence){
 }
 
 int myfscanf(myFILE  *stream, const char *format, ...){
+    if (stream == NULL){
+        perror("Null pointer exception");
+        return -1;
+    }
     int format_size = (int)strlen(format);
     va_list arguments;
     float* fl=(float*)va_arg(arguments, void *);
@@ -99,6 +118,10 @@ int myfscanf(myFILE  *stream, const char *format, ...){
 }
 
 int myfprintf(myFILE  *stream, const char *format, ...){
+    if (stream == NULL){
+        perror("Null pointer exception");
+        return -1;
+    }
     int format_size = (int)strlen(format);
     va_list arguments;
     float* fl=(float*)va_arg(arguments, void *);

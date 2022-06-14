@@ -16,3 +16,4 @@ Notes:
 1. Ignore all errors in the tests - They're supposed to be there
 2. For myfscanf and myfprintf in part 2 we worked according this tutorial- as writen on exercise:
 https://www.cprogramming.com/tutorial/c/lesson17.html
+3. Got help from https://www.youtube.com/watch?v=n2AAhiujAqs&t=3432s&ab_channel=drdelhart for part A.

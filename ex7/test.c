@@ -331,13 +331,14 @@ void scanf_printf_test() {
     mymkfs(10000);
     mymount("filesystem.txt", "output.txt", NULL, 0, NULL);
     myFILE *myfd = myfopen("home/neta/meow", "w");
-    int print =myfprintf(myfd, "%c%d", 'a', 5);
+    int print =myfprintf(myfd, "%c%d%f", 'a', 5, 0.2);
     myfseek(myfd, 0, SEEK_SET);
     char c = '0';
     int n = 0;
+    float f = 0;
     myfclose(myfd);
     myfd = myfopen("home/neta/meow", "r");
-    int scan = myfscanf(myfd, "%c%d", &c, &n);
+    int scan = myfscanf(myfd, "%c%d%f", &c, &n, &f);
     myfclose(myfd);
     if (print > 0 && scan > 0){
         printf("fprintf and fscanf test passed!\n");

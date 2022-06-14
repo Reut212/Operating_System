@@ -1,14 +1,16 @@
-CC = gcc
+CC = gcc -fPIC -g -w
+OBJECTS = myfs.o mystdio.o test.o
 
-CFLAGS  = -g -Wall
+all: tests libmylibc.so
 
-all: test
+tests: test.o myfs.o  mystdio.o
+	$(CC) test.o  mystdio.o myfs.o -o tests
 
-myfs: myfs.c
-	$(CC) $(CFLAGS) -o myfs myfs.c
+libmylibc.so: $(OBJECTS)
+	$(CC) --shared -fPIC -g -pthread $(OBJECTS) -o libmylibc.so
 
-test: test.c
-	$(CC) $(CFLAGS) -o test myfs.c mystdio.c test.c
+%.o: %.c 
+	$(CC) -c $< -o $@
 
 clean:
-	rm test
+	rm -f *.o tests lib.so

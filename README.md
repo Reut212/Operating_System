@@ -1,2 +1,2 @@
 # Operating_Systems
-This repository includes projects from operating systems course
+This repository includes 5 projects from operating systems course
